@@ -1,0 +1,1 @@
+fromelf.exe -bin -o ../Output/lcs100.bin ../Object/lcs100.axf
