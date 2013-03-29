@@ -29,7 +29,12 @@ uint8_t Flag = 0;
 ** Returned value:		None
 ** 
 *****************************************************************************/
+/*
 #pragma diag_suppress=Pa082
+当一个语句中有2个以上的volatile修饰的变量的时候，编译器会出这个警告，编译器无法安排多个volatile变量的访问顺序。
+寄存器定义的时候都是有volatile修饰的。
+*/
+
 static unsigned char headfg = 0;
 
 void UART0_IRQHandler(void)

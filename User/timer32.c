@@ -450,3 +450,4 @@ void init_time(void)
   init_timer32PWM(1,TIME_INTERVAL,0x01); 
  // enable_timer32(TEST_TIMER_NUM2);
 }
+

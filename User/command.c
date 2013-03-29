@@ -20,12 +20,12 @@ extern volatile  uint32_t timer32_0_counter;
 void App_Command(void)//各个命令分解
 {      
     uint32_t value=0;
-	uint8_t Command;
+		uint8_t Command;
     uint32_t CRC16_value=0;
     uint8_t Light_Status=0x30;
     uint8_t temp_buf[20];
     Command=Data_Buf[7];
-	Command=Command&0x7F;            
+		Command=Command&0x7F;            
  	if(Command==0x07)//调光命令
 	{
 

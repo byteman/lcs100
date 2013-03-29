@@ -768,7 +768,7 @@ static __INLINE uint32_t SysTick_Config(uint32_t ticks)
 static __INLINE void NVIC_SystemReset(void)
 {
   SCB->AIRCR  = (NVIC_AIRCR_VECTKEY | (1<<NVIC_SYSRESETREQ));                          /* Keep priority group unchanged */
-  asm("DSB");
+  __DSB();                                                                             /* Ensure completion of memory access */              
   while(1);                                                                            /* wait until reset */
 }
 

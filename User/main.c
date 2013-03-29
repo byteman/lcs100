@@ -1,9 +1,9 @@
 /***************************重庆星河光电***********************************/
+#include <stdio.h>
 #include "LPC11xx.h"
 #include "uart.h"
 #include "24C02.h"
 #include "timer32.h"
-#include <stdio.h>
 #include "string.h"
 #include "Application.h"
 #include "CRC16_1.h"
@@ -64,43 +64,46 @@ int main (void)
 void Setup_Read(void)
 {       
     uint8_t i,b_rate;
-	memset(wrbuf,0,100);
-	m24xx_read(EEPROM_24XX02,7,0,wrbuf,40); //从地址0x07处开始读出40个数字到rebuf
+		memset(wrbuf,0,100);
+		m24xx_read(EEPROM_24XX02,7,0,wrbuf,40); //从地址0x07处开始读出40个数字到rebuf
 //版本信息[0,1,2]
-	if(wrbuf[0]==0xff&wrbuf[1]==0xff&wrbuf[2]==0xff)
-	{
-	}
-	else
-		memcpy(Version,wrbuf,3);
+		if(wrbuf[0]==0xff&wrbuf[1]==0xff&wrbuf[2]==0xff)
+		{
+			
+		}
+		else
+			memcpy(Version,wrbuf,3);
 //Terminal ID [3-6]	
-	if(wrbuf[3]==0xff&wrbuf[4]==0xff&wrbuf[5]==0xff&wrbuf[6]==0xff)
-	{
-	}
-	else
-		memcpy(Terminal_ID,&wrbuf[3],4);
+		if(wrbuf[3]==0xff&wrbuf[4]==0xff&wrbuf[5]==0xff&wrbuf[6]==0xff)
+		{
+		}
+		else
+			memcpy(Terminal_ID,&wrbuf[3],4);
 
 //占空比[8]	
-	if(wrbuf[8]==0xff)
+		if(wrbuf[8]==0xff)
     {
 	    Duty_Time=100;
 	    init_timer32PWM(1,TIME_INTERVAL,0x01);
     }
     else
-	{
+		{
         Duty_Time=wrbuf[8];
-		init_timer32PWM(1,TIME_INTERVAL,0x01);
+				init_timer32PWM(1,TIME_INTERVAL,0x01);
     }
 
 //group num	
     group_number=wrbuf[10];
 //brate        
     if(wrbuf[14]==0xff)
-    {Brate=19200;}
+    {
+			Brate=19200;
+		}
     else
     {
         b_rate=wrbuf[14];
             
-   		switch(b_rate)
+				switch(b_rate)
         {
           case 0: Brate=2400; break;
           case 1: Brate=4800; break;
@@ -111,13 +114,13 @@ void Setup_Read(void)
           case 6: Brate=56000; break;
           case 7: Brate=57600; break;
           default : Brate=19200; break;
-          }  
+        }  
     }
         
-        memset(wrbuf,0,100);
+    memset(wrbuf,0,100);
   //场景值[50,71]      
-        m24xx_read(EEPROM_24XX02,50,0,wrbuf,21);
-        for(i=0;i<10;i++)
+		m24xx_read(EEPROM_24XX02,50,0,wrbuf,21);
+		for(i=0;i<10;i++)
 		{
 			if(i<10)
 			{
@@ -140,4 +143,9 @@ void Setup_Read(void)
 				else   pwmtimer=wrbuf[20];
 			}
 		} 
- }
+}
+
+
+ 
+/////
+ 

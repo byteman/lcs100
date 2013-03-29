@@ -83,3 +83,4 @@ uint8_t SPI0_ReceiveByte (void)
    while( LPC_SSP0->SR & (1 << 2) == 0x00); 
    return (uint8_t)(LPC_SSP0->DR);										/* 返回接收到的数据 			*/
 }
+
