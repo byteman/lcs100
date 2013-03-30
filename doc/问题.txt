@@ -1,0 +1,11 @@
+1.SYSMEMREMAP 寄存器 设置的多少?
+2.读取器件ID寄存器中的值可以知道具体的器件ID
+3.可以测量CLKOUT引脚，来测量各个信号的具体时钟是多少?
+4.好像没有启用外部的晶振和PLL，使用的是内部12M的IRC ，
+答：启用了
+
+5.需要计算uart的实际分频数和波特率
+
+Fdiv = ((SystemAHBFrequency/regVal)/16)/baudrate ;	/*baud rate */
+
+6.FCR=0x87 : enable tx,rx fifo 并且设置了中断触发字节为8字节

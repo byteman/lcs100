@@ -5,7 +5,7 @@
 #include "uart.h"
 #include "Type.h"
 #include "string.h"
-
+#include "tinyfifo.h"
 volatile uint32_t UARTStatus;
 volatile uint8_t  UARTTxEmpty = 1;
 uint8_t  UARTBuffer[BUFSIZE];
@@ -13,6 +13,9 @@ volatile uint32_t UARTCount = 0;
 //uint8_t  Flag_Setup =FALSE;
 
 uint8_t  TempBuffer[BUFSIZE];
+
+uint8_t  rxChar = 0;
+
 uint32_t UARTRxLength = 0;
 uint8_t  Flag_Uart_Rx =FALSE;     
 
@@ -37,13 +40,16 @@ uint8_t Flag = 0;
 
 static unsigned char headfg = 0;
 
-void UART0_IRQHandler(void)
+void UART_IRQHandler(void)
 { 
 	
 	while ((LPC_UART->IIR & 0x01) == 0)
 	{
 		while ((LPC_UART->LSR & 0x01) == 0x01)
 		{
+			rxChar = LPC_UART->RBR;
+			tinyFifoPutc(rxChar);
+		#if 0
 			if(headfg == 0)
 			{
 
@@ -93,8 +99,11 @@ void UART0_IRQHandler(void)
 				}
 
 			}
+			UARTBuffer[0] = LPC_UART->RBR;
+			#endif
 
 		} 
+		
 	}
 
 }
@@ -150,6 +159,7 @@ void UARTInit(uint32_t baudrate)
 	  UARTCount = 0;
 	  headfg = 0;
 	  Flag_Uart_Rx = 0;
+
 	  NVIC_DisableIRQ(UART_IRQn);
        
 	  LPC_IOCON->PIO1_6 &= ~0x07;	 /*  UART I/O config */
@@ -157,7 +167,7 @@ void UARTInit(uint32_t baudrate)
 	  LPC_IOCON->PIO1_7 &= ~0x07;	
 	  LPC_IOCON->PIO1_7 |= 0x01;	 /* UART TXD */
 	
-	  /* Enable UART clock */
+	  /* Enable UART clock 使能UART时钟之前必须将UART管脚配置好*/
 	  LPC_SYSCON->SYSAHBCLKCTRL |= (1<<12);
 	  LPC_SYSCON->UARTCLKDIV = 0x1; 	/* divided by 1 */
 	

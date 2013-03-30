@@ -10,7 +10,8 @@
 #include "CS5463.h"
 #include "gpio.h"
 #include "wdt.h"
-
+#include "tinyfifo.h"
+#include "byprotocol.h"
 //****************************************************************************
 void Setup_Read(void);
 extern uint8_t Version[3]={0x01,0x00,0x00};
@@ -20,14 +21,14 @@ uint8_t group_number=0xFF;
 uint8_t wrbuf[100]; //write//read
 uint8_t Terminal_ID[4]={0x00,0x00,0x00,0x01};//终端ID
 uint32_t Brate=19200;  //默认波特率
-
-
+unsigned char* pkt = NULL;
+unsigned int pktLen = 0;
  
 
 /*****************************主函数*******************************************/
 
 
-
+static u8 rxChar;
 int main (void)
 {   
 	SystemInit();
@@ -37,11 +38,34 @@ int main (void)
 	GPIOInit(); 
 	CS5463_Init();
 	i2c_lpc_init(0);	
-	Setup_Read();
-
+	//Setup_Read();
+	Delay1_MS(1000);
+	UARTSend(Terminal_ID,4);
 	while (1) 
 	{	
 
+		 if(!tinyFifoEmpty())
+		 {
+				if(tinyFifoGetc(&rxChar) == 0) //get data ok;
+				{
+					//UARTSend(&rxChar,1);
+					//printf("0x%0x\r\n",rxChar);
+					if(parseChar(rxChar))
+					{
+						pkt = readPacket(&pktLen);
+						if(pkt && (pktLen < Data_Len)) 
+						{
+							memcpy(Data_Buf+2,pkt,pktLen);
+							if((Terminal_ID[0]==Data_Buf[2])&&(Terminal_ID[1]==Data_Buf[3])&&(Terminal_ID[2]==Data_Buf[4])&&(Terminal_ID[3]==Data_Buf[5]))
+							{ 
+								App_Command(); 
+							}
+						}
+					} 
+				}
+				
+		 }
+		#if 0		 
 		if(Flag_Uart_Rx == TRUE)
 		{   
 			Flag_Uart_Rx=FALSE;       
@@ -56,6 +80,7 @@ int main (void)
 			}
 
 		}   
+		#endif
 
 	//              WDTFeed();          
 
@@ -63,7 +88,7 @@ int main (void)
  }
 void Setup_Read(void)
 {       
-    uint8_t i,b_rate;
+    	uint8_t i,b_rate;
 		memset(wrbuf,0,100);
 		m24xx_read(EEPROM_24XX02,7,0,wrbuf,40); //从地址0x07处开始读出40个数字到rebuf
 //版本信息[0,1,2]

@@ -48,7 +48,6 @@
 
 void ModemInit( void );
 void UARTInit(uint32_t Baudrate);
-void UART0_IRQHandler(void);
 void UARTSend(uint8_t *BufferPtr, uint32_t Length);
 //==============================================
 extern uint8_t  UARTBuffer[BUFSIZE];

@@ -89,8 +89,8 @@
  *----------------------------------------------------------------------------*/
 
 
-#define XTAL        (12000000UL)        /* Oscillator frequency   (11059200UL)            */
-//#define XTAL		(11059200UL)		/* Oscillator frequency 			  */
+//#define XTAL        (12000000UL)        /* Oscillator frequency   (11059200UL)            */
+#define XTAL		(11059200UL)		/* Oscillator frequency 			  */
 #define OSC_CLK     (      XTAL)        /* Main oscillator frequency          */
 
 #define IRC_OSC		(12000000UL)		/* Oscillator frequency 			  */

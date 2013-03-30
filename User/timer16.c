@@ -72,7 +72,7 @@ void delayMs(uint8_t timer_num, uint32_t delayInMs)
 ** Returned value:		None
 ** 
 ******************************************************************************/
-void CT16B0_IRQHandler(void)
+void TIMER16_0_IRQHandler(void)
 {  
   if ( LPC_TMR16B0->IR & 0x1 )
   {
@@ -97,7 +97,7 @@ void CT16B0_IRQHandler(void)
 ** Returned value:		None
 ** 
 ******************************************************************************/
-void CT16B1_IRQHandler(void)
+void TIMER16_1_IRQHandler(void)
 {
   if ( LPC_TMR16B1->IR & 0x1 )
   {  

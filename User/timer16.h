@@ -33,8 +33,6 @@
 //10mSec = 150.000-1 counts */
 
 void delayMs(uint8_t timer_num, uint32_t delayInMs);
-void CT16B0_IRQHandler(void);
-void CT16B1_IRQHandler(void);
 void enable_timer16(uint8_t timer_num);
 void disable_timer16(uint8_t timer_num);
 void reset_timer16(uint8_t timer_num);

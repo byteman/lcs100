@@ -41,8 +41,6 @@ extern uint32_t Delay_timer_counter;
 
 
 void delay32Ms(uint8_t timer_num, uint32_t delayInMs);
-void CT32B0_IRQHandler(void);
-void CT32B1_IRQHandler(void);
 void enable_timer32(uint8_t timer_num);
 void disable_timer32(uint8_t timer_num);
 void reset_timer32(uint8_t timer_num);

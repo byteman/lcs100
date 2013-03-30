@@ -130,7 +130,7 @@
           <Target>
             <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>0</RunToMain>
+            <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
             <RestoreWatchpoints>1</RestoreWatchpoints>
             <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
@@ -467,6 +467,16 @@
               <FileName>system_LPC11xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\system_LPC11xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>TinyFifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\TinyFifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>ByProtocol.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\ByProtocol.c</FilePath>
             </File>
           </Files>
         </Group>
