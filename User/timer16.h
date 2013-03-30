@@ -8,7 +8,7 @@
  *   2008.08.20  ver 1.00    Prelimnary version, first Release
  *
 ******************************************************************************/
-#ifndef __TIMER16_H 
+#ifndef __TIMER16_H
 #define __TIMER16_H
 
 /* The test is either MAT_OUT or CAP_IN. Default is MAT_OUT. */
@@ -28,8 +28,8 @@
 ///* For 16-bit timer, make sure that TIME_INTERVAL should be no
 //greater than 0xFFFF. */
 // #define TIME_INTERVAL	(SystemAHBFrequency/1000 - 1)
-///* depending on the SystemFrequency and SystemAHBFrequency setting, 
-//if SystemFrequency = 60Mhz, SystemAHBFrequency = 1/4 SystemAHBFrequency, 
+///* depending on the SystemFrequency and SystemAHBFrequency setting,
+//if SystemFrequency = 60Mhz, SystemAHBFrequency = 1/4 SystemAHBFrequency,
 //10mSec = 150.000-1 counts */
 
 void delayMs(uint8_t timer_num, uint32_t delayInMs);

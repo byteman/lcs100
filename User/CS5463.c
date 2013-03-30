@@ -13,19 +13,19 @@
 *******************************************************************************/
 void Delay_MS(uint32_t ulTime)
 {
-  uint32_t i = 0;
-  while (ulTime--) 
-  {
-	 for (i = 0; i < 5000; i++);
-  }
+    uint32_t i = 0;
+    while (ulTime--)
+    {
+        for (i = 0; i < 5000; i++);
+    }
 }
 void Delay_US(uint32_t ulTime)
 {
-  uint32_t i = 0;
-  while (ulTime--) 
-  {
-	 for (i = 0; i < 5; i++);
-  }
+    uint32_t i = 0;
+    while (ulTime--)
+    {
+        for (i = 0; i < 5; i++);
+    }
 }
 
 
@@ -46,24 +46,24 @@ void Delay_US(uint32_t ulTime)
 *******************************************************************************/
 void CS5463_Reset(void)
 {
-  uint8_t i=0;
-  CS5463CS_Low();
-  CS5463_Reset_H();
-  Delay_US(100);
-  CS5463_Reset_L();
-  Delay_US(500);
-  CS5463_Reset_H();
-  CS5463CS_High();
-  Delay_US(100);
-  CS5463CS_Low();
-  Delay_US(100);
-  //向SPI总线发送无用数据以在CS上产生下降沿。
-  Delay_MS(1);
-  for(i=0;i<5;i++)
-  {
-	SPI0_SendByte(0xFF);
-  }
-  SPI0_SendByte(0xFE);
+    uint8_t i=0;
+    CS5463CS_Low();
+    CS5463_Reset_H();
+    Delay_US(100);
+    CS5463_Reset_L();
+    Delay_US(500);
+    CS5463_Reset_H();
+    CS5463CS_High();
+    Delay_US(100);
+    CS5463CS_Low();
+    Delay_US(100);
+    //向SPI总线发送无用数据以在CS上产生下降沿。
+    Delay_MS(1);
+    for(i=0; i<5; i++)
+    {
+        SPI0_SendByte(0xFF);
+    }
+    SPI0_SendByte(0xFE);
 }
 /*******************************************************************************
 函数名	 ： CS5463_Init
@@ -85,116 +85,116 @@ void CS5463_Reset(void)
 *******************************************************************************/
 void CS5463_Init(void)
 {
-  CS5463_Reset();
-  #if 0
-  //写配置寄存器，设定K=1等功能。
-  SPI0_SendByte(0x40); 
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x01);
-  Delay_MS(1);
-  //写操作模式寄存器，激活自动在线频率测量等功能。
-  SPI0_SendByte(0x64);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x61);
-  Delay_MS(1);
-  //=========================
-  SPI0_SendByte(0x42);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  SPI0_SendByte(0x46);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  SPI0_SendByte(0x4C);
-  SPI0_SendByte(0x80);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  SPI0_SendByte(0x44);
-  SPI0_SendByte(0x20);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  SPI0_SendByte(0x48);
-  SPI0_SendByte(0x10);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  SPI0_SendByte(0x60);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  SPI0_SendByte(0x62);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  SPI0_SendByte(0x5c);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  //写状态寄存器，消除状态寄存器DRDY位等功能。
-  SPI0_SendByte(0x5e);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x01);
-  Delay_MS(1);
-  //写屏蔽计数寄存器，不激活INT脚
-  SPI0_SendByte(0x74);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(1);
-  //写周期计数寄存器，设定N=4000.
-  SPI0_SendByte(0x4a);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x01);
-  SPI0_SendByte(0x90);
-  Delay_MS(1);
-  #endif
-  //写状态寄存器，消除状态寄存器DRDY位等功能。
-  SPI0_SendByte(0x5e);
-  SPI0_SendByte(0x80);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(10);
-  //写配置寄存器，设定K=1等功能。
-  SPI0_SendByte(0x40);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);                                 
-  SPI0_SendByte(0x01);
-  Delay_MS(10);
-  //写周期计数寄存器，设定N=4000.
-  SPI0_SendByte(0x4a);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x0F);
-  SPI0_SendByte(0xA0);
-  Delay_MS(10);
-  //写屏蔽计数寄存器，不激活INT脚
-  SPI0_SendByte(0x74);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x00);
-  Delay_MS(10);
-  //写操作模式寄存器，激活自动在线频率测量等功能。
-  SPI0_SendByte(0x64);
-  SPI0_SendByte(0x80);
-  SPI0_SendByte(0x00);
-  SPI0_SendByte(0x01);
-  Delay_MS(10);
-  //校验
-  //SPI0_SendByte(0xa0);
-  //SPI0_SendByte(0xd6);
-  //启动转换
-  SPI0_SendByte(0xe8);	
-   Delay_MS(100);
+    CS5463_Reset();
+#if 0
+    //写配置寄存器，设定K=1等功能。
+    SPI0_SendByte(0x40);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x01);
+    Delay_MS(1);
+    //写操作模式寄存器，激活自动在线频率测量等功能。
+    SPI0_SendByte(0x64);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x61);
+    Delay_MS(1);
+    //=========================
+    SPI0_SendByte(0x42);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    SPI0_SendByte(0x46);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    SPI0_SendByte(0x4C);
+    SPI0_SendByte(0x80);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    SPI0_SendByte(0x44);
+    SPI0_SendByte(0x20);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    SPI0_SendByte(0x48);
+    SPI0_SendByte(0x10);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    SPI0_SendByte(0x60);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    SPI0_SendByte(0x62);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    SPI0_SendByte(0x5c);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    //写状态寄存器，消除状态寄存器DRDY位等功能。
+    SPI0_SendByte(0x5e);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x01);
+    Delay_MS(1);
+    //写屏蔽计数寄存器，不激活INT脚
+    SPI0_SendByte(0x74);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(1);
+    //写周期计数寄存器，设定N=4000.
+    SPI0_SendByte(0x4a);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x01);
+    SPI0_SendByte(0x90);
+    Delay_MS(1);
+#endif
+    //写状态寄存器，消除状态寄存器DRDY位等功能。
+    SPI0_SendByte(0x5e);
+    SPI0_SendByte(0x80);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(10);
+    //写配置寄存器，设定K=1等功能。
+    SPI0_SendByte(0x40);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x01);
+    Delay_MS(10);
+    //写周期计数寄存器，设定N=4000.
+    SPI0_SendByte(0x4a);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x0F);
+    SPI0_SendByte(0xA0);
+    Delay_MS(10);
+    //写屏蔽计数寄存器，不激活INT脚
+    SPI0_SendByte(0x74);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x00);
+    Delay_MS(10);
+    //写操作模式寄存器，激活自动在线频率测量等功能。
+    SPI0_SendByte(0x64);
+    SPI0_SendByte(0x80);
+    SPI0_SendByte(0x00);
+    SPI0_SendByte(0x01);
+    Delay_MS(10);
+    //校验
+    //SPI0_SendByte(0xa0);
+    //SPI0_SendByte(0xd6);
+    //启动转换
+    SPI0_SendByte(0xe8);
+    Delay_MS(100);
 }
 /*******************************************************************************
 函数名	 ： CS5463_ReadData
@@ -205,147 +205,147 @@ void CS5463_Init(void)
 返回值	 ： 无
 *******************************************************************************/
 uint32_t CS5463_ReadData(uint8_t RegAdd)
-	{
-	  uint8_t data1,data2,data3;
-	  uint32_t value;
-          SPI0_SendByte(RegAdd);//Delay_US(1);
-	  data1=SPI0_ReceiveByte();//Delay_US(1);
-	  data2=SPI0_ReceiveByte();//Delay_US(1);
-	  data3=SPI0_ReceiveByte();//Delay_US(1);
-          value=(data1<<16)+(data2<<8)+data3;
-          return(value);
-	}
+{
+    uint8_t data1,data2,data3;
+    uint32_t value;
+    SPI0_SendByte(RegAdd);//Delay_US(1);
+    data1=SPI0_ReceiveByte();//Delay_US(1);
+    data2=SPI0_ReceiveByte();//Delay_US(1);
+    data3=SPI0_ReceiveByte();//Delay_US(1);
+    value=(data1<<16)+(data2<<8)+data3;
+    return(value);
+}
 
 uint32_t Measuring_220V(void)//测量电压
 {
-	uint32_t Temp_220V=0;
+    uint32_t Temp_220V=0;
 //	uint32_t CRC16_value=0;
-	uint32_t value=0;
-        uint32_t AC220V_value=0;
-	uint8_t i=0;
-        CS5463_ReadData(0x18);
-	Delay_MS(10);
-        CS5463_ReadData(0x18);
-	Delay_MS(10);
-	for(i=0;i<10;i++)
-		{
-		 Temp_220V=CS5463_ReadData(0x18);
-		if(Temp_220V<6000000)
-			{
-			AC220V_value=(Temp_220V*150)/6000000;
-			}
-		else
-			{
-			AC220V_value=(Temp_220V*200)/7600000;
-			}
-		value+=AC220V_value;
-		Delay_MS(10);
-		}      
-	value=value/10;
-        return(value);
+    uint32_t value=0;
+    uint32_t AC220V_value=0;
+    uint8_t i=0;
+    CS5463_ReadData(0x18);
+    Delay_MS(10);
+    CS5463_ReadData(0x18);
+    Delay_MS(10);
+    for(i=0; i<10; i++)
+    {
+        Temp_220V=CS5463_ReadData(0x18);
+        if(Temp_220V<6000000)
+        {
+            AC220V_value=(Temp_220V*150)/6000000;
+        }
+        else
+        {
+            AC220V_value=(Temp_220V*200)/7600000;
+        }
+        value+=AC220V_value;
+        Delay_MS(10);
+    }
+    value=value/10;
+    return(value);
 }
 uint32_t Measuring_AC(void)//测量电流
-	{
-		uint32_t Temp_220V=0;
-//		uint32_t CRC16_value=0;
-		uint32_t AC220V_value=0;
-                uint32_t value=0;
-		uint8_t i=0;
-
-		CS5463_ReadData(0x16);
-		Delay_MS(10);
-		CS5463_ReadData(0x16);
-		Delay_MS(10);
-		for(i=0;i<10;i++)
-			{
-			Temp_220V=CS5463_ReadData(0x16);
-                      
-                        if(Temp_220V<270000)
-				{
-				AC220V_value=(Temp_220V*100)/300000;
-				}
-                        else if(Temp_220V<=290000&&Temp_220V>=270000)
-                               {
-                                 AC220V_value=(Temp_220V*200)/300000;
-                               }
-                        else if(Temp_220V<=330000&&Temp_220V>290000)
-                              {
-                                AC220V_value=(Temp_220V*300)/330000;
-                              }
-                        else if(Temp_220V<=360000&&Temp_220V>330000)
-                              {
-                                AC220V_value=(Temp_220V*400)/380000;
-                              }
-			else
-                              {
-				AC220V_value=(Temp_220V*500)/430000;
-                              }
-			value+=AC220V_value;
-			Delay_MS(10);
-		        }
-                value=value/10;
-                return(value);
-
-	} 
-uint32_t Measuring_Pactive(void) //测量有功功率
- {
-	uint32_t Temp_220V=0;
-//	uint32_t CRC16_value=0;
-	uint32_t value=0;
-        uint32_t AC220V_value=0;
-	uint8_t i=0;
-        CS5463_ReadData(0x14);
-	Delay_MS(10);
-        CS5463_ReadData(0x14);
-	Delay_MS(10);
-	for(i=0;i<10;i++)
-		{
-		 Temp_220V=CS5463_ReadData(0x14);
-                 Temp_220V=(~Temp_220V&0xFFFFFF)+1;                                                                                                                           
-		if(Temp_220V<6000)
-			{
-			AC220V_value=(Temp_220V*100)/47000;
-			}
-		else
-			{
-			AC220V_value=((Temp_220V-6000)*1000)/60000+30; 
-			}
-		value+=AC220V_value;
-		Delay_MS(10);
-                }
-        value=value/10;
-        return(value);
-}
-                   
- uint32_t  Light_Measuring_220AV(void)//查询灯状态
 {
-	uint32_t Temp_220V=0;
+    uint32_t Temp_220V=0;
+//		uint32_t CRC16_value=0;
+    uint32_t AC220V_value=0;
+    uint32_t value=0;
+    uint8_t i=0;
+
+    CS5463_ReadData(0x16);
+    Delay_MS(10);
+    CS5463_ReadData(0x16);
+    Delay_MS(10);
+    for(i=0; i<10; i++)
+    {
+        Temp_220V=CS5463_ReadData(0x16);
+
+        if(Temp_220V<270000)
+        {
+            AC220V_value=(Temp_220V*100)/300000;
+        }
+        else if(Temp_220V<=290000&&Temp_220V>=270000)
+        {
+            AC220V_value=(Temp_220V*200)/300000;
+        }
+        else if(Temp_220V<=330000&&Temp_220V>290000)
+        {
+            AC220V_value=(Temp_220V*300)/330000;
+        }
+        else if(Temp_220V<=360000&&Temp_220V>330000)
+        {
+            AC220V_value=(Temp_220V*400)/380000;
+        }
+        else
+        {
+            AC220V_value=(Temp_220V*500)/430000;
+        }
+        value+=AC220V_value;
+        Delay_MS(10);
+    }
+    value=value/10;
+    return(value);
+
+}
+uint32_t Measuring_Pactive(void) //测量有功功率
+{
+    uint32_t Temp_220V=0;
 //	uint32_t CRC16_value=0;
-	uint32_t value=0;
-        uint32_t AC220V_value=0;
-	uint8_t i=0;
-        CS5463_ReadData(0x14);
-	Delay_MS(10);
-        CS5463_ReadData(0x14);
-	Delay_MS(10);
-	for(i=0;i<10;i++)
-		{
-		 Temp_220V=CS5463_ReadData(0x14);
-                 Temp_220V=(~Temp_220V&0xFFFFFF)+1;                                                                                                                           
-		if(Temp_220V<6000)
-			{
-			AC220V_value=(Temp_220V*100)/47000;
-			}
-		else
-			{
-			AC220V_value=((Temp_220V-6000)*1000)/60000+30; 
-			}
-		value+=AC220V_value;
-		Delay_MS(10);
-                }
-        value=value/10;
-        return(value);
-} 
+    uint32_t value=0;
+    uint32_t AC220V_value=0;
+    uint8_t i=0;
+    CS5463_ReadData(0x14);
+    Delay_MS(10);
+    CS5463_ReadData(0x14);
+    Delay_MS(10);
+    for(i=0; i<10; i++)
+    {
+        Temp_220V=CS5463_ReadData(0x14);
+        Temp_220V=(~Temp_220V&0xFFFFFF)+1;
+        if(Temp_220V<6000)
+        {
+            AC220V_value=(Temp_220V*100)/47000;
+        }
+        else
+        {
+            AC220V_value=((Temp_220V-6000)*1000)/60000+30;
+        }
+        value+=AC220V_value;
+        Delay_MS(10);
+    }
+    value=value/10;
+    return(value);
+}
+
+uint32_t  Light_Measuring_220AV(void)//查询灯状态
+{
+    uint32_t Temp_220V=0;
+//	uint32_t CRC16_value=0;
+    uint32_t value=0;
+    uint32_t AC220V_value=0;
+    uint8_t i=0;
+    CS5463_ReadData(0x14);
+    Delay_MS(10);
+    CS5463_ReadData(0x14);
+    Delay_MS(10);
+    for(i=0; i<10; i++)
+    {
+        Temp_220V=CS5463_ReadData(0x14);
+        Temp_220V=(~Temp_220V&0xFFFFFF)+1;
+        if(Temp_220V<6000)
+        {
+            AC220V_value=(Temp_220V*100)/47000;
+        }
+        else
+        {
+            AC220V_value=((Temp_220V-6000)*1000)/60000+30;
+        }
+        value+=AC220V_value;
+        Delay_MS(10);
+    }
+    value=value/10;
+    return(value);
+}
 
 
 

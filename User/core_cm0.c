@@ -26,17 +26,17 @@
 
 /* define compiler specific symbols */
 #if defined ( __CC_ARM   )
-  #define __ASM            __asm           /*!< asm keyword for armcc          */
-  #define __INLINE         __inline        /*!< inline keyword for armcc        */
+#define __ASM            __asm           /*!< asm keyword for armcc          */
+#define __INLINE         __inline        /*!< inline keyword for armcc        */
 
 #elif defined ( __ICCARM__ )
-  #define __ASM           __asm            /*!< asm keyword for iarcc           */
-  #define __INLINE        inline           /*!< inline keyword for iarcc. Only avaiable in High optimization mode! */
-  #define __nop           __no_operation   /*!< no operation intrinsic in iarcc */
+#define __ASM           __asm            /*!< asm keyword for iarcc           */
+#define __INLINE        inline           /*!< inline keyword for iarcc. Only avaiable in High optimization mode! */
+#define __nop           __no_operation   /*!< no operation intrinsic in iarcc */
 
 #elif defined   (  __GNUC__  )
-  #define __ASM             asm            /*!< asm keyword for gcc            */
-  #define __INLINE          inline         /*!< inline keyword for gcc         */
+#define __ASM             asm            /*!< asm keyword for gcc            */
+#define __INLINE          inline         /*!< inline keyword for gcc         */
 #endif
 
 
@@ -56,8 +56,8 @@
  */
 __ASM uint32_t __get_PSP(void)
 {
-  mrs r0, psp
-  bx lr
+    mrs r0, psp
+    bx lr
 }
 
 
@@ -72,8 +72,8 @@ __ASM uint32_t __get_PSP(void)
  */
 __ASM void __set_PSP(uint32_t topOfProcStack)
 {
-  msr psp, r0
-  bx lr
+    msr psp, r0
+    bx lr
 }
 
 
@@ -88,8 +88,8 @@ __ASM void __set_PSP(uint32_t topOfProcStack)
  */
 __ASM uint32_t __get_MSP(void)
 {
-  mrs r0, msp
-  bx lr
+    mrs r0, msp
+    bx lr
 }
 
 
@@ -104,8 +104,8 @@ __ASM uint32_t __get_MSP(void)
  */
 __ASM void __set_MSP(uint32_t mainStackPointer)
 {
-  msr msp, r0
-  bx lr
+    msr msp, r0
+    bx lr
 }
 
 
@@ -119,8 +119,8 @@ __ASM void __set_MSP(uint32_t mainStackPointer)
  */
 __ASM uint32_t  __get_BASEPRI(void)
 {
-  mrs r0, basepri
-  bx lr
+    mrs r0, basepri
+    bx lr
 }
 
 
@@ -134,8 +134,8 @@ __ASM uint32_t  __get_BASEPRI(void)
  */
 __ASM void __set_BASEPRI(uint32_t basePri)
 {
-  msr basepri, r0
-  bx lr
+    msr basepri, r0
+    bx lr
 }
 
 
@@ -150,8 +150,8 @@ __ASM void __set_BASEPRI(uint32_t basePri)
  */
 __ASM uint32_t __get_PRIMASK(void)
 {
-  mrs r0, primask
-  bx lr
+    mrs r0, primask
+    bx lr
 }
 
 
@@ -165,8 +165,8 @@ __ASM uint32_t __get_PRIMASK(void)
  */
 __ASM void __set_PRIMASK(uint32_t priMask)
 {
-  msr primask, r0
-  bx lr
+    msr primask, r0
+    bx lr
 }
 
 
@@ -180,8 +180,8 @@ __ASM void __set_PRIMASK(uint32_t priMask)
  */
 __ASM uint32_t  __get_FAULTMASK(void)
 {
-  mrs r0, faultmask
-  bx lr
+    mrs r0, faultmask
+    bx lr
 }
 
 
@@ -195,8 +195,8 @@ __ASM uint32_t  __get_FAULTMASK(void)
  */
 __ASM void __set_FAULTMASK(uint32_t faultMask)
 {
-  msr faultmask, r0
-  bx lr
+    msr faultmask, r0
+    bx lr
 }
 
 
@@ -210,8 +210,8 @@ __ASM void __set_FAULTMASK(uint32_t faultMask)
  */
 __ASM uint32_t  __get_CONTROL(void)
 {
-  mrs r0, control
-  bx lr
+    mrs r0, control
+    bx lr
 }
 
 /**
@@ -224,8 +224,8 @@ __ASM uint32_t  __get_CONTROL(void)
  */
 __ASM void __set_CONTROL(uint32_t control)
 {
-  msr control, r0
-  bx lr
+    msr control, r0
+    bx lr
 }
 
 
@@ -239,8 +239,8 @@ __ASM void __set_CONTROL(uint32_t control)
  */
 __ASM uint32_t __REV16(uint16_t value)
 {
-  rev16 r0, r0
-  bx lr
+    rev16 r0, r0
+    bx lr
 }
 
 
@@ -254,8 +254,8 @@ __ASM uint32_t __REV16(uint16_t value)
  */
 __ASM int32_t __REVSH(int16_t value)
 {
-  revsh r0, r0
-  bx lr
+    revsh r0, r0
+    bx lr
 }
 
 
@@ -274,8 +274,8 @@ __ASM int32_t __REVSH(int16_t value)
  */
 uint32_t __get_PSP(void)
 {
-  __ASM("mrs r0, psp");
-  __ASM("bx lr");
+    __ASM("mrs r0, psp");
+    __ASM("bx lr");
 }
 
 /**
@@ -289,8 +289,8 @@ uint32_t __get_PSP(void)
  */
 void __set_PSP(uint32_t topOfProcStack)
 {
-  __ASM("msr psp, r0");
-  __ASM("bx lr");
+    __ASM("msr psp, r0");
+    __ASM("bx lr");
 }
 
 /**
@@ -304,8 +304,8 @@ void __set_PSP(uint32_t topOfProcStack)
  */
 uint32_t __get_MSP(void)
 {
-  __ASM("mrs r0, msp");
-  __ASM("bx lr");
+    __ASM("mrs r0, msp");
+    __ASM("bx lr");
 }
 
 /**
@@ -319,8 +319,8 @@ uint32_t __get_MSP(void)
  */
 void __set_MSP(uint32_t topOfMainStack)
 {
-  __ASM("msr msp, r0");
-  __ASM("bx lr");
+    __ASM("msr msp, r0");
+    __ASM("bx lr");
 }
 
 
@@ -334,8 +334,8 @@ void __set_MSP(uint32_t topOfMainStack)
  */
 uint32_t __REV16(uint16_t value)
 {
-  __ASM("rev16 r0, r0");
-  __ASM("bx lr");
+    __ASM("rev16 r0, r0");
+    __ASM("bx lr");
 }
 
 #pragma diag_default=Pe940
@@ -353,9 +353,9 @@ uint32_t __REV16(uint16_t value)
  */
 uint32_t __get_CONTROL(void)
 {
-  uint32_t result=0;
-  __ASM volatile ("MRS %0, control" : "=r" (result) );
-  return(result);
+    uint32_t result=0;
+__ASM volatile ("MRS %0, control" : "=r" (result) );
+    return(result);
 }
 
 /**
@@ -368,7 +368,7 @@ uint32_t __get_CONTROL(void)
  */
 void __set_CONTROL(uint32_t control)
 {
-  __ASM volatile ("MSR control, %0" : : "r" (control) );
+__ASM volatile ("MSR control, %0" : : "r" (control) );
 }
 
 /**
@@ -381,10 +381,10 @@ void __set_CONTROL(uint32_t control)
  */
 uint32_t __get_PSP(void)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-  __ASM volatile ("MRS %0, psp" : "=r" (result) );
-  return(result);
+__ASM volatile ("MRS %0, psp" : "=r" (result) );
+    return(result);
 }
 
 /**
@@ -398,7 +398,7 @@ uint32_t __get_PSP(void)
  */
 void __set_PSP(uint32_t topOfProcStack)
 {
-  __ASM volatile ("MSR psp, %0" : : "r" (topOfProcStack) );
+__ASM volatile ("MSR psp, %0" : : "r" (topOfProcStack) );
 }
 
 /**
@@ -412,10 +412,10 @@ void __set_PSP(uint32_t topOfProcStack)
  */
 uint32_t __get_MSP(void)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-  __ASM volatile ("MRS %0, msp" : "=r" (result) );
-  return(result);
+__ASM volatile ("MRS %0, msp" : "=r" (result) );
+    return(result);
 }
 
 /**
@@ -429,7 +429,7 @@ uint32_t __get_MSP(void)
  */
 void __set_MSP(uint32_t topOfMainStack)
 {
-  __ASM volatile ("MSR msp, %0" : : "r" (topOfMainStack) );
+__ASM volatile ("MSR msp, %0" : : "r" (topOfMainStack) );
 }
 
 /**
@@ -442,10 +442,10 @@ void __set_MSP(uint32_t topOfMainStack)
  */
 uint32_t __get_BASEPRI(void)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-  __ASM volatile ("MRS %0, basepri_max" : "=r" (result) );
-  return(result);
+__ASM volatile ("MRS %0, basepri_max" : "=r" (result) );
+    return(result);
 }
 
 /**
@@ -458,7 +458,7 @@ uint32_t __get_BASEPRI(void)
  */
 void __set_BASEPRI(uint32_t value)
 {
-  __ASM volatile ("MSR basepri, %0" : : "r" (value) );
+__ASM volatile ("MSR basepri, %0" : : "r" (value) );
 }
 
 /**
@@ -472,10 +472,10 @@ void __set_BASEPRI(uint32_t value)
  */
 uint32_t __get_PRIMASK(void)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-  __ASM volatile ("MRS %0, primask" : "=r" (result) );
-  return(result);
+__ASM volatile ("MRS %0, primask" : "=r" (result) );
+    return(result);
 }
 
 /**
@@ -488,7 +488,7 @@ uint32_t __get_PRIMASK(void)
  */
 void __set_PRIMASK(uint32_t priMask)
 {
-  __ASM volatile ("MSR primask, %0" : : "r" (priMask) );
+__ASM volatile ("MSR primask, %0" : : "r" (priMask) );
 }
 
 /**
@@ -501,10 +501,10 @@ void __set_PRIMASK(uint32_t priMask)
  */
 uint32_t __get_FAULTMASK(void)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-  __ASM volatile ("MRS %0, faultmask" : "=r" (result) );
-  return(result);
+__ASM volatile ("MRS %0, faultmask" : "=r" (result) );
+    return(result);
 }
 
 /**
@@ -517,7 +517,7 @@ uint32_t __get_FAULTMASK(void)
  */
 void __set_FAULTMASK(uint32_t faultMask)
 {
-  __ASM volatile ("MSR faultmask, %0" : : "r" (faultMask) );
+__ASM volatile ("MSR faultmask, %0" : : "r" (faultMask) );
 }
 
 /**
@@ -530,10 +530,10 @@ void __set_FAULTMASK(uint32_t faultMask)
  */
 uint32_t __REV(uint32_t value)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-   __ASM volatile ("rev %0, %1" : "=r" (result) : "r" (value) );
-   return(result);
+__ASM volatile ("rev %0, %1" : "=r" (result) : "r" (value) );
+    return(result);
 }
 
 /**
@@ -546,10 +546,10 @@ uint32_t __REV(uint32_t value)
  */
 uint32_t __REV16(uint16_t value)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-   __ASM volatile ("rev16 %0, %1" : "=r" (result) : "r" (value) );
-   return(result);
+__ASM volatile ("rev16 %0, %1" : "=r" (result) : "r" (value) );
+    return(result);
 }
 
 
@@ -563,10 +563,10 @@ uint32_t __REV16(uint16_t value)
  */
 int32_t __REVSH(int16_t value)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-   __ASM volatile ("revsh %0, %1" : "=r" (result) : "r" (value) );
-   return(result);
+__ASM volatile ("revsh %0, %1" : "=r" (result) : "r" (value) );
+    return(result);
 }
 
 
@@ -580,10 +580,10 @@ int32_t __REVSH(int16_t value)
  */
 uint32_t __RBIT(uint32_t value)
 {
-  uint32_t result=0;
+    uint32_t result=0;
 
-   __ASM volatile ("rbit %0, %1" : "=r" (result) : "r" (value) );
-   return(result);
+__ASM volatile ("rbit %0, %1" : "=r" (result) : "r" (value) );
+    return(result);
 }
 
 
@@ -599,8 +599,8 @@ uint8_t __LDREXB(uint8_t *addr)
 {
     uint8_t result=0;
 
-   __ASM volatile ("ldrexb %0, [%1]" : "=r" (result) : "r" (addr) );
-   return(result);
+__ASM volatile ("ldrexb %0, [%1]" : "=r" (result) : "r" (addr) );
+    return(result);
 }
 
 /**
@@ -615,8 +615,8 @@ uint16_t __LDREXH(uint16_t *addr)
 {
     uint16_t result=0;
 
-   __ASM volatile ("ldrexh %0, [%1]" : "=r" (result) : "r" (addr) );
-   return(result);
+__ASM volatile ("ldrexh %0, [%1]" : "=r" (result) : "r" (addr) );
+    return(result);
 }
 
 
@@ -632,8 +632,8 @@ uint32_t __LDREXW(uint32_t *addr)
 {
     uint32_t result=0;
 
-   __ASM volatile ("ldrex %0, [%1]" : "=r" (result) : "r" (addr) );
-   return(result);
+__ASM volatile ("ldrex %0, [%1]" : "=r" (result) : "r" (addr) );
+    return(result);
 }
 
 
@@ -648,10 +648,10 @@ uint32_t __LDREXW(uint32_t *addr)
  */
 uint32_t __STREXB(uint8_t value, uint8_t *addr)
 {
-   uint32_t result=0;
+    uint32_t result=0;
 
-   __ASM volatile ("strexb %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
-   return(result);
+__ASM volatile ("strexb %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
+    return(result);
 }
 
 
@@ -666,10 +666,10 @@ uint32_t __STREXB(uint8_t value, uint8_t *addr)
  */
 uint32_t __STREXH(uint16_t value, uint16_t *addr)
 {
-   uint32_t result=0;
+    uint32_t result=0;
 
-   __ASM volatile ("strexh %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
-   return(result);
+__ASM volatile ("strexh %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
+    return(result);
 }
 
 
@@ -684,10 +684,10 @@ uint32_t __STREXH(uint16_t value, uint16_t *addr)
  */
 uint32_t __STREXW(uint32_t value, uint32_t *addr)
 {
-   uint32_t result=0;
+    uint32_t result=0;
 
-   __ASM volatile ("strex %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
-   return(result);
+__ASM volatile ("strex %0, %2, [%1]" : "=r" (result) : "r" (addr), "r" (value) );
+    return(result);
 }
 
 

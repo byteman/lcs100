@@ -1,7 +1,7 @@
-#ifndef __CS5463_H 
+#ifndef __CS5463_H
 #define __CS5463_H
 
-/* 
+/*
  * 宏,用于定义SPI_CS的片选引脚
  */
 #define SPI0_CS		   (1<< 2)											/* P0.2口为CS5463的片选， 	*/.

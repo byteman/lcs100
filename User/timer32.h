@@ -8,7 +8,7 @@
  *   2008.08.20  ver 1.00    Prelimnary version, first Release
  *
 ******************************************************************************/
-#ifndef __TIMER32_H 
+#ifndef __TIMER32_H
 #define __TIMER32_H
 
 /* The test is either MAT_OUT or CAP_IN. Default is MAT_OUT. */
@@ -24,12 +24,12 @@
 #define MATCH2	(1<<2)
 #define MATCH3	(1<<3)
 /* 0 或 1 选择32-位定时器 */
-#define TEST_TIMER_NUM		0	
+#define TEST_TIMER_NUM		0
 #define TEST_TIMER_NUM2		1
 
 #define TIME_INTERVAL	(SystemAHBFrequency/1000 - 1)
-/* depending on the SystemFrequency and SystemAHBFrequency setting, 
-if SystemFrequency = 60Mhz, SystemAHBFrequency = 1/4 SystemAHBFrequency, 
+/* depending on the SystemFrequency and SystemAHBFrequency setting,
+if SystemFrequency = 60Mhz, SystemAHBFrequency = 1/4 SystemAHBFrequency,
 10mSec = 150.000-1 counts */
 
 //extern uint32_t Duty_Frequency;

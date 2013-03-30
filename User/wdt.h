@@ -9,7 +9,7 @@
 * 01/18/2010		 : V1.0		   初始版本
 *******************************************************************************/
 /* Includes ------------------------------------------------------------------*/
-#ifndef __WDT_H 
+#ifndef __WDT_H
 #define __WDT_H
 
 #define WDEN		0x00000001
@@ -18,8 +18,8 @@
 #define WDINT		0x00000008
 
 #define WDT_FEED_VALUE		0xFFFFFFFF
-/* Fsys_ahb 是 48Mhz. */ 
-#define TIMER0_FEED_FREQ	((SystemAHBFrequency/4800 - 1))	
+/* Fsys_ahb 是 48Mhz. */
+#define TIMER0_FEED_FREQ	((SystemAHBFrequency/4800 - 1))
 
 extern void WDT_IRQHandler(void);
 extern void WDTInit( void );
@@ -32,9 +32,9 @@ extern uint8_t Falg_WDT;
 #endif /* end __WDT_H */
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 /************* (C) COPYRIGHT 2010 Wuhan R&D Center, Embest *****文件结束*******/

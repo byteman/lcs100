@@ -43,7 +43,7 @@ extern void upgradedata(void);
 extern void upgradecrc(void);
 extern void reset(void);
 extern void configuration(void);
-extern void heartbeat(void); 
+extern void heartbeat(void);
 extern void Delay1_MS(uint32_t ulTime);
 extern void Delay1_US(uint32_t ulTime);
 extern void Baud_Rate(void);

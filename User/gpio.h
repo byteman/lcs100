@@ -8,7 +8,7 @@
  *   2008.09.01  ver 1.00    Prelimnary version, first Release
  *
 ******************************************************************************/
-#ifndef __GPIO_H 
+#ifndef __GPIO_H
 #define __GPIO_H
 #ifndef NULL
 #define NULL	((void *)0)
@@ -50,7 +50,7 @@ void GPIOInit( void );
 void GPIOSetDir( uint32_t portNum, uint32_t bitPosi, uint32_t dir );
 void GPIOSetValue( uint32_t portNum, uint32_t bitPosi, uint32_t bitVal );
 void GPIOSetInterrupt( uint32_t portNum, uint32_t bitPosi, uint32_t sense,
-		uint32_t single, uint32_t event );
+                       uint32_t single, uint32_t event );
 void GPIOIntEnable( uint32_t portNum, uint32_t bitPosi );
 void GPIOIntDisable( uint32_t portNum, uint32_t bitPosi );
 uint32_t GPIOIntStatus( uint32_t portNum, uint32_t bitPosi );

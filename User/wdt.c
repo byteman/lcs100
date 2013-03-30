@@ -30,7 +30,7 @@ uint8_t Falg_WDT=FALSE;
   * @描述：看门狗定时器中断例程
   * @参数： 无
   * @返回值：无
-  */ 
+  */
 
 
 /**
@@ -45,11 +45,11 @@ void WDTInit( void )
     LPC_SYSCON->WDTCLKUEN      = 0x00;
     LPC_SYSCON->WDTCLKUEN      = 0x01;                                  /* 更新使能                     */
     LPC_SYSCON->WDTCLKDIV      = 0x3f;                                  /* WDT时钟分频值为1             */
-    
+
     LPC_SYSCON->SYSAHBCLKCTRL |= (1<<15);                               /* 打开WDT模块                  */
     LPC_WDT->TC =WDT_FEED_VALUE;	                    	/* 定时时间                     */
     LPC_WDT->MOD=(0X03<<0);                                     /* 使能WDT                      */
-    
+
     LPC_WDT->FEED = 0xAA;                                        /* 喂狗                         */
     LPC_WDT->FEED = 0x55;
 
@@ -63,17 +63,17 @@ void WDTInit( void )
   */
 void WDTFeed( void )
 {
-	/* 喂食顺序 */
-  LPC_WDT->FEED = 0xAA;		
-  LPC_WDT->FEED = 0x55;
-  return;
+    /* 喂食顺序 */
+    LPC_WDT->FEED = 0xAA;
+    LPC_WDT->FEED = 0x55;
+    return;
 }
 
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 /************* (C) COPYRIGHT 2010 Wuhan R&D Center, Embest *****文件结束*******/

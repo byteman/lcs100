@@ -1,6 +1,6 @@
 /******************** (C) COPYRIGHT 2012  ************
 * 文件名: i2c.h
-* 作者	: 
+* 作者	:
 * 日期	: 10/18/2012
 * 描述	: NXP LPC11xx 系列处理器 I2C 模块头文件.
 *******************************************************************************
@@ -10,7 +10,7 @@
 
 
 
-#ifndef __I2C_H 
+#ifndef __I2C_H
 #define __I2C_H
 
 //********************************************************************************
@@ -124,18 +124,18 @@ extern uint8_t wrbuf[100]; //write//read
 void i2c_lpc_init(int Mode);
 
 int m24xx_write(
-	int eeprom_type,	//-- EEPROM type
-	int eeprom_addr,	//-- start eeprom addr ( not included Hardware A2,A1,A0)
-	int eeprom_cs_val,	//-- Hardware A2,A1,A0 (valid from 24XX32)
-	unsigned char *buf, 		//-- Data src buf
-	int num);			//-- Bytes to write qty
+    int eeprom_type,	//-- EEPROM type
+    int eeprom_addr,	//-- start eeprom addr ( not included Hardware A2,A1,A0)
+    int eeprom_cs_val,	//-- Hardware A2,A1,A0 (valid from 24XX32)
+    unsigned char *buf, 		//-- Data src buf
+    int num);			//-- Bytes to write qty
 
 int m24xx_read(
-  int eeprom_type,	  //-- EEPROM type
-  int eeprom_addr,	  //-- start eeprom addr ( not included Hardware A2,A1,A0)
-  int eeprom_cs_val,  //-- Hardware A2,A1,A0 (valid from 24XX32)
-  unsigned char *buf,		  //-- Data dst buf
-  int num); 		  //-- Bytes to read qty
+    int eeprom_type,	  //-- EEPROM type
+    int eeprom_addr,	  //-- start eeprom addr ( not included Hardware A2,A1,A0)
+    int eeprom_cs_val,  //-- Hardware A2,A1,A0 (valid from 24XX32)
+    unsigned char *buf,		  //-- Data dst buf
+    int num); 		  //-- Bytes to read qty
 
 void i2c_lpc_init(int Mode);
 extern void Setup_Write(void);
@@ -146,11 +146,11 @@ extern void Setup_Read(void);
 #endif /* end __I2C_H */
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /************* (C) COPYRIGHT 2010 Wuhan R&D Center, Embest *****文件结束*******/
 

@@ -11,41 +11,41 @@
 
 *********************************************************************************************************/
 void  SSP_Init (void)
-{  
-	LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 16); 							/* 配置IOCON模块时钟			*/
-	//LPC_IOCON->PIO0_2 &= ~0x07; 										/* 初始化SPI0引脚				*/
-	//LPC_GPIO0->DIR	  |= (1<<2);
-	LPC_IOCON->PIO0_2 |= 0x01;
-	LPC_IOCON->PIO0_6 |= 0x02;
-	LPC_IOCON->PIO0_8 |= 0x01;
-	LPC_IOCON->PIO0_9 |= 0x01;
+{
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 16); 							/* 配置IOCON模块时钟			*/
+    //LPC_IOCON->PIO0_2 &= ~0x07; 										/* 初始化SPI0引脚				*/
+    //LPC_GPIO0->DIR	  |= (1<<2);
+    LPC_IOCON->PIO0_2 |= 0x01;
+    LPC_IOCON->PIO0_6 |= 0x02;
+    LPC_IOCON->PIO0_8 |= 0x01;
+    LPC_IOCON->PIO0_9 |= 0x01;
 
-	LPC_SYSCON->PRESETCTRL	  |= 0x01;									/* 禁止SPI0复位 				*/
+    LPC_SYSCON->PRESETCTRL	  |= 0x01;									/* 禁止SPI0复位 				*/
 
-	LPC_IOCON->SCK_LOC		   = 0x02;									/* P0.6配置为SCK				*/
-	LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 11); 							/* 打开SPI0外设 				*/
-	LPC_SYSCON->SSP0CLKDIV	   = 0x14;									/* SSP时钟分频					*/
-   
-	LPC_SSP0->CR0 = (0x01 << 8) |										/* SCR	设置SPI时钟分频 		*/
-					(0x00 << 7) |										/* CPHA 时钟输出相位,			*/
-																		/* 仅SPI模式有效				*/
-					(0x00 << 6) |										/* CPOL 时钟输出极性,			*/
-																		/* 仅SPI模式有效				*/
-					(0x00 << 4) |										/* FRF	帧格式 00=SPI,01=SSI,	*/
-																		/* 10=Microwire,11=保留 		*/
-					(0x07 << 0);										/* DSS	数据长度,0000-0010=保留,*/
-																		/* 0011=4位,0111=8位,1111=16位	*/
+    LPC_IOCON->SCK_LOC		   = 0x02;									/* P0.6配置为SCK				*/
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1 << 11); 							/* 打开SPI0外设 				*/
+    LPC_SYSCON->SSP0CLKDIV	   = 0x14;									/* SSP时钟分频					*/
 
-	LPC_SSP0->CR1 = (0x00 << 3) |										/* SOD	从机输出禁能,1=禁止 	*/
-					(0x00 << 2) |										/* MS	主从选择,0=主机,1=从机	*/
-					(0x01 << 1) |										/* SSE	SSP使能 				*/
-					(0x00 << 0);										/* LBM	回写模式				*/
-			 
-	LPC_SSP0->CPSR = 2; 												/* PCLK分频值					*/
-	LPC_SSP0->ICR  = 0x03;												/* 中断清除寄存器				*/
-	 //使能SPI0中断
+    LPC_SSP0->CR0 = (0x01 << 8) |										/* SCR	设置SPI时钟分频 		*/
+                    (0x00 << 7) |										/* CPHA 时钟输出相位,			*/
+                    /* 仅SPI模式有效				*/
+                    (0x00 << 6) |										/* CPOL 时钟输出极性,			*/
+                    /* 仅SPI模式有效				*/
+                    (0x00 << 4) |										/* FRF	帧格式 00=SPI,01=SSI,	*/
+                    /* 10=Microwire,11=保留 		*/
+                    (0x07 << 0);										/* DSS	数据长度,0000-0010=保留,*/
+    /* 0011=4位,0111=8位,1111=16位	*/
+
+    LPC_SSP0->CR1 = (0x00 << 3) |										/* SOD	从机输出禁能,1=禁止 	*/
+                    (0x00 << 2) |										/* MS	主从选择,0=主机,1=从机	*/
+                    (0x01 << 1) |										/* SSE	SSP使能 				*/
+                    (0x00 << 0);										/* LBM	回写模式				*/
+
+    LPC_SSP0->CPSR = 2; 												/* PCLK分频值					*/
+    LPC_SSP0->ICR  = 0x03;												/* 中断清除寄存器				*/
+    //使能SPI0中断
 //  NVIC_EnableIRQ(SSP0_IRQn);
-  //使能中断
+    //使能中断
 //  LPC_SSP0->IMSC |= (1UL << 2);
 }
 /*********************************************************************************************************
@@ -57,9 +57,9 @@ void  SSP_Init (void)
 *********************************************************************************************************/
 void SPI0_SendByte (uint8_t data)
 {
-	LPC_SSP0->DR = data;
-	while( (LPC_SSP0->SR & 0x10) == 0x10);								/* 等待TFE置位，即发送FIFO空	*/
-	data = LPC_SSP0->DR;   
+    LPC_SSP0->DR = data;
+    while( (LPC_SSP0->SR & 0x10) == 0x10);								/* 等待TFE置位，即发送FIFO空	*/
+    data = LPC_SSP0->DR;
 }
 
 /*********************************************************************************************************
@@ -68,19 +68,19 @@ void SPI0_SendByte (uint8_t data)
 ** 输入参数:无
 ** 输出参数:无
 *********************************************************************************************************/
-uint8_t SPI0_ReceiveByte (void)                                  
+uint8_t SPI0_ReceiveByte (void)
 {
-	LPC_SSP0->DR = 0xFF;												/* 发送该数据用以产生时钟		*/
-	while ( 0 == (LPC_SSP0->SR & 0x01));								/* 等待数据发送完毕 			*/
-   /*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-	* 判断当前是否空闲（是否处于TX Or RX）
-	*/
-	while( LPC_SSP0->SR & (1 << 4));
-   /*
-	* 判断是否已接收到数据，必须判断是否接收完成,否则
-	* 新的TX发送再次写入LPC_SSP0->DR寄存器
-	*/
-   while( LPC_SSP0->SR & (1 << 2) == 0x00); 
-   return (uint8_t)(LPC_SSP0->DR);										/* 返回接收到的数据 			*/
+    LPC_SSP0->DR = 0xFF;												/* 发送该数据用以产生时钟		*/
+    while ( 0 == (LPC_SSP0->SR & 0x01));								/* 等待数据发送完毕 			*/
+    /*
+    * 判断当前是否空闲（是否处于TX Or RX）
+    */
+    while( LPC_SSP0->SR & (1 << 4));
+    /*
+    * 判断是否已接收到数据，必须判断是否接收完成,否则
+    * 新的TX发送再次写入LPC_SSP0->DR寄存器
+    */
+    while( LPC_SSP0->SR & (1 << 2) == 0x00);
+    return (uint8_t)(LPC_SSP0->DR);										/* 返回接收到的数据 			*/
 }
 

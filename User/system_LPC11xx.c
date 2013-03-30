@@ -1,16 +1,16 @@
 /******************************************************************************
  * @file:    system_LPC11xx.c
  * @purpose: CMSIS Cortex-M0 Device Peripheral Access Layer Source File
- *           for the NXP LPC11xx Device Series 
+ *           for the NXP LPC11xx Device Series
  * @version: V1.0
  * @date:    26. Nov. 2008
  *----------------------------------------------------------------------------
  *
  * Copyright (C) 2008 ARM Limited. All rights reserved.
  *
- * ARM Limited (ARM) is supplying this software for use with Cortex-M3 
- * processor based microcontrollers.  This file can be freely distributed 
- * within development tools that are supporting such ARM based processors. 
+ * ARM Limited (ARM) is supplying this software for use with Cortex-M3
+ * processor based microcontrollers.  This file can be freely distributed
+ * within development tools that are supporting such ARM based processors.
  *
  * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
  * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
@@ -83,7 +83,7 @@
 /*----------------------------------------------------------------------------
   DEFINES
  *----------------------------------------------------------------------------*/
-    
+
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
@@ -115,38 +115,38 @@ uint32_t SystemAHBFrequency = IRC_OSC;
  */
 void Main_PLL_Setup ( void )
 {
-  uint32_t regVal;
+    uint32_t regVal;
 
-  ClockSource = OSC_CLK;
-  LPC_SYSCON->SYSPLLCLKSEL = MAIN_CLKSRCSEL_Val;   /* Select system OSC */
-  LPC_SYSCON->SYSPLLCLKUEN = 0x01;                 /* Update clock source */
-  LPC_SYSCON->SYSPLLCLKUEN = 0x00;                 /* toggle Update register once */
-  LPC_SYSCON->SYSPLLCLKUEN = 0x01;
-  while ( !(LPC_SYSCON->SYSPLLCLKUEN & 0x01) ); /* Wait until updated */
+    ClockSource = OSC_CLK;
+    LPC_SYSCON->SYSPLLCLKSEL = MAIN_CLKSRCSEL_Val;   /* Select system OSC */
+    LPC_SYSCON->SYSPLLCLKUEN = 0x01;                 /* Update clock source */
+    LPC_SYSCON->SYSPLLCLKUEN = 0x00;                 /* toggle Update register once */
+    LPC_SYSCON->SYSPLLCLKUEN = 0x01;
+    while ( !(LPC_SYSCON->SYSPLLCLKUEN & 0x01) ); /* Wait until updated */
 
-  regVal = LPC_SYSCON->SYSPLLCTRL;
-  regVal &= ~0x1FF;
-  LPC_SYSCON->SYSPLLCTRL = (regVal | (MAIN_PLL_P_Val<<5) | MAIN_PLL_M_Val);
-  
-  /* Enable main system PLL, main system PLL bit 7 in PDRUNCFG. */
-  LPC_SYSCON->PDRUNCFG &= ~(0x1<<7);
-  while ( !(LPC_SYSCON->SYSPLLSTAT & 0x01) );	/* Wait until it's locked */
+    regVal = LPC_SYSCON->SYSPLLCTRL;
+    regVal &= ~0x1FF;
+    LPC_SYSCON->SYSPLLCTRL = (regVal | (MAIN_PLL_P_Val<<5) | MAIN_PLL_M_Val);
 
-  LPC_SYSCON->MAINCLKSEL = 0x03;		/* Select PLL clock output */
-  LPC_SYSCON->MAINCLKUEN = 0x01;		/* Update MCLK clock source */
-  LPC_SYSCON->MAINCLKUEN = 0x00;		/* Toggle update register once */
-  LPC_SYSCON->MAINCLKUEN = 0x01;
-  while ( !(LPC_SYSCON->MAINCLKUEN & 0x01) );	/* Wait until updated */
+    /* Enable main system PLL, main system PLL bit 7 in PDRUNCFG. */
+    LPC_SYSCON->PDRUNCFG &= ~(0x1<<7);
+    while ( !(LPC_SYSCON->SYSPLLSTAT & 0x01) );	/* Wait until it's locked */
 
-  LPC_SYSCON->SYSAHBCLKDIV = SYS_AHB_DIV_Val;	/* SYS AHB clock, typical is 1 or 2 or 4 */
+    LPC_SYSCON->MAINCLKSEL = 0x03;		/* Select PLL clock output */
+    LPC_SYSCON->MAINCLKUEN = 0x01;		/* Update MCLK clock source */
+    LPC_SYSCON->MAINCLKUEN = 0x00;		/* Toggle update register once */
+    LPC_SYSCON->MAINCLKUEN = 0x01;
+    while ( !(LPC_SYSCON->MAINCLKUEN & 0x01) );	/* Wait until updated */
+
+    LPC_SYSCON->SYSAHBCLKDIV = SYS_AHB_DIV_Val;	/* SYS AHB clock, typical is 1 or 2 or 4 */
 
 #if MAIN_PLL_SETUP
-  SystemFrequency = ClockSource * (MAIN_PLL_M_Val+1);
+    SystemFrequency = ClockSource * (MAIN_PLL_M_Val+1);
 #else
-  SystemFrequency = ClockSource;
+    SystemFrequency = ClockSource;
 #endif
-  SystemAHBFrequency = (uint32_t)(SystemFrequency/SYS_AHB_DIV_Val);
-  return;
+    SystemAHBFrequency = (uint32_t)(SystemFrequency/SYS_AHB_DIV_Val);
+    return;
 }
 
 /**
@@ -160,35 +160,35 @@ void Main_PLL_Setup ( void )
  */
 void SystemInit (void)
 {
-  uint32_t i;
+    uint32_t i;
 
-#ifdef __DEBUG_RAM    
-  LPC_SYSCON->SYSMEMREMAP = 0x1;		/* remap to internal RAM */ 
+#ifdef __DEBUG_RAM
+    LPC_SYSCON->SYSMEMREMAP = 0x1;		/* remap to internal RAM */
 #else
-#ifdef __DEBUG_FLASH    
-  LPC_SYSCON->SYSMEMREMAP = 0x2;		/* remap to internal flash */
+#ifdef __DEBUG_FLASH
+    LPC_SYSCON->SYSMEMREMAP = 0x2;		/* remap to internal flash */
 #endif
 #endif
 
 #if (CLOCK_SETUP)                       /* Clock Setup */
-  /* bit 0 default is crystal bypass, 
-  bit1 0=0~20Mhz crystal input, 1=15~50Mhz crystal input. */
-  LPC_SYSCON->SYSOSCCTRL = 0x00;
+    /* bit 0 default is crystal bypass,
+    bit1 0=0~20Mhz crystal input, 1=15~50Mhz crystal input. */
+    LPC_SYSCON->SYSOSCCTRL = 0x00;
 
-  /* main system OSC run is cleared, bit 5 in PDRUNCFG register */
-  LPC_SYSCON->PDRUNCFG &= ~(0x1<<5);
-  /* Wait 200us for OSC to be stablized, no status 
-  indication, dummy wait. */
-  for ( i = 0; i < 0x100; i++ );
+    /* main system OSC run is cleared, bit 5 in PDRUNCFG register */
+    LPC_SYSCON->PDRUNCFG &= ~(0x1<<5);
+    /* Wait 200us for OSC to be stablized, no status
+    indication, dummy wait. */
+    for ( i = 0; i < 0x100; i++ );
 
 #if (MAIN_PLL_SETUP)
-  Main_PLL_Setup();  
+    Main_PLL_Setup();
 #endif
 
 #endif	/* endif CLOCK_SETUP */
 
-  /* System clock to the IOCON needs to be enabled or
-  most of the I/O related peripherals won't work. */
-  LPC_SYSCON->SYSAHBCLKCTRL |= (1<<16);
-  return;
+    /* System clock to the IOCON needs to be enabled or
+    most of the I/O related peripherals won't work. */
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<16);
+    return;
 }

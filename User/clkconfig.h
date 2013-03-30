@@ -8,7 +8,7 @@
  *   2009.08.20  ver 1.00    Prelimnary version, first Release
  *
 ******************************************************************************/
-#ifndef __CLKCONFIG_H 
+#ifndef __CLKCONFIG_H
 #define __CLKCONFIG_H
 
 #define WDTCLK_SRC_IRC_OSC			0
