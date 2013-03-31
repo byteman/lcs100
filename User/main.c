@@ -39,11 +39,11 @@ int main (void)
     CS5463_Init();
     i2c_lpc_init(0);
     //Setup_Read();
-    Delay1_MS(1000);
-    UARTSend(Terminal_ID,4);
+    //ZigbeeNetSetup();
     while (1)
     {
-
+				//Delay1_MS(1000);
+				//UARTSend(Terminal_ID,4);
         if(!tinyFifoEmpty())
         {
             if(tinyFifoGetc(&rxChar) == 0) //get data ok;

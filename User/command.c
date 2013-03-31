@@ -606,82 +606,107 @@ void InquiryAcquiesceLightValue(void)   //查询默认调光值
 }
 
 
-/*void ZigbeeSetup(void)           //ZIGBEE配置
+void ZigbeeNetSetup(void)           //ZIGBEE配置
 {
 
-  uint8_t temp_buf[20]={0};
-   Frame_OK(0x01);
+	  uint8_t num=0;
+	  uint8_t temp_buf[20]= {0x23,0xFE, 00 ,0x05, 01, 01, 03, 01, 05, 01, 01, 
+	  02, 0x0A ,04 ,00, 01};
+	  //memset(temp_buf,0,20);
+	  //memset(Data_Buf,0,Data_Len);
+	  UARTInit(38400);
+	  NVIC_DisableIRQ(UART_IRQn);
+	  Delay1_MS(20);
+	  GPIOSetValue(1,8,0);
+	  Delay1_MS(3000);
+	  GPIOSetValue(1,8,1);
+	  Delay1_MS(1000);
+	  while ((LPC_UART->LSR & 0x01) == 0x01)
+	  {
+		  num = LPC_UART->RBR;
+  
+	  }
+	  num=0;
+#if 1
+	  Data_Buf[0]=0x23;
+	  Data_Buf[1]=0xa0;
+	  UARTSend((uint8_t *)Data_Buf,2);
+	  Delay1_MS(500);
+	  while ((LPC_UART->LSR & 0x01) == 0x01)
+	  {
+  
+		  Data_Buf[num] = LPC_UART->RBR;
+		  num++;
+  
+	  }
+	  num=0;
+#endif
+	  
+	  UARTSend((uint8_t *)temp_buf,16);
+	  Delay1_MS(500);
+	  
+	  Data_Buf[0]=0x23;
+	  Data_Buf[1]=0x23;
+	  UARTSend((uint8_t *)Data_Buf,2);
+	  Delay1_MS(200);
+	  
+	  UARTInit(19200); //open interrp
 
-   UARTInit(38400);
 
-   GPIOSetValue(1,8,0);
+}
 
-   Delay1_MS(3000);
-  GPIOSetValue(1,8,1);
-
-   temp_buf[0]=0x23;
-   temp_buf[1]=0xa0;
-   UARTSend(temp_buf,2);
-   Delay1_MS(50);
-   temp_buf[0]=0x23;
-   temp_buf[1]=0xfe;
-   memcpy(&temp_buf[2],&Data_Buf[8],14);
-
-   UARTSend(temp_buf,16);
-   Delay1_MS(50);
-   temp_buf[0]=0x23;
-   temp_buf[1]=0x23;
-   UARTSend(temp_buf,2);
- //  GPIOSetValue(1,8,1);
-   Delay1_MS(50);
-   UARTInit(19200);
-   Delay1_MS(100);
-
-} */
-void ZigbeeSetup(void)           // 读ZIGBEE配置信息
+void ZigbeeSetup(void)          // 读ZIGBEE配置信息
 {
 
     uint8_t num=0;
     uint8_t temp_buf[20]= {0};
     memset(temp_buf,0,20);
-    memset(Data_Buf,0,Data_Len);
+    //memset(Data_Buf,0,Data_Len);
     UARTInit(38400);
     NVIC_DisableIRQ(UART_IRQn);
     Delay1_MS(20);
     GPIOSetValue(1,8,0);
     Delay1_MS(3000);
     GPIOSetValue(1,8,1);
+	Delay1_MS(500);
     while ((LPC_UART->LSR & 0x01) == 0x01)
     {
         num = LPC_UART->RBR;
 
     }
     num=0;
-    Data_Buf[0]=0x23;
-    Data_Buf[1]=0xa0;
-    UARTSend((uint8_t *)Data_Buf,2);
-
+#if 1
+    temp_buf[0]=0x23;
+    temp_buf[1]=0xa0;
+    UARTSend((uint8_t *)temp_buf,2);
+	Delay1_MS(500);
     while ((LPC_UART->LSR & 0x01) == 0x01)
     {
 
-
-        Data_Buf[num] = LPC_UART->RBR;
+        temp_buf[num] = LPC_UART->RBR;
         num++;
 
     }
-    num=0;
-
-    memcpy(temp_buf,Data_Buf,15);
-    Data_Buf[0]=0x23;
-    Data_Buf[1]=0x23;
-    UARTSend((uint8_t *)Data_Buf,2);
-//  Delay1_MS(200);
-// UARTInit(19200);
+	//检测返回的数据是否是15个字节
+	if(num != 15) return; 
+#endif
+//后面的这两个命令zigbee都不会返回数据
+	temp_buf[0] = 0x23;
+	temp_buf[1] = 0xfe;
+  memcpy(temp_buf+2,Data_Buf+8,14);
+	
+	UARTSend((uint8_t *)temp_buf,16);
+	Delay1_MS(500);
+	
+    temp_buf[0]=0x23;
+    temp_buf[1]=0x23;
+    UARTSend((uint8_t *)temp_buf,2);
+    Delay1_MS(200);
+	
+	UARTInit(19200); //open interrput in init
+	
 // Delay1_MS(200);
 
-
-    UARTSend( (uint8_t *)temp_buf, 15 );
-    Delay1_MS(20);
 
 
 }

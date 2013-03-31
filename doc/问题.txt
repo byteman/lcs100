@@ -9,3 +9,6 @@
 Fdiv = ((SystemAHBFrequency/regVal)/16)/baudrate ;	/*baud rate */
 
 6.FCR=0x87 : enable tx,rx fifo 并且设置了中断触发字节为8字节
+
+7.zigbee没有复位信号，接到cpu上，如何才能进行复位啦？比如网络不通的时候，或者zigbee死机的时候
+8.是不是可以不用中断在程序中，这样就不用重新定位中断向量了
