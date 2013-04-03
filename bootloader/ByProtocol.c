@@ -3,8 +3,9 @@
 #include <assert.h>
 #include <string.h>
 
-#define MAX_CONTEXT_SIZE 128
+
 #define PAD_SIZE 3
+#define MAX_CONTEXT_SIZE (0xFF-PAD_SIZE)
 #define KEY_HEADER	0xA3
 
 #ifdef __C51__
