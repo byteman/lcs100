@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>lcs100</TargetName>
+      <TargetName>bootloader</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -43,14 +43,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>..\Object\</OutputDirectory>
-          <OutputName>lcs100</OutputName>
+          <OutputDirectory>.\object\</OutputDirectory>
+          <OutputName>bootloader</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>..\Object\</ListingPath>
+          <ListingPath>.\object\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -73,7 +73,7 @@
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
           </BeforeMake>
           <AfterMake>
-            <RunUserProg1>1</RunUserProg1>
+            <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
             <UserProg1Name>Hex2Bin.bat</UserProg1Name>
             <UserProg2Name></UserProg2Name>
@@ -296,7 +296,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0x8000</Size>
+                <Size>0x1000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -355,7 +355,7 @@
             <interw>1</interw>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <thumb>0</thumb>
+            <thumb>1</thumb>
             <SplitLS>0</SplitLS>
             <SwStkChk>0</SwStkChk>
             <NoWarn>0</NoWarn>
@@ -386,97 +386,47 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Common</GroupName>
+          <GroupName>source</GroupName>
           <Files>
             <File>
               <FileName>startup_LPC11xx.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\Common\src\startup_LPC11xx.s</FilePath>
+              <FilePath>.\startup_LPC11xx.s</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>App</GroupName>
-          <Files>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\main.c</FilePath>
+              <FilePath>.\main.c</FilePath>
             </File>
             <File>
-              <FileName>CS5463.c</FileName>
+              <FileName>crc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\CS5463.c</FilePath>
+              <FilePath>.\crc.c</FilePath>
             </File>
             <File>
-              <FileName>24C02.c</FileName>
+              <FileName>IAP.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\24C02.c</FilePath>
-            </File>
-            <File>
-              <FileName>clkconfig.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\clkconfig.c</FilePath>
-            </File>
-            <File>
-              <FileName>command.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\command.c</FilePath>
-            </File>
-            <File>
-              <FileName>core_cm0.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\core_cm0.c</FilePath>
-            </File>
-            <File>
-              <FileName>CRC16_1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\CRC16_1.c</FilePath>
-            </File>
-            <File>
-              <FileName>gpio.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\gpio.c</FilePath>
-            </File>
-            <File>
-              <FileName>SSP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\SSP.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer16.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\timer16.c</FilePath>
-            </File>
-            <File>
-              <FileName>timer32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\timer32.c</FilePath>
+              <FilePath>.\IAP.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>wdt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\wdt.c</FilePath>
+              <FilePath>.\uart.c</FilePath>
             </File>
             <File>
               <FileName>system_LPC11xx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\system_LPC11xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>TinyFifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\TinyFifo.c</FilePath>
+              <FilePath>.\system_LPC11xx.c</FilePath>
             </File>
             <File>
               <FileName>ByProtocol.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\ByProtocol.c</FilePath>
+              <FilePath>.\ByProtocol.c</FilePath>
+            </File>
+            <File>
+              <FileName>upload.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\upload.c</FilePath>
             </File>
           </Files>
         </Group>

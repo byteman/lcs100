@@ -159,7 +159,7 @@ void Setup_Read(void)
             break;
         }
     }
-
+ 
     memset(wrbuf,0,100);
     //³¡¾°Öµ[50,71]
     m24xx_read(EEPROM_24XX02,50,0,wrbuf,21);
