@@ -190,3 +190,4 @@ unsigned char parseChar(unsigned char rxChar)
     return ret;
 
 }
+

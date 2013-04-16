@@ -61,6 +61,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopU1X>0</nStopU1X>
+            <nStopU2X>0</nStopU2X>
           </BeforeCompile>
           <BeforeMake>
             <RunUserProg1>0</RunUserProg1>
@@ -294,7 +296,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
-                <Size>0x1000</Size>
+                <Size>0x2000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -425,6 +427,11 @@
               <FileName>upload.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\upload.c</FilePath>
+            </File>
+            <File>
+              <FileName>24C02.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\24C02.c</FilePath>
             </File>
           </Files>
         </Group>

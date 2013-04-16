@@ -478,6 +478,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\ByProtocol.c</FilePath>
             </File>
+            <File>
+              <FileName>param.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\param.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

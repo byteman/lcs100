@@ -16,6 +16,13 @@
 //********************************************************************************
 //#define Terminal_ID			0x7e000001
 
+extern uint8_t Terminal_ID[4];
+extern uint8_t group_number;
+extern uint8_t field[10];
+extern uint8_t value[10];
+extern uint32_t pwmtimer;
+
+
 //---  LPC21XX I2C flags --------------------
 
 #define  I2C_FLAG_AA	(1<<2)
@@ -106,6 +113,10 @@
 #define I2SCLL_SCLL 		0x00000180	/* I2C SCL Duty Cycle Low Reg */
 #define I2SCLH_HS_SCLH		0x00000020	/* Fast Plus I2C SCL Duty Cycle High Reg */
 #define I2SCLL_HS_SCLL		0x00000020	/* Fast Plus I2C SCL Duty Cycle Low Reg */
+
+
+extern uint8_t wrbuf[100]; //write//read
+
 
 
 //---- Prototypes ---

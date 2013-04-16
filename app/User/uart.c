@@ -38,8 +38,6 @@ uint8_t Flag = 0;
 寄存器定义的时候都是有volatile修饰的。
 */
 
-static unsigned char headfg = 0;
-
 void UART_IRQHandler(void)
 {
 
@@ -49,59 +47,6 @@ void UART_IRQHandler(void)
         {
             rxChar = LPC_UART->RBR;
             tinyFifoPutc(rxChar);
-#if 0
-            if(headfg == 0)
-            {
-
-                UARTBuffer[0] = LPC_UART->RBR;
-                if(UARTBuffer[0]==0x7E)
-                {
-                    headfg = 1;
-
-                    UARTCount = 1;
-
-                    UARTRxLength = 1;
-
-                    return;
-                }
-            }
-            if(headfg == 1)
-            {
-
-                UARTBuffer[UARTCount] = LPC_UART->RBR;
-
-                UARTCount++;
-
-                UARTRxLength++;
-
-
-                if((UARTBuffer[UARTCount-2]==0x0d) && (UARTBuffer[UARTCount-1]==0x0a))
-                {
-                    if(UARTBuffer[1] == UARTCount)
-                    {
-
-                    }
-                    if( (UARTCount >= 11) && (UARTBuffer[1] == UARTCount) )
-                    {
-                        memcpy(TempBuffer,UARTBuffer,UARTCount);
-
-                        Flag_Uart_Rx=TRUE;
-                        UARTCount = 0;
-                        headfg = 0;
-
-                    }
-                    else //数据
-                    {
-                        UARTCount = 0;
-                        headfg = 0;
-                    }
-
-                }
-
-            }
-            UARTBuffer[0] = LPC_UART->RBR;
-#endif
-
         }
 
     }
@@ -157,7 +102,6 @@ void UARTInit(uint32_t baudrate)
 
     UARTTxEmpty = 1;
     UARTCount = 0;
-    headfg = 0;
     Flag_Uart_Rx = 0;
 
     NVIC_DisableIRQ(UART_IRQn);

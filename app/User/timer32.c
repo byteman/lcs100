@@ -12,6 +12,7 @@
 #include "timer32.h"
 #include "gpio.h"
 uint32_t  Duty_Time=100;//占空比100-20
+
 uint32_t  Duty_Time_Temp=40;//临时占空比
 volatile uint32_t timer32_0_counter = 0;
 volatile uint32_t timer32_1_counter = 0;

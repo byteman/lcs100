@@ -5,44 +5,49 @@
 #include "crc.h"
 #include "iap.h"
 #include <string.h>
-#define MAX_FILE_SIZE (19*1024)
-#define MAX_BUFF_SIZE  256
 
-/* Define flash memory address at which user application is located */
-#define APP_START_ADDR						0x00001000UL
-#define APP_END_ADDR						0x00008000UL
 
 /* Define the flash sectors used by the application */
-#define APP_START_SECTOR					1
+#define APP_START_SECTOR					2
 #define APP_END_SECTOR						7
 
-/* Define location in flash memory that contains the application valid check value */
-#define APP_VALID_CHECK_ADDR				0x00007FFCUL
+/* Define flash memory address at which user application is located */
+#define APP_START_ADDR					(APP_START_SECTOR* 0x00001000UL)
+#define APP_END_ADDR						0x00008000UL
+
+
+
+#define MAX_PAGE_SIZE 4096
+#define MAX_FILE_SIZE ( (APP_END_SECTOR-APP_START_SECTOR) * MAX_PAGE_SIZE - 8) //后面8个字节存放长度和校验和
+#define MAX_BUFF_SIZE  256
+
 
 #define FLASH_PAGE_SIZE 256
-#define PACKET_SIZE 64
+#define PACKET_SIZE 		64
 
+#define UPLOAD_TIMEOUT 5000
 static uint8_t ch;
 static uint8_t* pkt = 0;
 static uint32_t pktLen = 0;
 
-static uint8_t termId[4] = {0,0,0,1};
+extern uint8_t  termId[4];
 static uint8_t  cmd 	 = 0;
 static uint8_t  group 	 = 0;
+static uint8_t 	quit = 0;
+
 extern uint32_t SystemFrequency;
 
 static uint16_t curSession = 0;
 static uint32_t totalSize = 0;
 static uint16_t totalPktNum = 0;
-static uint8_t packet[MAX_BUFF_SIZE];
-static uint8_t ctxBuf[MAX_BUFF_SIZE];
-
+static uint8_t  packet[MAX_BUFF_SIZE];
+static uint8_t  ctxBuf[MAX_BUFF_SIZE];
+__align(4)  static uint8_t au8RxBuffer[FLASH_PAGE_SIZE];
 
 uint32_t u32BootLoader_AppPresent(void);
 static uint32_t u32Bootloader_WriteCRC(uint32_t fileSize,uint16_t u16CRC);
 static uint32_t u32BootLoader_ProgramFlash(uint8_t *pu8Data, uint16_t u16Len);
 static uint32_t u32NextFlashWriteAddr = APP_START_ADDR;
-static uint8_t quit = 0;
 
 /*****************************************************************************
  ** Function name:	u32Bootloader_WriteCRC
@@ -147,7 +152,7 @@ uint32_t u32BootLoader_AppPresent(void)
 	uint16_t *pu16AppCRC = (uint16_t *)(APP_END_ADDR - 4);
 	uint32_t *pu32AppLen = (uint32_t *)(APP_END_ADDR - 8);
 	/* Check if a CRC value is present in application flash area */
-	if (*pu16AppCRC != 0xFFFFUL)
+	if ( (*pu16AppCRC != 0xFFFFUL) && (*pu32AppLen < MAX_FILE_SIZE))
 	{
 		/* Memory occupied by application CRC is not blank so calculate CRC of
 		   image in application area of flash memory, and check against this
@@ -179,18 +184,17 @@ static uint8_t vTimerTimeOut()
 {
 	return ((LPC_TMR32B0->TCR & 0x01) == 0)?1:0;		
 }
+#if 0
 static void vTimerStop()
 {
 	LPC_TMR32B0->TCR = 0x02;	
 }
-
+#endif
 uint8_t sendPacket(uint8_t* context, uint32_t len)
 {
     uint32_t sendlen = buildPacket(context,len,packet,512);
-    //dumpData(packet,sendlen);
 		vUARTSend(packet,sendlen);
-    //_zigbeeCom->Write (packet,sendlen);
-	return len;
+		return len;
 }
 
 uint8_t buildAckPacket(uint8_t code,uint8_t ack,uint16_t ssid)
@@ -242,18 +246,12 @@ uint8_t    parseUploadReq(uint16_t ssid,uint32_t fileSiz)
 				{
 					//uint16_t u16CRC = 0;
 					
-					curSession = ssid;
-					totalSize = fileSiz;
+					curSession  = ssid;
+					totalSize   = fileSiz;
 					totalPktNum = fileSiz / PACKET_SIZE;
 					u32NextFlashWriteAddr = APP_START_ADDR; 
-					buildAckPacket(CMD_UPLOAD_REQ,ERR_OK,ssid);
-					
+					buildAckPacket(CMD_UPLOAD_REQ,ERR_OK,ssid);				
 					return 1;
-					//u16CRC = u16CRC_Calc16((const uint8_t *)APP_START_ADDR, (APP_END_ADDR - APP_START_ADDR - 4));
-
-					/* Write the CRC value into the last 16-bit location of flash, this
-						 will be used to check for a valid application at startup  */
-					//(void)u32Bootloader_WriteCRC(u16CRC);
 				}
 		}
 		
@@ -261,8 +259,6 @@ uint8_t    parseUploadReq(uint16_t ssid,uint32_t fileSiz)
 		return 0;		
 		
 }
-
-__align(4)  static uint8_t au8RxBuffer[FLASH_PAGE_SIZE];
 
 uint8_t    parseUploadData(uint16_t ssid,uint16_t pktIdx, uint8_t* data, uint32_t len)
 {
@@ -274,17 +270,22 @@ uint8_t    parseUploadData(uint16_t ssid,uint16_t pktIdx, uint8_t* data, uint32_
 				buildAckPacket(CMD_UPLOAD_DATA,ERR_SESSION,ssid);
 				return 0;
 		}
-		if( (pktIdx+1) >= totalPktNum) 
+		if(pktIdx > totalPktNum)
 		{
-			needWrite = 1;
+			  buildAckPacket(CMD_UPLOAD_DATA,ERR_PACKET_NUM,ssid);
+			  return 0;
+		}
+		if( (pktIdx+1) == totalPktNum) 
+		{
+				needWrite = 1;
 		} 
 		memcpy(&au8RxBuffer[offset*PACKET_SIZE] ,data,len);
 		if(offset != 3u)
 		{
-			if( (pktIdx+1) >= totalPktNum) 
+			if( (pktIdx+1) >= totalPktNum)  //最后一包数据
 			{
 			   	needWrite = 1;
-				memset(&au8RxBuffer[(offset+1)*PACKET_SIZE],0,(3-offset)*PACKET_SIZE);
+					memset(&au8RxBuffer[(offset+1)*PACKET_SIZE],0,(3-offset)*PACKET_SIZE);
 			}
 				
 		}
@@ -293,8 +294,7 @@ uint8_t    parseUploadData(uint16_t ssid,uint16_t pktIdx, uint8_t* data, uint32_
 		  	needWrite = 1;	
 		}
 
-		
-
+	
 		if(needWrite)
 		{
 			if(!u32BootLoader_ProgramFlash(au8RxBuffer,FLASH_PAGE_SIZE))
@@ -342,7 +342,7 @@ static uint16_t buf2uint32(uint8_t* buff)
 static uint8_t parseUpload(uint8_t* buff, uint32_t len)
 {
 		uint8_t i = 0;
-	  	uint8_t ret = 0;
+	  uint8_t ret = 0;
 		for(; i < 4; i++)
 		{
 				if(buff[i] != termId[i]) break;
@@ -350,27 +350,24 @@ static uint8_t parseUpload(uint8_t* buff, uint32_t len)
 		if(i != 4) return 0 ;
 		
 		group = buff[4];
-		cmd = buff[5];
+		cmd 	= buff[5];
 		
 		switch(cmd)
 		{
 			case CMD_UPLOAD_REQ:
-				parseUploadReq( buf2uint16(buff+6) , buf2uint32(buff+8));
-				ret = 1;
+				ret = parseUploadReq( buf2uint16(buff+6) , buf2uint32(buff+8)); 
  				break;
 			case CMD_UPLOAD_DATA:
 			{
 				
 				uint16_t sid = buf2uint16(buff+6);
 				uint16_t idx = buf2uint16(buff+8);
-				parseUploadData(sid,idx,buff+10, len-10);
-				ret = 1;
+				ret = parseUploadData(sid,idx,buff+10, len-10);
 				break;
 			}
 			
 			case CMD_UPLOAD_VERIFY:
-				parseUploadVerify(buf2uint16(buff+6),buf2uint16(buff+8));
-				ret = 1;
+				ret = parseUploadVerify(buf2uint16(buff+6),buf2uint16(buff+8));
 				break;
 			case CMD_RESET:
 				quit = 1;
@@ -380,39 +377,44 @@ static uint8_t parseUpload(uint8_t* buff, uint32_t len)
 		
 		return ret;
 }
-
-uint8_t waitUploadRequest()
+void resetVar()
 {
-		vTimerStart(5000);
+	curSession = 0;
+	totalSize = 0;
+	totalPktNum = 0;
+	u32NextFlashWriteAddr = APP_START_ADDR;
+	
+}
+void UploadService()
+{
+		vTimerStart(UPLOAD_TIMEOUT);
 		quit = 0;
+	
+		resetVar();
 		while(!quit)
 		{
-			if(u8UARTReceive(&ch))
+			if(vTimerTimeOut()) break; //超时跳出
+			
+			if(!u8UARTReceive(&ch)) continue; //没有收到数据
+			
+			if(!parseChar(ch)) continue; //不是协议包
+
+			pkt = readPacket(&pktLen); //读出一条数据
+			if(parseUpload(pkt,pktLen)) //正确的升级数据
 			{
-				if(parseChar(ch))
-				{
-					pkt = readPacket(&pktLen);
-					if(parseUpload(pkt,pktLen)) 
-					{
-						 //只要收到升级请求数据就复位计数器
-						vTimerStart(5000);
-					}
-				}					
+				 //只要收到正确的升级数据就复位计数器
+					vTimerStart(UPLOAD_TIMEOUT);
 			}
-			
-			if(vTimerTimeOut()) break;
-			
+
 		}
-		
-	  return 0;
 }
 
-void upload_task(void)
+void UploadTask(void)
 {
 	protoParserInit(0);
 	vUARTInit(19200);
 	
-	waitUploadRequest();
+	UploadService();
 
 }
 

@@ -2,6 +2,8 @@
 #define _Application_H
 
 
+
+
 #define Data_Len 200
 //#define Zigbee_CFG		 (1ul << 8)
 //#define Zigbee_CFG_H()   LPC_GPIO1->DATA |=	 Zigbee_CFG
@@ -20,14 +22,12 @@ extern void ZigbeeSetup(void);
 extern void Inquiry_ID(void);
 extern void SetupPwm(void);
 extern void Inquiry_Version(void);
-extern void SetupGroupNumber(void);
 extern void InquiryGroupNumber(void);//查询组号
 extern void InquiryLightValue(void);//查询灯光值
 extern uint32_t Light_Measuring_220AV(void);//测量电压电流
 extern void SetupCoefficient(void);
 extern uint32_t Measuring_Pactive(void); //测有功功率
 extern void SetZigbee(void);
-extern void Modify_ID(void);
 extern void deleteSetupGroupNumber(void);
 extern void InquiryAcquiesceLightValue(void);
 extern void Setup_lighttime(void);

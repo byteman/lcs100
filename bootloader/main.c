@@ -29,9 +29,11 @@
 #include "uart.h"
 #include "upload.h"
 #include "byprotocol.h"
-
+#include "24c02.h"
 
 uint32_t u32BootLoader_AppPresent(void);
+uint8_t  termId[4] = {0x0,0x0,0x0,0x1};
+static 	 uint8_t temp_id[7];
 /*****************************************************************************
  ** Function name:  main
  **
@@ -45,13 +47,13 @@ uint32_t u32BootLoader_AppPresent(void);
 __asm void runApp()
 {
 
-		ldr r0, =0x1000
+		ldr r0, =0x2000
 		ldr r0, [r0]
 		mov sp, r0
 
 		/* Load program counter with application reset vector address, located at
 		   second word of application area. */
-		ldr r0, =0x1004
+		ldr r0, =0x2004
 		ldr r0, [r0]
 		bx  r0
 
@@ -64,7 +66,7 @@ void goApp()
 	{
 		/* Valid application not present, execute bootloader task that will
 			 obtain a new application and program it to flash.. */
-		upload_task();
+		UploadTask();
 
 		/* Above function only returns when new application image has been
 			 successfully programmed into flash. Begin execution of this new
@@ -82,11 +84,32 @@ void goApp()
 	}
 }
 
+void initParam()
+{
+	i2c_lpc_init(0);
+	
+  
+  m24xx_read(EEPROM_24XX02,7,0,temp_id,4); //从地址0x07处开始读出40个数字到rebuf
+
+//Terminal ID [3-6]
+	if(temp_id[3]==0xff&temp_id[4]==0xff&temp_id[5]==0xff&temp_id[6]==0xff)
+	{
+		
+	}
+	else
+	{
+			termId[0] = temp_id[3];
+			termId[1] = temp_id[4];
+			termId[2] = temp_id[5];
+			termId[3] = temp_id[6];
+	}
+		
+}
 int main(void)
 {
 	SystemInit();
-	
-	upload_task();
+	initParam();
+	UploadTask();
 	goApp();
 	/* This should never be executed.. */
 	return 0;
@@ -111,7 +134,7 @@ int main(void)
 __asm void NMI_Handler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1008
+	ldr r0, =0x2008
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -130,7 +153,7 @@ __asm void NMI_Handler(void)
 __asm void HardFault_Handler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x100C
+	ldr r0, =0x200C
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -150,7 +173,7 @@ __asm void SVCall_Handler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
 	
-	ldr r0, =0x102C
+	ldr r0, =0x202C
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -171,7 +194,7 @@ __asm void PendSV_Handler(void)
 {
 	
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1038
+	ldr r0, =0x2038
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -191,7 +214,7 @@ __asm void PendSV_Handler(void)
 __asm void SysTick_Handler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x103C
+	ldr r0, =0x203C
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -210,7 +233,7 @@ __asm void SysTick_Handler(void)
 __asm void WAKEUP_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1040
+	ldr r0, =0x2040
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -229,7 +252,7 @@ __asm void WAKEUP_IRQHandler(void)
 __asm void I2C_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x107C
+	ldr r0, =0x207C
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -248,7 +271,7 @@ __asm void I2C_IRQHandler(void)
 __asm void TIMER16_0_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1080
+	ldr r0, =0x2080
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -267,7 +290,7 @@ __asm void TIMER16_0_IRQHandler(void)
 __asm void TIMER16_1_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1084
+	ldr r0, =0x2084
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -286,7 +309,7 @@ __asm void TIMER16_1_IRQHandler(void)
 __asm void TIMER32_0_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1088
+	ldr r0, =0x2088
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -305,7 +328,7 @@ __asm void TIMER32_0_IRQHandler(void)
 __asm void TIMER32_1_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x108C
+	ldr r0, =0x208C
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -324,7 +347,7 @@ __asm void TIMER32_1_IRQHandler(void)
 __asm void SSP_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1090
+	ldr r0, =0x2090
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -343,7 +366,7 @@ __asm void SSP_IRQHandler(void)
 __asm void UART_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1094
+	ldr r0, =0x2094
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -362,7 +385,7 @@ __asm void UART_IRQHandler(void)
 __asm void USB_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x1098
+	ldr r0, =0x2098
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -381,7 +404,7 @@ __asm void USB_IRQHandler(void)
 __asm void USB_FIQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x109C
+	ldr r0, =0x209C
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -400,7 +423,7 @@ __asm void USB_FIQHandler(void)
 __asm void ADC_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x10A0
+	ldr r0, =0x20A0
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -419,7 +442,7 @@ __asm void ADC_IRQHandler(void)
 __asm void WDT_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x10A4
+	ldr r0, =0x20A4
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -438,7 +461,7 @@ __asm void WDT_IRQHandler(void)
 __asm void BOD_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x10A8;
+	ldr r0, =0x20A8;
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -457,7 +480,7 @@ __asm void BOD_IRQHandler(void)
 __asm void FMC_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x10AC
+	ldr r0, =0x20AC
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -476,7 +499,7 @@ __asm void FMC_IRQHandler(void)
 __asm void PIOINT3_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x10B0
+	ldr r0, =0x20B0
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -495,7 +518,7 @@ __asm void PIOINT3_IRQHandler(void)
 __asm void PIOINT2_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x10B4
+	ldr r0, =0x20B4
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -514,7 +537,7 @@ __asm void PIOINT2_IRQHandler(void)
 __asm void PIOINT1_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x10B8
+	ldr r0, =0x20B8
 	ldr r0, [r0]
 	bx  r0
 	nop
@@ -535,7 +558,7 @@ __asm void PIOINT1_IRQHandler(void)
 __asm void PIOINT0_IRQHandler(void)
 {
 	/* Re-direct interrupt, get handler address from application vector table */
-	 ldr r0, =0x10BC
+	 ldr r0, =0x20BC
 	 ldr r0, [r0]
 	 bx  r0
 	 nop

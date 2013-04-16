@@ -11,258 +11,220 @@
 #include "wdt.h"
 #include "math.h"
 #include "gpio.h"
+#include "LedProto.h"
+#include "param.h"
+
+#define MAX_RESP_BUFF_SIZE  128
+
+
 uint8_t Data_Buf[Data_Len];
-uint8_t field[10];
-uint8_t value[10]= {0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64};
-uint32_t pwmtimer=10;
-uint8_t zigbeeflag=0;
-extern volatile  uint32_t timer32_0_counter;
-void App_Command(void)//各个命令分解
+//uint8_t field[10];
+//uint8_t value[10]= {0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64};
+
+//uint8_t zigbeeflag=0;
+uint8_t LedVesion = 100;  //1.00版本 0.01 - 2.53
+uint8_t Command;
+uint8_t Mode;
+
+static uint8_t respBuf[MAX_RESP_BUFF_SIZE];
+
+static toShort(uint8_t* buf)
 {
-    uint32_t value=0;
-    uint8_t Command;
-    uint32_t CRC16_value=0;
-    uint8_t Light_Status=0x30;
-    uint8_t temp_buf[20];
-    Command=Data_Buf[7];
-    Command=Command&0x7F;
-    if(Command==0x07)//调光命令
-    {
+	return (buf[0]<<8) + buf[1];
+}
+extern volatile  uint32_t timer32_0_counter;
 
-        Tune_Light();
-        Frame_OK(0x07);
-    }
-    else if(Command==0x33)//测电压
-    {
-        value=Measuring_220V();
-        memset(temp_buf,0,20);
-        temp_buf[0]=0x7e;
-        temp_buf[1]=0x02;
-        memcpy(&temp_buf[2],Terminal_ID,4);
-        temp_buf[6]=group_number;
-        temp_buf[7]=0x00;      //应答码
-        temp_buf[8]=0xF3;     //控制码
-        temp_buf[9]=(0xc0+((value&0xFF00)>>8));   //单位为1V      数据
-        temp_buf[10]=value&0x00FF;
-        CRC16_value=CRC16_1(temp_buf,9);
-        temp_buf[11]=((CRC16_value&0xff00)>>8);
-        temp_buf[12]=CRC16_value&0x00ff;
-        temp_buf[13]=0x0d;
-        temp_buf[14]=0x0a;
-        UARTSend( (uint8_t *)temp_buf, 15 );
-    }
-    else if(Command==0x34)//测电流
-    {
+//回复协议
+static void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len);
+static void RespNoPara(uint8_t command,uint8_t ack);
+static void RespCharPara(uint8_t command,uint8_t ack,uint8_t value);
 
-        value=Measuring_AC();
-        memset(temp_buf,0,20);
-        temp_buf[0]=0x7e;
-        temp_buf[1]=0x02;
-        memcpy(&temp_buf[2],Terminal_ID,4);
-        temp_buf[6]=group_number;
-        temp_buf[7]=0x00;
-        temp_buf[8]=0xF4;
-        temp_buf[9]=(value&0xFF00)>>8;   //单位为1MA
-        temp_buf[10]=value&0x00FF;
-        CRC16_value=CRC16_1(temp_buf,9);
-        temp_buf[11]=((CRC16_value&0xff00)>>8);
-        temp_buf[12]=CRC16_value&0x00ff;
-        temp_buf[13]=0x0d;
-        temp_buf[14]=0x0a;
-        UARTSend( (uint8_t *)temp_buf, 15);
-    }
-    else if(Command==0x35)//测有功功率
-    {
-        value= Measuring_Pactive();
-        memset(temp_buf,0,20);
-        temp_buf[0]=0x7e;
-        temp_buf[1]=0x02;
-        memcpy(&temp_buf[2],Terminal_ID,4);
-        temp_buf[6]=group_number;
-        temp_buf[7]=0x00;              //应答码
-        temp_buf[8]=0xF5;
-        temp_buf[9]=(0x80+((value&0xFF00)>>8));//单位为100MW
-        temp_buf[10]=value&0x00FF;
-        CRC16_value=CRC16_1(temp_buf,9);
-        temp_buf[11]=((CRC16_value&0xff00)>>8);
-        temp_buf[12]=CRC16_value&0x00ff;
-        temp_buf[13]=0x0d;
-        temp_buf[14]=0x0a;
-        UARTSend( (uint8_t *)temp_buf, 15 );
 
-    }
-    else if(Command==0x01)//zigbee模块配置
-    {
-        //         Frame_OK(0x01);
-        ZigbeeSetup();
-        Frame_OK(0x01);
+/**
+ * Convert an u32_t from host- to network byte order.
+ *
+ * @param n u32_t in host byte order
+ * @return n in network byte order
+ */
+unsigned int
+_htonl(unsigned int n)
+{
+  return ((n & 0xff) << 24) |
+    ((n & 0xff00) << 8) |
+    ((n & 0xff0000UL) >> 8) |
+    ((n & 0xff000000UL) >> 24);
+}
 
-    }
-    else if(Command==0x02)//重启
-    {
+/**
+ * Convert an u32_t from network- to host byte order.
+ *
+ * @param n u32_t in network byte order
+ * @return n in host byte order
+ */
+unsigned int
+_ntohl(unsigned int n)
+{
+  return _htonl(n);
+}
 
-        if(Command==0x02)
-        {
-            Frame_OK(0x02);
-        }
-// 		Delay1_MS(100000);
-        //	Falg_WDT=TRUE;
-    }
-    else if(Command==0x12)//修改设备ID
-    {
-        Modify_ID();
-        Frame_OK(0x12);
-    }
-    else if(Command==0x31)//查询ID
-    {
-        Inquiry_ID();
-    }
-    else if(Command==0x0B)//设置默认调光值
-    {
+/**
+ * Convert an u16_t from host- to network byte order.
+ *
+ * @param n u16_t in host byte order
+ * @return n in network byte order
+ */
+unsigned short
+_htons(unsigned short n)
+{
+  return ((n & 0xff) << 8) | ((n & 0xff00) >> 8);
+}
 
-        SetupPwm();
-        Frame_OK(0x0B);
-    }
-    else if(Command==0x0C)//设置组号
+/**
+ * Convert an u16_t from network- to host byte order.
+ *
+ * @param n u16_t in network byte order
+ * @return n in host byte order
+ */
+unsigned short
+_ntohs(unsigned short n)
+{
+  return _htons(n);
+}
+
+
+static void resetCtrl(uint16_t afterMs)
+{
+	RespNoPara(CMD_RESET,ERR_OK);
+	Delay1_MS(afterMs);
+	NVIC_SystemReset();
+}
+
+//FIXME 到底需要闪烁多久，是一直闪到发命令停止，还是指定时间或者次数
+static void setTwinkle(uint16_t periodMs)
+{
+	
+	uint16_t cnt = 10;
+	RespNoPara(CMD_TWINKLE,ERR_OK);
+
+	
+    while(cnt--)
     {
-
-        SetupGroupNumber();
-        Frame_OK(0x0C);
+        Duty_Time=100;
+        init_timer32PWM(1,TIME_INTERVAL,0x01);
+        Delay1_MS(periodMs);
+        Duty_Time=00;
+        init_timer32PWM(1,TIME_INTERVAL,0x01);
+        Delay1_MS(periodMs);
     }
-    else if(Command==0x0D)//将当前LED从组中删除
-    {
 
-        deleteSetupGroupNumber();
-        Frame_OK(0x0D);
-    }
-    else if(Command==0x39)//查询组号
-    {
+}
 
-        InquiryGroupNumber();
-    }
-    else if(Command==0x36)//查询当前调光值
-    {
+void SetupAdjustTime(uint8_t waitS)//设置调光时间
+{
+    adj_timeS=waitS;
 
-        InquiryLightValue();
-    }
-    else if(Command==0x37)//查询默认调光值
-    {
+	RespNoPara(CMD_SET_ADJ_TIME,ERR_OK);
 
-        InquiryAcquiesceLightValue();
-    }
-    else if(Command==0x3C)//查询固件版本号
-    {
+	paramSetU8(PARAM_ADJ_TIME,waitS);
 
-        Inquiry_Version();
-    }
-    else if(Command==0x3B)//查询灯状态
-    {
 
-        //uint32_t Light_Measuring_220AV();
-        if(value<20)//终端状态
-        {
-            Light_Status=0x31;
-        }
-        else if(value<10)
-        {
-            Light_Status=0x32;
-        }
-        else
-        {
-            Light_Status=0x30;
-        }
+	
+}
 
-    }
-    else if(Command==0x0A)//设置调光时间
-    {
+void SetupDefaultBrightness(uint8_t brightness)//设置默认调光值
+{
+    default_brightness=brightness;
 
-        Setup_lighttime();
-        Frame_OK(0x0A);
-    }
-    else  if(Command==0x08)//闪烁
-    {
+	RespNoPara(CMD_SET_DEFAULT_BRIGHTNESS,ERR_OK);
 
-        flicker();
-        Frame_OK(0x08);
-    }
-    else  if(Command==0x0E)//设置某场景的调光值
-    {
+	paramSetU8(PARAM_DEF_BRIGHTNESS,brightness);
 
-        Setup_fieldlight();
-        Frame_OK(0x0E);
-    }
-    else   if(Command==0x0F)//将某场景值移除
-    {
+}
+void SetupGroupNumber(uint8_t group)//设置组号
+{
+    group_number=group;
 
-        remove_fieldlight();
-        Frame_OK(0x0F);
-    }
-    else   if(Command==0x11)//进入某种场景
-    {
+	
+	RespNoPara(CMD_SET_GROUP,ERR_OK);
+	
+	paramSetU8(PARAM_GROUP,group_number);
+}
+static void queryVoltage()
+{
+	
+	uint16_t voltage =Measuring_220V();
+	voltage = _htons(voltage);
 
-        in_field();
-        Frame_OK(0x11);
-    }
-    else   if(Command==0x3A)//查询灯某场景的调光值
-    {
+	ResponseMsg(CMD_QUERY_VOLTAGE,ERR_OK,(uint8_t*)&voltage,sizeof(uint16_t));
+	
+}
+static void queryCurrent()
+{
+	
+	
+	uint16_t currentMA =Measuring_AC(); //以MA为单位
+	currentMA = _htons(currentMA);
 
-        Inquiry_fieldlightvalue();
-    }
-    else   if(Command==0x32)//查询所有数据
-    {
+	ResponseMsg(CMD_QUERY_VOLTAGE,ERR_OK,(uint8_t*)&currentMA,sizeof(uint16_t));
+	
+}
+static void queryPactive()
+{
 
-        Inquiry_alldata();
-    }
-    else   if(Command==0x38)//查询调光时间
-    {
+	uint16_t value =Measuring_Pactive(); //单位为100MW
+	value = _htons(value);
+	
+	ResponseMsg(CMD_QUERY_VOLTAGE,ERR_OK,(uint8_t*)&value,sizeof(uint16_t));
+	
+}
+void Modify_ID(unsigned char* pId)    //修改设备ID号
+{
 
-        Inquiry_lighttime();
-    }
-    else   if(Command==0x06)   //烧写配置信息到EEPROM
-    {
+   	memcpy(Terminal_ID,pId,4);
+	
+	paramSetBuff(PARAM_ID,Terminal_ID,4);
+}
+void InquiryGroupNumber(void)//查询组号
+{
+    RespCharPara(CMD_QUERY_GROUP,ERR_OK,group_number);
+}
+void InquiryLightValue(void)//查询当前调光值
+{
+    RespCharPara(CMD_QUERY_BRIGHTNESS,ERR_OK,Duty_Time);
+}
+void InquiryAcquiesceLightValue(void)   //查询默认调光值
+{
+	RespCharPara(CMD_QUERY_DEFAULT_BRIGHTNESS,ERR_OK,default_brightness);
+}
+void Inquiry_Version(void)//查询固件版本号
+{
+	RespCharPara(CMD_QUERY_DEFAULT_BRIGHTNESS,ERR_OK,LedVesion);
+}
 
-        configuration();
-    }
-    else   if(Command==0x10)//设置通讯波特率
-    {
 
-        Baud_Rate ();
-        Frame_OK(0x10);
-    }
-    else   if(Command==0x09)//心跳包
-    {
+void Inquiry_lighttime(void)  //查询调光时间
+{
+	RespCharPara(CMD_QUERY_ADJ_TIME,ERR_OK,adj_timeS);
+}
 
-        heartbeat ();
-    }
-    else   if(Command==0x03)//固件升级请求命令
-    {
+void Inquiry_ZigbeeCfg()
+{
 
-        upgrade();
-    }
-    else   if(Command==0x04)//固件升级数据包
-    {
-
-        upgradedata();
-    }
-    else if(Command==0x05)//固件升级校验包
-    {
-
-        upgradecrc();
-    }
 }
 
 /*************************调光函数**********************************************/
-void Tune_Light(void)
+static void adjustBrightness(uint8_t brightness)
 {
 
     uint32_t timer=2,pwmtimer1=0,pwmtimer0=0,pwmtimer2=0;
     uint32_t lightvalue=0;
 
-    Duty_Time_Temp=Data_Buf[8];
+    Duty_Time_Temp= brightness;
+	
     lightvalue=Duty_Time;
     if(Duty_Time_Temp!=lightvalue)
     {
-        timer = (uint32_t)pow(2,pwmtimer);
+        timer = (uint32_t)pow(2,adj_timeS);
         pwmtimer2=(timer*20);
         if(Duty_Time_Temp>lightvalue)
         {
@@ -313,345 +275,116 @@ void Tune_Light(void)
         init_timer32PWM(1,TIME_INTERVAL,0x01);
     }
 
-}
-void SetupPwm(void)//设置默认调光值
-{
-    Duty_Time=Data_Buf[8];
-
-    memset(Data_Buf,0,Data_Len);
-    Data_Buf[0]=Duty_Time;
-    m24xx_write(EEPROM_24XX02,15,0,Data_Buf,1);	  //向地址0x0f处开始写入1个数字
-    memset(Data_Buf,0,Data_Len);
-}
-
-void Setup_fieldlight(void)  //设置某场景的调光值
-{
-    uint8_t num=0;
-
-    num=Data_Buf[8];
-    field[num]=num;         //场景号
-    value[num]=Data_Buf[9];   //调光值
-    m24xx_write(EEPROM_24XX02,50+num,0,&field[num],1);
-    m24xx_write(EEPROM_24XX02,60+num,0,&value[num],1);
+	
+	RespNoPara(CMD_ADJUST_BRIGHTNESS,ERR_OK);
 
 }
-void remove_fieldlight(void)  //将某场景值移除
-{
-    uint8_t num=0;
-    num=Data_Buf[8];
-    field[num]=0x00;
-    value[num]=0x64;
-    m24xx_write(EEPROM_24XX02,50+num,0,&field[num],1);
-    m24xx_write(EEPROM_24XX02,60+num,0,&value[num],1);
-
-}
-void in_field(void)  //进入某种场景
-{
-    uint8_t num=0;
-    num=Data_Buf[8];     //场景号
-    field[num]=num;
-    value[num]=value[num];
-    Duty_Time=value[num];
-    init_timer32PWM(1,TIME_INTERVAL,0x01);
-    memset(Data_Buf,0,Data_Len);
-    Data_Buf[0]=Duty_Time;
-    m24xx_write(EEPROM_24XX02,15,0,Data_Buf,1);	  //向地址0x0f处开始写入1个数字
-    memset(Data_Buf,0,Data_Len);
-    m24xx_write(EEPROM_24XX02,50+num,0,&field[num],1);
-
-}
-void Inquiry_fieldlightvalue(void)  //查询灯某场景的调光值
-{
-    uint8_t num=0;
-    uint8_t temp_buf[20];
-    uint32_t CRC16_value=0;
-    num=Data_Buf[8];
-    value[num]=value[num];
-    temp_buf[0]=0x7e;
-    temp_buf[1]=0x02;
-    memcpy(&temp_buf[2],Terminal_ID,4);
-    temp_buf[6]=group_number;
-    temp_buf[7]=0x00;
-    temp_buf[8]=0xFA;    //回复控制码0XC0+0X3A
-    temp_buf[9]=num;
-    temp_buf[10]=value[num];
-
-    CRC16_value=CRC16_1(temp_buf,11);
-    temp_buf[11]=((CRC16_value&0xff00)>>8);
-    temp_buf[12]=CRC16_value&0x00ff;
-    temp_buf[13]=0x0d;
-    temp_buf[14]=0x0a;
-    UARTSend( (uint8_t *)temp_buf, 15 );
-}
-void flicker(void)  //闪烁
-{
-    uint32_t timer=100;
-    uint8_t  a=0,num;
-    a=Data_Buf[1];         //消息长度
-    if(a>0x00)
-    {
-        for(num=0; num<2; num++)
-        {
-            timer+=Data_Buf[8+num];
-        }
-    }
-
-    while(1)
-    {
-        Duty_Time=100;
-        init_timer32PWM(1,TIME_INTERVAL,0x01);
-        Delay1_MS(timer);
-        Duty_Time=00;
-        init_timer32PWM(1,TIME_INTERVAL,0x01);
-        Delay1_MS(timer);
-    }
-}
-
-void SetupGroupNumber(void)//设置组号
-{
-    group_number=Data_Buf[8];
-    memset(Data_Buf,0,Data_Len);
-    Data_Buf[0]=group_number;
-    m24xx_write(EEPROM_24XX02,17,0,Data_Buf,1); //向地址0x11处开始写入1个数字
-    memset(Data_Buf,0,Data_Len);
-}
-
-void InquiryGroupNumber(void)//查询组号
-{
-    uint8_t temp_buf[20];
-
-    uint32_t CRC16_value=0;
-    memset(temp_buf,0,20);
-    temp_buf[0]=0x7e;
-    temp_buf[1]=0x01;
-    memcpy(&temp_buf[2],Terminal_ID,4);
-    temp_buf[6]=group_number;
-    temp_buf[7]=0x00;
-    temp_buf[8]=0xF9;
-    temp_buf[9]=group_number;
-
-    CRC16_value=CRC16_1(temp_buf,11);
-    temp_buf[10]=((CRC16_value&0xff00)>>8);
-    temp_buf[11]=CRC16_value&0x00ff;
-    temp_buf[12]=0x0d;
-    temp_buf[13]=0x0a;
-    UARTSend( (uint8_t *)temp_buf, 14 );
-}
-void deleteSetupGroupNumber(void)//将当前LED从组中删除
-{
-    group_number = 0XFF;
-    m24xx_write(EEPROM_24XX02,17,0,&group_number,1); //向地址0x11处开始写入1个数字
-}
-
-void Inquiry_ID(void)//查询ID号
-{
-    uint8_t temp_buf[20];
-
-    uint32_t CRC16_value=0;
-    memset(temp_buf,0,20);
-    temp_buf[0]=0x7e;
-    temp_buf[1]=0x04;
-    memcpy(&temp_buf[2],Terminal_ID,4);
-    temp_buf[6]=group_number;
-    temp_buf[7]=0x00;
-    temp_buf[8]=0xF1;
-    memcpy(&temp_buf[9],Terminal_ID,4);
-    CRC16_value=CRC16_1(temp_buf,12);
-    temp_buf[13]=((CRC16_value&0xff00)>>8);
-    temp_buf[14]=CRC16_value&0x00ff;
-    temp_buf[15]=0x0d;
-    temp_buf[16]=0x0a;
-    UARTSend( (uint8_t *)temp_buf, 17 );
-}
-void Modify_ID(void)    //修改设备ID号
-{
-    uint8_t  DataL = 0;
-    uint8_t  num = 0;
-    DataL = Data_Buf[1];      //数据长度
-    for(num = 0 ; num < DataL ; num++)
-        Terminal_ID[num] = Data_Buf[8+num];
-    m24xx_write(EEPROM_24XX02, 10, 0, Terminal_ID, 4);
-}
-void Setup_lighttime(void)//设置调光时间
-{
-    pwmtimer=Data_Buf[8];
-    Data_Buf[0]=pwmtimer;
-    m24xx_write(EEPROM_24XX02,70,0,Data_Buf,1); //向地址0x11处开始写入1个数字
-    memset(Data_Buf,0,Data_Len);
-
-}
-void Inquiry_Version(void)//查询固件版本号
-{
-    uint8_t temp_buf[20];
-
-    uint32_t CRC16_value=0;
-    memset(temp_buf,0,20);
-    temp_buf[0]=0x7e;
-    temp_buf[1]=0x03;
-    memcpy(&temp_buf[2],Terminal_ID,4);
-    temp_buf[6]=group_number;
-    temp_buf[7]=0x00;
-    temp_buf[8]=0xFC;
-    memcpy(&temp_buf[9],Version,3);
-    CRC16_value=CRC16_1(temp_buf,11);
-    temp_buf[12]=((CRC16_value&0xff00)>>8);
-    temp_buf[13]=CRC16_value&0x00ff;
-    temp_buf[14]=0x0d;
-    temp_buf[15]=0x0a;
-    UARTSend( (uint8_t *)temp_buf, 16 );
-}
-
-
 
 void Inquiry_alldata(void)   //查询所有数据
 {
-    uint8_t temp_buf[25];
-    uint32_t ALLdata[11];
-    uint8_t  data[1]= {0};
-    uint32_t CRC16_value=0;
-    ALLdata[0] = Measuring_220V();
-    ALLdata[1] = Measuring_AC();
-    ALLdata[2] = Measuring_Pactive();
-    ALLdata[3] = Duty_Time;
-    m24xx_read(EEPROM_24XX02,15,0,data,1);	//默认调光值
-    ALLdata[4] = *data;
-    ALLdata[5] = pwmtimer;
-    ALLdata[6] = group_number;
-    ALLdata[7] = Terminal_ID[0];
-    ALLdata[8] = Terminal_ID[1];
-    ALLdata[9] = Terminal_ID[2];
-    ALLdata[10] = Terminal_ID[3];
 
-    temp_buf[0]=0x7e;
-    temp_buf[1]=0x0b;
-    memcpy(&temp_buf[2],Terminal_ID,4);
-    temp_buf[6]=group_number;
-    temp_buf[7]=0x00;
-    temp_buf[8]=0xF2;
-    memcpy(&temp_buf[9],ALLdata,11);
-    CRC16_value=CRC16_1(temp_buf,11);
-    temp_buf[20]=((CRC16_value&0xff00)>>8);
-    temp_buf[21]=CRC16_value&0x00ff;
-    temp_buf[22]=0x0d;
-    temp_buf[23]=0x0a;
-    UARTSend( (uint8_t *)temp_buf, 24 );
+    uint8_t ALLdata[32];
+	uint32_t temp = Measuring_220V();
+	
+    ALLdata[0] = temp>>24;
+    ALLdata[1] = temp>>16;
+    ALLdata[2] = temp>>8;
+    ALLdata[3] = temp>>0;
 
+
+    temp = Measuring_AC();
+	
+    ALLdata[4] = temp>>24;
+    ALLdata[5] = temp>>16;
+    ALLdata[6] = temp>>8;
+    ALLdata[7] = temp>>0;
+
+
+	temp = Measuring_Pactive();
+	
+    ALLdata[8]  = temp>>24;
+    ALLdata[9]  = temp>>16;
+    ALLdata[10] = temp>>8;
+    ALLdata[11] = temp>>0;
+
+	
+    ALLdata[12] = brightness;
+    ALLdata[13] = default_brightness;
+    ALLdata[14] = adj_timeS;
+    ALLdata[15] = group_number;
+    ALLdata[16] = Terminal_ID[0];
+    ALLdata[17] = Terminal_ID[1];
+    ALLdata[18] = Terminal_ID[2];
+    ALLdata[19] = Terminal_ID[3];
+
+	ResponseMsg(CMD_QUERY_ALL,ERR_OK,ALLdata,20);
 
 }
 
-
-void Inquiry_lighttime(void)  //查询调光时间
+void Write2EEPROM(unsigned char* buff, int len)
 {
-    uint8_t temp_buf[20];
 
-    uint32_t CRC16_value=0;
-    memset(temp_buf,0,20);
-    temp_buf[0]=0x7e;
-    temp_buf[1]=0x01;
-    memcpy(&temp_buf[2],Terminal_ID,4);
-    temp_buf[6]=group_number;
-    temp_buf[7]=0x00;
-    temp_buf[8]=0xF8;
-    temp_buf[9]=pwmtimer;
-    CRC16_value=CRC16_1(temp_buf,11);
-    temp_buf[10]=((CRC16_value&0xff00)>>8);
-    temp_buf[11]=CRC16_value&0x00ff;
-    temp_buf[12]=0x0d;
-    temp_buf[13]=0x0a;
-    UARTSend( (uint8_t *)temp_buf, 14 );
 }
-void InquiryLightValue(void)//查询当前调光值
+void App_Command()//各个命令分解
 {
-    uint8_t temp_buf[20];
-
-    uint32_t CRC16_value=0;
-    memset(temp_buf,0,20);
-    temp_buf[0]=0x7e;
-    temp_buf[1]=0x01;
-    memcpy(&temp_buf[2],Terminal_ID,4);
-    temp_buf[6]=group_number;
-    temp_buf[7]=0x00;
-    temp_buf[8]=0xF6;
-    temp_buf[9]=Duty_Time;
-
-    CRC16_value=CRC16_1(temp_buf,11);
-    temp_buf[10]=((CRC16_value&0xff00)>>8);
-    temp_buf[11]=CRC16_value&0x00ff;
-    temp_buf[12]=0x0d;
-    temp_buf[13]=0x0a;
-    UARTSend( (uint8_t *)temp_buf, 14 );
-}
-
-void InquiryAcquiesceLightValue(void)   //查询默认调光值
-{
-
-    uint8_t temp_buf[20];
-
-    uint32_t CRC16_value=0;
-    memset(temp_buf,0,20);
-    temp_buf[0]=0x7e;
-    temp_buf[1]=0x01;
-    memcpy(&temp_buf[2],Terminal_ID,4);
-    temp_buf[6]=group_number;
-    temp_buf[7]=0x00;
-    temp_buf[8]=0xF7;
-    //     temp_buf[9]=Duty_Time;
-    m24xx_read(EEPROM_24XX02,15,0,&temp_buf[9],1);
-    CRC16_value=CRC16_1(temp_buf,11);
-    temp_buf[10]=((CRC16_value&0xff00)>>8);
-    temp_buf[11]=CRC16_value&0x00ff;
-    temp_buf[12]=0x0d;
-    temp_buf[13]=0x0a;
-    UARTSend( (uint8_t *)temp_buf, 14 );
-}
-
-
-void ZigbeeNetSetup(void)           //ZIGBEE配置
-{
-
-	  uint8_t num=0;
-	  uint8_t temp_buf[20]= {0x23,0xFE, 00 ,0x05, 01, 01, 03, 01, 05, 01, 01, 
-	  02, 0x0A ,04 ,00, 01};
-	  //memset(temp_buf,0,20);
-	  //memset(Data_Buf,0,Data_Len);
-	  UARTInit(38400);
-	  NVIC_DisableIRQ(UART_IRQn);
-	  Delay1_MS(20);
-	  GPIOSetValue(1,8,0);
-	  Delay1_MS(3000);
-	  GPIOSetValue(1,8,1);
-	  Delay1_MS(1000);
-	  while ((LPC_UART->LSR & 0x01) == 0x01)
-	  {
-		  num = LPC_UART->RBR;
-  
-	  }
-	  num=0;
-#if 1
-	  Data_Buf[0]=0x23;
-	  Data_Buf[1]=0xa0;
-	  UARTSend((uint8_t *)Data_Buf,2);
-	  Delay1_MS(500);
-	  while ((LPC_UART->LSR & 0x01) == 0x01)
-	  {
-  
-		  Data_Buf[num] = LPC_UART->RBR;
-		  num++;
-  
-	  }
-	  num=0;
-#endif
-	  
-	  UARTSend((uint8_t *)temp_buf,16);
-	  Delay1_MS(500);
-	  
-	  Data_Buf[0]=0x23;
-	  Data_Buf[1]=0x23;
-	  UARTSend((uint8_t *)Data_Buf,2);
-	  Delay1_MS(200);
-	  
-	  UARTInit(19200); //open interrp
-
+	
+    Command=Data_Buf[7];
+    Mode=Command&0x3F;
+		
+	switch(Command)
+	{
+		case CMD_RESET: //复位
+			resetCtrl(toShort(Data_Buf+8));
+			break;
+		case CMD_ADJUST_BRIGHTNESS: //调节亮度
+			adjustBrightness(Data_Buf[8]);
+			break;
+		case CMD_TWINKLE: //闪烁
+			setTwinkle(toShort(Data_Buf+8));
+			break;
+		case CMD_SET_ADJ_TIME: //设置调光时间
+			SetupAdjustTime(Data_Buf[8]);
+			break;
+		case CMD_SET_DEFAULT_BRIGHTNESS:
+			SetupDefaultBrightness(Data_Buf[8]);
+			break;
+		case CMD_SET_GROUP:
+			SetupGroupNumber(Data_Buf[8]);
+			break;
+		case CMD_MODIFY_DEVID:
+			Modify_ID(Data_Buf+8);
+			break;
+		case CMD_QUERY_VOLTAGE:
+			queryVoltage();
+			break;
+		case CMD_QUERY_CURRENT:
+			queryCurrent();
+			break;
+		case CMD_QUERY_KW:
+			queryPactive();
+			break;
+		case CMD_QUERY_BRIGHTNESS:
+			InquiryLightValue();
+			break;
+		case CMD_QUERY_DEFAULT_BRIGHTNESS:
+			InquiryAcquiesceLightValue();
+			break;
+		case CMD_QUERY_GROUP:
+			InquiryGroupNumber();
+			break;
+		case CMD_QUERY_ALL:
+			Inquiry_alldata();
+			break;
+		case CMD_QUERY_ADJ_TIME:
+			Inquiry_lighttime();
+			break;
+		case CMD_QUERY_ZIGBEE_CFG:
+			Inquiry_ZigbeeCfg();
+			break;
+		case CMD_WRITE_EEPROM:
+			Write2EEPROM(Data_Buf+8,10);
+			
+	}
 
 }
 
@@ -710,73 +443,6 @@ void ZigbeeSetup(void)          // 读ZIGBEE配置信息
 
 
 }
-void configuration(void)        //写配置信息
-{
-    uint8_t buf[50];
-    memset(buf,0,100);
-
-    m24xx_write(EEPROM_24XX02, 7, 0, Version, 3);
-    m24xx_write(EEPROM_24XX02, 10, 0, Terminal_ID, 4);
-
-    buf[0]=Duty_Time;
-    m24xx_write(EEPROM_24XX02,15,0,buf,1);
-
-// buf[10]=Brate;
-//  m24xx_write(EEPROM_24XX02,21,0,&buf[10],1);
-// memset(buf,0,100);
-
-
-    memcpy(buf,field,10);
-    memcpy(&buf[11],value,10);
-    buf[20]=pwmtimer;
-    m24xx_write(EEPROM_24XX02, 50, 0, buf, 21);
-    memset(buf,0,100);
-    Frame_OK(0x06);
-}
-void  Baud_Rate(void)      //设置通讯波特率
-{
-    uint8_t b_rate;
-    uint32_t rate;
-    uint8_t temp[10];
-    b_rate=Data_Buf[8];
-    switch(b_rate)
-    {
-    case 0:
-        rate=2400;
-        break;
-    case 1:
-        rate=4800;
-        break;
-    case 2:
-        rate=9600;
-        break;
-    case 3:
-        rate=19200;
-        break;
-    case 4:
-        rate=38400;
-        break;
-    case 5:
-        rate=43000;
-        break;
-    case 6:
-        rate=56000;
-        break;
-    case 7:
-        rate=57600;
-        break;
-    default :
-        rate=19200;
-        break;
-    }
-    UARTInit(rate);
-
-    temp[0]=b_rate;
-    m24xx_write(EEPROM_24XX02, 21, 0, temp, 1);
-
-}
-
-
 void Delay1_MS(uint32_t ulTime)
 {
     uint32_t i = 0;
@@ -793,39 +459,46 @@ void Delay1_US(uint32_t ulTime)
         for (i = 0; i < 5; i++);
     }
 }
-void Frame_OK(uint8_t command) //回复协议
+uint8_t checkSum(uint8_t* buff, uint8_t len)
 {
-    uint8_t temp_buf[20];
+	uint8_t sum = 0;
+	uint8_t i = 0;
+	for(; i < len; i++)
+		sum+=buff[i];
+	return sum;
+}
 
-    uint32_t CRC16_value=0;
-    memset(temp_buf,0,20);
-    temp_buf[0]=0x7e;                         //帧头
-    temp_buf[1]=00;                           //消息长度
-    memcpy(&temp_buf[2],Terminal_ID,4);        //地址
-    temp_buf[6]=group_number;                 //组号
-    temp_buf[7]=0x00;                          //应答码
-    temp_buf[8]=(command+0XC0);                       //控制码
-    CRC16_value=CRC16_1(temp_buf,8);
-    temp_buf[9]=((CRC16_value&0xff00)>>8);    //校验码
-    temp_buf[10]=CRC16_value&0x00ff;
-    temp_buf[11]=0x0d;
-    temp_buf[12]=0x0a;                        //帧尾
-    UARTSend( (uint8_t *)temp_buf, 13 );
+void RespCharPara(uint8_t command,uint8_t ack,uint8_t value)
+{
+	ResponseMsg(command,ack,&value,1);
+}
+
+void RespNoPara(uint8_t command,uint8_t ack)
+{
+	ResponseMsg(command,ack,0,0);
+}
+void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回复协议
+{
+
+	if( (10 + len) > MAX_RESP_BUFF_SIZE ) return;
+	
+	
+    respBuf[0]=PROTO_HEAD;                         //帧头
+    respBuf[1]=10 + len;                           //消息长度
+
+	
+    memcpy(&respBuf[2],Terminal_ID,4);        //地址
+    respBuf[6]=group_number;                 //组号
+
+    respBuf[7]=(command);                       //控制码
+    respBuf[8]= ack;                          //应答码
+
+	if( (context != NULL) && (len > 0 ))	
+    	memcpy(respBuf+9,context,len);
+
+    respBuf[9+len]=checkSum(respBuf,9+len);	
+
+    UARTSend( (uint8_t *)respBuf, respBuf[1] );
     Delay1_MS(10);
-}
-void heartbeat(void)    //心跳包
-{
-    ;
-}
-void upgrade(void) // 固件升级请求命令
-{
-    ;
-}
-void upgradedata(void)  //固件升级数据包
-{
-    ;
-}
-void upgradecrc(void)   //固件升级校验包
-{
-    ;
+	
 }

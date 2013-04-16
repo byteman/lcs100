@@ -140,6 +140,7 @@
           <Name>-U805306163 -O78 -S9 -A0 -C0 -JU1 -JI127.0.0.1 -JP0 -RST0 -N00("ARM CoreSight SW-DP") -D00(0BB11477) -L00(0) -TO18 -TC10000000 -TP21 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -TB1 -TFE0 -FO15 -FD10000000 -FC800 -FN1 -FF0LPC1xxx_32 -FS00 -FL08000</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
+      <Breakpoint/>
       <DebugFlag>
         <trace>0</trace>
         <periodic>0</periodic>
@@ -184,7 +185,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>140</TopLine>
+      <TopLine>142</TopLine>
       <CurrentLine>150</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup_LPC11xx.s</PathWithFileName>
@@ -198,8 +199,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>68</TopLine>
-      <CurrentLine>86</CurrentLine>
+      <TopLine>12</TopLine>
+      <CurrentLine>112</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -212,7 +213,7 @@
       <Focus>0</Focus>
       <ColumnNumber>9</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>35</TopLine>
+      <TopLine>32</TopLine>
       <CurrentLine>37</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\crc.c</PathWithFileName>
@@ -226,7 +227,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>66</TopLine>
+      <TopLine>68</TopLine>
       <CurrentLine>76</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\IAP.c</PathWithFileName>
@@ -240,7 +241,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>92</TopLine>
+      <TopLine>94</TopLine>
       <CurrentLine>99</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\uart.c</PathWithFileName>
@@ -266,10 +267,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>52</ColumnNumber>
+      <ColumnNumber>23</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>146</TopLine>
-      <CurrentLine>146</CurrentLine>
+      <TopLine>147</TopLine>
+      <CurrentLine>148</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\ByProtocol.c</PathWithFileName>
       <FilenameWithoutPath>ByProtocol.c</FilenameWithoutPath>
@@ -280,131 +281,28 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>6</ColumnNumber>
+      <ColumnNumber>1</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>383</TopLine>
-      <CurrentLine>398</CurrentLine>
+      <TopLine>384</TopLine>
+      <CurrentLine>419</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\upload.c</PathWithFileName>
       <FilenameWithoutPath>upload.c</FilenameWithoutPath>
     </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>9</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <Focus>0</Focus>
+      <ColumnNumber>0</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>2</TopLine>
+      <CurrentLine>15</CurrentLine>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\24C02.c</PathWithFileName>
+      <FilenameWithoutPath>24C02.c</FilenameWithoutPath>
+    </File>
   </Group>
-
-  <AlienFiles>
-    <PathWithFilename>D:\Program Files\Keil\ARM\INC\NXP\LPC11xx\LPC11xx.h</PathWithFilename>
-    <TopLine>100</TopLine>
-    <CurrentLine>114</CurrentLine>
-    <Constant>0</Constant>
-    <WindowPosition>
-      <length>0</length>
-      <flags>0</flags>
-      <showCmd>0</showCmd>
-      <MinPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MinPosition>
-      <MaxPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MaxPosition>
-      <NormalPosition>
-        <Top>0</Top>
-        <Left>0</Left>
-        <Right>0</Right>
-        <Bottom>0</Bottom>
-      </NormalPosition>
-    </WindowPosition>
-  </AlienFiles>
-
-  <AlienFiles>
-    <PathWithFilename>C:\Users\Administrator\Desktop\led\bootloader\upload.h</PathWithFilename>
-    <TopLine>1</TopLine>
-    <CurrentLine>22</CurrentLine>
-    <Constant>0</Constant>
-    <WindowPosition>
-      <length>0</length>
-      <flags>0</flags>
-      <showCmd>0</showCmd>
-      <MinPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MinPosition>
-      <MaxPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MaxPosition>
-      <NormalPosition>
-        <Top>0</Top>
-        <Left>0</Left>
-        <Right>0</Right>
-        <Bottom>0</Bottom>
-      </NormalPosition>
-    </WindowPosition>
-  </AlienFiles>
-
-  <MDIGroups>
-    <Orientation>1</Orientation>
-    <ActiveMDIGroup>0</ActiveMDIGroup>
-    <MDIGroup>
-      <Size>100</Size>
-      <ActiveTab>0</ActiveTab>
-      <Documents>
-        <Doc>
-          <Name>.\main.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>68</TopLine>
-          <CurrentLine>86</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>D:\Program Files\Keil\ARM\INC\NXP\LPC11xx\LPC11xx.h</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>100</TopLine>
-          <CurrentLine>114</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\upload.c</Name>
-          <ColumnNumber>6</ColumnNumber>
-          <TopLine>383</TopLine>
-          <CurrentLine>398</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\startup_LPC11xx.s</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>140</TopLine>
-          <CurrentLine>150</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\ByProtocol.c</Name>
-          <ColumnNumber>52</ColumnNumber>
-          <TopLine>146</TopLine>
-          <CurrentLine>146</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>upload.h</Name>
-          <ColumnNumber>8</ColumnNumber>
-          <TopLine>1</TopLine>
-          <CurrentLine>22</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\uart.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>92</TopLine>
-          <CurrentLine>99</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\crc.c</Name>
-          <ColumnNumber>9</ColumnNumber>
-          <TopLine>35</TopLine>
-          <CurrentLine>37</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>.\IAP.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>66</TopLine>
-          <CurrentLine>76</CurrentLine>
-        </Doc>
-      </Documents>
-    </MDIGroup>
-  </MDIGroups>
 
 </ProjectOpt>
