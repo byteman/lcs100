@@ -52,21 +52,6 @@ enum   LedCmdType
     CMD_GET_RESET_CNT, //获取单灯复位次数
     CMD_QUERY_ZIGBEE_CFG
 };
-#if 0
-struct LEDCtrlProtoHead
-{
-    LEDCtrlProtoHead(unsigned int id, unsigned char group):
-            termID(id),
-            groupID(group)
-    {
-        code = 0;
-    }
-
-    unsigned int  termID;
-    unsigned char groupID;
-    unsigned char code;
-};
-#endif
 
 
 #endif

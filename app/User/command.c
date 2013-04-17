@@ -13,6 +13,8 @@
 #include "gpio.h"
 #include "LedProto.h"
 #include "param.h"
+#include "cs5463.h"
+
 
 #define MAX_RESP_BUFF_SIZE  128
 
@@ -149,7 +151,7 @@ void SetupGroupNumber(uint8_t group)//设置组号
 	
 	paramSetU8(PARAM_GROUP,group_number);
 }
-static void queryVoltage()
+static void queryVoltage(void)
 {
 	
 	uint16_t voltage =Measuring_220V();
@@ -158,17 +160,17 @@ static void queryVoltage()
 	ResponseMsg(CMD_QUERY_VOLTAGE,ERR_OK,(uint8_t*)&voltage,sizeof(uint16_t));
 	
 }
-static void queryCurrent()
+static void queryCurrent(void)
 {
 	
 	
 	uint16_t currentMA =Measuring_AC(); //以MA为单位
 	currentMA = _htons(currentMA);
 
-	ResponseMsg(CMD_QUERY_VOLTAGE,ERR_OK,(uint8_t*)&currentMA,sizeof(uint16_t));
+	ResponseMsg(CMD_QUERY_CURRENT,ERR_OK,(uint8_t*)&currentMA,sizeof(uint16_t));
 	
 }
-static void queryPactive()
+static void queryPactive(void)
 {
 
 	uint16_t value =Measuring_Pactive(); //单位为100MW
@@ -325,34 +327,38 @@ void Write2EEPROM(unsigned char* buff, int len)
 {
 
 }
-void App_Command()//各个命令分解
+
+
+void App_Command(LedRequest* pReq)//各个命令分解
 {
+	unsigned char* data = pReq->data;
+    Command=pReq->cmd;
+    Mode=pReq->mode;
+
 	
-    Command=Data_Buf[7];
-    Mode=Command&0x3F;
 		
 	switch(Command)
 	{
 		case CMD_RESET: //复位
-			resetCtrl(toShort(Data_Buf+8));
+			resetCtrl(toShort(data));
 			break;
 		case CMD_ADJUST_BRIGHTNESS: //调节亮度
-			adjustBrightness(Data_Buf[8]);
+			adjustBrightness(data[0]);
 			break;
 		case CMD_TWINKLE: //闪烁
-			setTwinkle(toShort(Data_Buf+8));
+			setTwinkle(toShort(data));
 			break;
 		case CMD_SET_ADJ_TIME: //设置调光时间
-			SetupAdjustTime(Data_Buf[8]);
+			SetupAdjustTime(data[0]);
 			break;
 		case CMD_SET_DEFAULT_BRIGHTNESS:
-			SetupDefaultBrightness(Data_Buf[8]);
+			SetupDefaultBrightness(data[0]);
 			break;
 		case CMD_SET_GROUP:
-			SetupGroupNumber(Data_Buf[8]);
+			SetupGroupNumber(data[0]);
 			break;
 		case CMD_MODIFY_DEVID:
-			Modify_ID(Data_Buf+8);
+			Modify_ID(data);
 			break;
 		case CMD_QUERY_VOLTAGE:
 			queryVoltage();
@@ -382,7 +388,7 @@ void App_Command()//各个命令分解
 			Inquiry_ZigbeeCfg();
 			break;
 		case CMD_WRITE_EEPROM:
-			Write2EEPROM(Data_Buf+8,10);
+			Write2EEPROM(data,10);
 			
 	}
 
@@ -490,7 +496,7 @@ void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回
     memcpy(&respBuf[2],Terminal_ID,4);        //地址
     respBuf[6]=group_number;                 //组号
 
-    respBuf[7]=(command);                       //控制码
+    respBuf[7]=(command&0x3F)|0x80;                       //控制码
     respBuf[8]= ack;                          //应答码
 
 	if( (context != NULL) && (len > 0 ))	

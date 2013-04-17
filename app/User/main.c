@@ -24,6 +24,7 @@ unsigned int pktLen = 0;
 
 
 static u8 rxChar;
+static LedRequest request;
 int main (void)
 {
     SystemInit();
@@ -48,10 +49,19 @@ int main (void)
                     pkt = readPacket(&pktLen);
                     if(pkt && (pktLen < Data_Len))
                     {
-                        memcpy(Data_Buf+2,pkt,pktLen);
-                        if((Terminal_ID[0]==Data_Buf[2])&&(Terminal_ID[1]==Data_Buf[3])&&(Terminal_ID[2]==Data_Buf[4])&&(Terminal_ID[3]==Data_Buf[5]))
+                        //memcpy(Data_Buf,pkt,pktLen);
+                        if((Terminal_ID[0]==pkt[0])&&(Terminal_ID[1]==pkt[1])&&(Terminal_ID[2]==pkt[2])&&(Terminal_ID[3]==pkt[3]))
                         {
-                            App_Command();
+							
+							memcpy(request.id, pkt, 4);
+							request.group = pkt[4];
+							request.cmd = 	pkt[5]&0x3F;
+							request.mode = 	pkt[5]>>6;
+						    request.data = 	pkt+6;
+
+						    request.dataLen = pktLen - 3;
+
+                            App_Command(&request);
                         }
                     }
                 }
