@@ -60,6 +60,9 @@ extern void Delay_MS(uint32_t ulTime);
 extern void Delay_US(uint32_t ulTime);
 
 
+uint32_t Measuring_220V(void);
+uint32_t Measuring_AC(void);
+uint32_t Measuring_Pactive(void);
 
 #endif
 
