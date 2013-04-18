@@ -176,7 +176,7 @@ static void queryPactive(void)
 	uint16_t value =Measuring_Pactive(); //单位为100MW
 	value = _htons(value);
 	
-	ResponseMsg(CMD_QUERY_VOLTAGE,ERR_OK,(uint8_t*)&value,sizeof(uint16_t));
+	ResponseMsg(CMD_QUERY_KW,ERR_OK,(uint8_t*)&value,sizeof(uint16_t));
 	
 }
 void Modify_ID(unsigned char* pId)    //修改设备ID号
@@ -200,7 +200,7 @@ void InquiryAcquiesceLightValue(void)   //查询默认调光值
 }
 void Inquiry_Version(void)//查询固件版本号
 {
-	RespCharPara(CMD_QUERY_DEFAULT_BRIGHTNESS,ERR_OK,LedVesion);
+	RespCharPara(CMD_QUERY_VERSION,ERR_OK,LedVesion);
 }
 
 
@@ -406,6 +406,9 @@ void App_Command(LedRequest* pReq)//各个命令分解
 			break;
 		case CMD_BROADCAST_DEVID:
 			BroadCastDeviceID();
+		  break;
+		case CMD_QUERY_VERSION:
+			Inquiry_Version();
 		  break;
 		default:
 			break;
