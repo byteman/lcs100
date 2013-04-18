@@ -5,7 +5,7 @@
 #include "crc.h"
 #include "iap.h"
 #include <string.h>
-
+#include "param.h"
 
 /* Define the flash sectors used by the application */
 #define APP_START_SECTOR					2
@@ -30,7 +30,7 @@ static uint8_t ch;
 static uint8_t* pkt = 0;
 static uint32_t pktLen = 0;
 
-extern uint8_t  termId[4];
+
 static uint8_t  cmd 	 = 0;
 static uint8_t  group 	 = 0;
 static uint8_t 	quit = 0;
@@ -196,13 +196,30 @@ uint8_t sendPacket(uint8_t* context, uint32_t len)
 		vUARTSend(packet,sendlen);
 		return len;
 }
-
+uint8_t buildBroadTermIdAckPacket(uint8_t code,uint8_t ack)
+{
+		ctxBuf[0] = Terminal_ID[0];
+		ctxBuf[1] = Terminal_ID[1];
+		ctxBuf[2] = Terminal_ID[2];
+		ctxBuf[3] = Terminal_ID[3];
+		ctxBuf[4] = group;
+		ctxBuf[5] = code|0x80; //slave ack
+	
+		ctxBuf[6] = ack;
+		ctxBuf[7] = Terminal_ID[0];
+		ctxBuf[8] = Terminal_ID[1];
+		ctxBuf[9] = Terminal_ID[2];
+		ctxBuf[10] = Terminal_ID[3];
+	
+		return sendPacket(ctxBuf,11);
+		
+}
 uint8_t buildAckPacket(uint8_t code,uint8_t ack,uint16_t ssid)
 {
-		ctxBuf[0] = termId[0];
-		ctxBuf[1] = termId[1];
-		ctxBuf[2] = termId[2];
-		ctxBuf[3] = termId[3];
+		ctxBuf[0] = Terminal_ID[0];
+		ctxBuf[1] = Terminal_ID[1];
+		ctxBuf[2] = Terminal_ID[2];
+		ctxBuf[3] = Terminal_ID[3];
 		ctxBuf[4] = group;
 		ctxBuf[5] = code;
 	
@@ -215,10 +232,10 @@ uint8_t buildAckPacket(uint8_t code,uint8_t ack,uint16_t ssid)
 }
 uint8_t buildDataAckPacket(uint8_t code,uint8_t ack,uint16_t ssid,uint16_t pktidx)
 {
-		ctxBuf[0] = termId[0];
-		ctxBuf[1] = termId[1];
-		ctxBuf[2] = termId[2];
-		ctxBuf[3] = termId[3];
+		ctxBuf[0] = Terminal_ID[0];
+		ctxBuf[1] = Terminal_ID[1];
+		ctxBuf[2] = Terminal_ID[2];
+		ctxBuf[3] = Terminal_ID[3];
 		ctxBuf[4] = group;
 		ctxBuf[5] = code;
 	
@@ -338,19 +355,29 @@ static uint16_t buf2uint32(uint8_t* buff)
 {
 	return (buff[0]<<24) + (buff[1]<<16) + (buff[2]<<8) + (buff[3]<<0);
 }
-
+static uint8_t broadCastDeviceID(void)
+{
+	 buildBroadTermIdAckPacket(CMD_BROADCAST_DEVID,ERR_OK);
+	
+	return 1;
+}
 static uint8_t parseUpload(uint8_t* buff, uint32_t len)
 {
 		uint8_t i = 0;
 	  uint8_t ret = 0;
+		
+		if(len < 6) return 0;
+	
+		group = buff[4];
+		cmd 	= buff[5];
 		for(; i < 4; i++)
 		{
-				if(buff[i] != termId[i]) break;
+				if( (buff[i] != Terminal_ID[i] ) && (cmd != CMD_BROADCAST_DEVID)) 
+					break;
 		}
 		if(i != 4) return 0 ;
 		
-		group = buff[4];
-		cmd 	= buff[5];
+		
 		
 		switch(cmd)
 		{
@@ -371,6 +398,9 @@ static uint8_t parseUpload(uint8_t* buff, uint32_t len)
 				break;
 			case CMD_RESET:
 				quit = 1;
+				break;
+			case CMD_BROADCAST_DEVID:
+				ret = broadCastDeviceID();
 				break;
 			default:break;
 		}

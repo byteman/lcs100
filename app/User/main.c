@@ -50,19 +50,16 @@ int main (void)
                     if(pkt && (pktLen < Data_Len))
                     {
                         //memcpy(Data_Buf,pkt,pktLen);
-                        if((Terminal_ID[0]==pkt[0])&&(Terminal_ID[1]==pkt[1])&&(Terminal_ID[2]==pkt[2])&&(Terminal_ID[3]==pkt[3]))
-                        {
-							
-							memcpy(request.id, pkt, 4);
-							request.group = pkt[4];
-							request.cmd = 	pkt[5]&0x3F;
-							request.mode = 	pkt[5]>>6;
-						    request.data = 	pkt+6;
+													memcpy(request.id, pkt, 4);
+													request.group = pkt[4];
+													request.cmd = 	pkt[5]&0x3F;
+													request.mode = 	pkt[5]>>6;
+													request.data = 	pkt+6;
 
-						    request.dataLen = pktLen - 3;
+													request.dataLen = pktLen - 3;
 
-                            App_Command(&request);
-                        }
+													App_Command(&request);
+                      
                     }
                 }
             }

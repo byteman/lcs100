@@ -30,10 +30,11 @@
 #include "upload.h"
 #include "byprotocol.h"
 #include "24c02.h"
+#include "param.h"
 
 uint32_t u32BootLoader_AppPresent(void);
-uint8_t  termId[4] = {0x0,0x0,0x0,0x1};
-static 	 uint8_t temp_id[7];
+//uint8_t  termId[4] = {0x0,0x0,0x0,0x1};
+
 /*****************************************************************************
  ** Function name:  main
  **
@@ -88,22 +89,8 @@ void initParam()
 {
 	i2c_lpc_init(0);
 	
-  
-  m24xx_read(EEPROM_24XX02,7,0,temp_id,4); //从地址0x07处开始读出40个数字到rebuf
+  loadParam();
 
-//Terminal ID [3-6]
-	if(temp_id[3]==0xff&temp_id[4]==0xff&temp_id[5]==0xff&temp_id[6]==0xff)
-	{
-		
-	}
-	else
-	{
-			termId[0] = temp_id[3];
-			termId[1] = temp_id[4];
-			termId[2] = temp_id[5];
-			termId[3] = temp_id[6];
-	}
-		
 }
 int main(void)
 {

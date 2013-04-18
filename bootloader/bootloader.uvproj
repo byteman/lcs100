@@ -433,6 +433,11 @@
               <FileType>1</FileType>
               <FilePath>.\24C02.c</FilePath>
             </File>
+            <File>
+              <FileName>param.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\param.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

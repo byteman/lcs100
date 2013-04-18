@@ -208,7 +208,10 @@ void Inquiry_lighttime(void)  //查询调光时间
 {
 	RespCharPara(CMD_QUERY_ADJ_TIME,ERR_OK,adj_timeS);
 }
-
+void BroadCastDeviceID(void)
+{
+	ResponseMsg(CMD_BROADCAST_DEVID,ERR_OK,(uint8_t*)Terminal_ID,4);
+}
 void Inquiry_ZigbeeCfg()
 {
 
@@ -331,12 +334,23 @@ void Write2EEPROM(unsigned char* buff, int len)
 
 void App_Command(LedRequest* pReq)//各个命令分解
 {
-	unsigned char* data = pReq->data;
+		unsigned char* data = pReq->data;
     Command=pReq->cmd;
-    Mode=pReq->mode;
+    Mode= pReq->mode;
 
 	
-		
+	if(pReq->cmd == CMD_BROADCAST_DEVID)
+	{
+
+	}
+	else
+	{
+		if(Terminal_ID[0] != pReq->id[0]) return;
+		if(Terminal_ID[1] != pReq->id[1]) return;
+		if(Terminal_ID[2] != pReq->id[2]) return;
+		if(Terminal_ID[3] != pReq->id[3]) return;
+	}
+						
 	switch(Command)
 	{
 		case CMD_RESET: //复位
@@ -389,7 +403,12 @@ void App_Command(LedRequest* pReq)//各个命令分解
 			break;
 		case CMD_WRITE_EEPROM:
 			Write2EEPROM(data,10);
-			
+			break;
+		case CMD_BROADCAST_DEVID:
+			BroadCastDeviceID();
+		  break;
+		default:
+			break;
 	}
 
 }
