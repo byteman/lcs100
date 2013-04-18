@@ -15,8 +15,7 @@ using Poco::AbstractTimerCallback;
 //static LibSerial::SerialPort*    _zigbeeCom = NULL;
 static serial::Serial*    _zigbeeCom = NULL;
 static unsigned short gSessionID= 1;
-static LedCallBackProc _callback;
-static void*    _arg;
+
 LedUpload::LedUpload():
     pUploadFile(NULL),
     _quit(false)

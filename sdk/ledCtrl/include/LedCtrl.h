@@ -1,10 +1,8 @@
 #ifndef LEDCTRL_H
 #define LEDCTRL_H
-#include "ledProto.h"
-#include "LedMsgQueue.h"
 #include <iostream>
 #include <vector>
-#include <map>
+#include "ledProto.h"
 #ifdef _WIN32
     #ifdef LEDCTRL_EXPORTS
         #define LEDCTRL_API __declspec(dllexport)
@@ -91,7 +89,7 @@ typedef struct{
 #pragma pop()
 typedef std::vector<unsigned int> DeviceList;
 
-typedef std::map<unsigned int,StreetLight> TStreeLightList;
+
 
 typedef void (*LedCallBackProc)(TEventParam* param,void* arg);
 
@@ -99,8 +97,8 @@ struct ILedEventNofityer
 {
 	virtual int notify(TEventParam* arg) = 0 ;
 };
-
-class LEDCTRL_API LedCtrl
+class LedMessage;
+class  LEDCTRL_API LedCtrl
 {
 public:
     LedCtrl();
@@ -109,7 +107,7 @@ public:
     \brief 设置回调函数，有任何异步事件发生的时候，就会回调通知接口
     \param[in] arg :附加参数
 */
-	void addObserver(ILedEventNofityer* obs=NULL);
+	void addObserver(ILedEventNofityer* obs);
     void setCallBack(LedCallBackProc _callback,void* _arg);
     /*!
     \brief 打开串口，初始化模块
@@ -162,7 +160,7 @@ public:
     \return 返回复位次数
     \retval -1 超时失败 >=0 复位次数
 */
-    int  getDeviceResetCount(unsigned int id,long waitMs);
+    int  getDeviceResetCount(unsigned int id,long waitMs=1000);
 
     /*!
     \brief 调光指令
@@ -179,12 +177,12 @@ public:
     \brief 闪烁LED
     \param[in] id 单灯的id
     \param[in] group 单灯的组号
-    \param[in] value 闪烁间隔时间(ms)
+    \param[in] value 闪烁间隔时间(ms) 0-65535ms
     \param[in] waitMs 等待多少ms后如果都没有获取到数据就返回
     \return 返回
     \retval -1 超时失败 >=0 当前闪所时间
 */
-    int  setShakeLed(unsigned int id,unsigned char group,unsigned char value,long waitMs=1000);
+    int  setShakeLed(unsigned int id,unsigned char group,unsigned short value,long waitMs=1000);
 
     /*!
     \brief 写入存储参数到eeprom中

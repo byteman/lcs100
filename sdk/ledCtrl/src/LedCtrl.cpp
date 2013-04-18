@@ -7,8 +7,8 @@
 #include "ByProtocol.h"
 #include "LedMsgQueue.h"
 #include <stdexcept>
-
-
+#include <map>
+typedef std::map<unsigned int,StreetLight> TStreeLightList;
 #define PROTO_HEAD 0xA3
 #define PROTO_ACK_PAD 10
 static serial::Serial *pZigbeeCom = NULL;
@@ -128,10 +128,10 @@ LedCtrl::LedCtrl()
 }
 void LedCtrl::notify(TEventParam* par)
 {
-    if(gCallback)
-    {
-        gCallback(par,gArg);
-    }
+   if(gEventNotifyer)
+   {
+	   gEventNotifyer->notify(par);
+   }
 }
 LedCtrl& LedCtrl::get()
 {
@@ -366,7 +366,7 @@ int  LedCtrl::setIntResp(unsigned int id,unsigned char group,LedCmdType type,int
 
     return -1;
 }
-int  LedCtrl::setShakeLed(unsigned int id,unsigned char group,unsigned char value,long waitMs)
+int  LedCtrl::setShakeLed(unsigned int id,unsigned char group,unsigned short value,long waitMs)
 {
     return setIntResp(id,group,CMD_TWINKLE,value,2,waitMs);
 }
