@@ -1,21 +1,22 @@
 #ifndef PARAM_H
 #define PARAM_H
 #include "LPC11xx.h"
-typedef enum{
-	PARAM_MAGIC=0,
-	PARAM_ID=4,
-	PARAM_GROUP=8,
-	PARAM_BAUD=9,	//波特率
-	PARAM_DEF_BRIGHTNESS=13, //亮度
-	PARAM_ADJ_TIME=14,
-	PARAM_MAX,
-	PARAM_CRC=0xFD// 最后两个字节是前面参数的校验码
-}ParamType;
+typedef enum
+{
+    PARAM_MAGIC=0,
+    PARAM_ID=4,
+    PARAM_GROUP=8,
+    PARAM_BAUD=9,	//波特率
+    PARAM_DEF_BRIGHTNESS=13, //亮度
+    PARAM_ADJ_TIME=14,
+    PARAM_MAX,
+    PARAM_CRC=0xFD// 最后两个字节是前面参数的校验码
+} ParamType;
 
 extern uint8_t 	group_number;
 extern uint8_t 	Terminal_ID[4];
 extern uint32_t Brate;//默认波特率
-extern uint32_t adj_timeS;	
+extern uint32_t adj_timeS;
 
 extern uint8_t brightness; //当前的亮度
 extern uint8_t default_brightness;//默认的亮度

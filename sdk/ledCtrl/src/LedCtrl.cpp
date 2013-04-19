@@ -1,11 +1,10 @@
 #include "LedCtrl.h"
-#include "serial/serial.h"
 #include "LedUpload.h"
-#include <Poco/SingletonHolder.h>
-//#include "SerialPort.h"
-#include <Poco/ThreadPool.h>
 #include "ByProtocol.h"
 #include "LedMsgQueue.h"
+#include "serial/serial.h"
+#include <Poco/SingletonHolder.h>
+#include <Poco/ThreadPool.h>
 #include <stdexcept>
 #include <map>
 typedef std::map<unsigned int,StreetLight> TStreeLightList;
@@ -17,13 +16,13 @@ static serial::Serial *pZigbeeCom = NULL;
 static LedMsgQueue syncMsgQue;
 static LedMsgQueue asyncMsgQue;
 static TZigbeeCfg gZigbeeCfg;
-LedCallBackProc gCallback = NULL;
 static ILedEventNofityer* gEventNotifyer = NULL;
-void*    gArg = NULL;
+
 
 static unsigned char context[1024];
 static unsigned char param[1024];
-class LedUploadThread:public Poco::Runnable{
+class LedUploadThread:public Poco::Runnable
+{
 public:
     LedUploadThread():
         _complete(true)
@@ -31,10 +30,9 @@ public:
 
     }
 
-    void set(DeviceList devlist,LedCallBackProc callback)
+    void set(DeviceList devlist)
     {
         _devlist = devlist;
-        _notify = callback;
     }
     void run()
     {
@@ -46,7 +44,6 @@ public:
         return _complete;
     }
 private:
-    LedCallBackProc _notify;
     std::string _file;
     DeviceList _devlist;
     bool _complete;
@@ -80,38 +77,38 @@ public:
         {
             try
             {
-				unsigned char ch = 0;
+                unsigned char ch = 0;
 
-				if(pZigbeeCom->read(&ch,1) > 0)
-				{
-					if( parseChar( ch ))
-					{
-						unsigned int pktLen = 0;
-						unsigned char * pkt = readPacket(&pktLen);
-						if(pkt)
-						{
-							parsePacket(pkt,pktLen);
-							//runStateMachine();
-						}
-					}
-				}  
+                if(pZigbeeCom->read(&ch,1) > 0)
+                {
+                    if( parseChar( ch ))
+                    {
+                        unsigned int pktLen = 0;
+                        unsigned char * pkt = readPacket(&pktLen);
+                        if(pkt)
+                        {
+                            parsePacket(pkt,pktLen);
+                            //runStateMachine();
+                        }
+                    }
+                }
             }
             catch(serial::PortNotOpenedException& e)
             {
                 fprintf(stderr,"%s\r\n",e.what());
-				_quit = true;
+                _quit = true;
                 //runStateMachine();
             }
             catch(serial::IOException& e)
             {
-				fprintf(stderr,"IOException\r\n");
+                fprintf(stderr,"IOException\r\n");
                 _quit = true;
             }
-			catch(...)
-			{
-				fprintf(stderr,"Unkown err\r\n");
-				_quit = true;
-			}
+            catch(...)
+            {
+                fprintf(stderr,"Unkown err\r\n");
+                _quit = true;
+            }
 
         }
         //resetState ();
@@ -128,10 +125,10 @@ LedCtrl::LedCtrl()
 }
 void LedCtrl::notify(TEventParam* par)
 {
-   if(gEventNotifyer)
-   {
-	   gEventNotifyer->notify(par);
-   }
+    if(gEventNotifyer)
+    {
+        gEventNotifyer->notify(par);
+    }
 }
 LedCtrl& LedCtrl::get()
 {
@@ -141,39 +138,39 @@ LedCtrl& LedCtrl::get()
 bool LedCtrl::open(std::string comPath,unsigned int bps)
 {
 #if 1
-   
+
     try
     {
-		if(pZigbeeCom)
-		{
-			pZigbeeCom->close ();
-			delete pZigbeeCom;
-			pZigbeeCom = NULL;
-		}
-		if(pZigbeeCom == NULL)
-			pZigbeeCom = new serial::Serial(comPath,bps);
+        if(pZigbeeCom)
+        {
+            pZigbeeCom->close ();
+            delete pZigbeeCom;
+            pZigbeeCom = NULL;
+        }
+        if(pZigbeeCom == NULL)
+            pZigbeeCom = new serial::Serial(comPath,bps);
         //pZigbeeCom->open ();
         return true;
     }
-	catch(std::invalid_argument& e)
-	{
-		//fprintf(stderr,"open:%s\r\n",e.what());
-		return false;
-	}
-	catch(serial::SerialExecption& e)
-	{
-		//fprintf(stderr,"open err\r\n");
-		return false;
-	}
-	catch(serial::IOException& e)
-	{
-		//fprintf(stderr,"open:%s\r\n",e.what());
-		return false;
-	}
+    catch(std::invalid_argument& e)
+    {
+        //fprintf(stderr,"open:%s\r\n",e.what());
+        return false;
+    }
+    catch(serial::SerialExecption& e)
+    {
+        //fprintf(stderr,"open err\r\n");
+        return false;
+    }
+    catch(serial::IOException& e)
+    {
+        //fprintf(stderr,"open:%s\r\n",e.what());
+        return false;
+    }
     catch(...)
     {
-		fprintf(stderr,"ledCtrl Open failed: unknown err\r\n");
-		return false;
+        fprintf(stderr,"ledCtrl Open failed: unknown err\r\n");
+        return false;
     }
 #else
 
@@ -202,7 +199,7 @@ bool LedCtrl::upload(std::string file,DeviceList devlist)
 {
     LedUpload::get ().setPort (pZigbeeCom);
     if(!LedUpload::get ().loadUploadFile (file)) return false;
-    uploader.set (devlist,gCallback);
+    uploader.set (devlist);
 
     Poco::ThreadPool::defaultPool ().start (uploader);
 }
@@ -217,11 +214,11 @@ unsigned char LedCtrl::checkSum(unsigned char* buff, int len)
 
 static void dumpData(unsigned char* buff, int len)
 {
-	for(int i = 0; i < len; i++)
-	{
-		printf("0x%02x ",buff[i]);
-	}
-	printf("\n");
+    for(int i = 0; i < len; i++)
+    {
+        printf("0x%02x ",buff[i]);
+    }
+    printf("\n");
 }
 
 int LedCtrl::sendMessage(LedMessage* pMsg)
@@ -238,30 +235,25 @@ int LedCtrl::sendMessage(LedMessage* pMsg)
     context[7] = (pMsg->cmd)&0x3F;
     memcpy(context+8,pMsg->param,pMsg->paramLen);
     totalLen += pMsg->paramLen;
-	context[1] = totalLen+1;
+    context[1] = totalLen+1;
     context[totalLen]   = checkSum(context,totalLen);
     totalLen++;
-	
-	dumpData(context,totalLen);
+
+    dumpData(context,totalLen);
     return pZigbeeCom->write (context,totalLen);
 }
 
 bool LedCtrl::setDeviceReset(unsigned int id,unsigned char group,unsigned int afterMs)
 {
-	return false;
+    return false;
 }
 bool LedCtrl::hasUploadComplete(void)
 {
     return uploader.hasComplete ();
 }
-void LedCtrl::setCallBack(LedCallBackProc _callback,void* _arg)
-{
-    gCallback = _callback;
-    gArg      = _arg;
-}
 void LedCtrl::addObserver(ILedEventNofityer* obs)
 {
-	gEventNotifyer = obs;
+    gEventNotifyer = obs;
 }
 int  LedCtrl::getUploadFilePacketNum(void)
 {
@@ -278,7 +270,7 @@ bool    parsePacket(LedMessage* pMsg,unsigned char* context, int len)
     if(pMsg->cmd != code) return false;
 
     //拷贝数据部分到pMsg的respParam中，
-
+    return true;
 }
 
 bool LedCtrl::checkPacketValid(LedMessage* pReqMsg,LedMessage* pRespMsg)
@@ -297,7 +289,7 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
 
     try
     {
-		pZigbeeCom->setReadTimeout(pReqMsg->timeout);
+        pZigbeeCom->setReadTimeout(pReqMsg->timeout);
         int ret = pZigbeeCom->read (buf,pReqMsg->respSize);
 
         if(!pRespMsg->buildMessage (buf, ret))
@@ -344,18 +336,18 @@ int  LedCtrl::setIntResp(unsigned int id,unsigned char group,LedCmdType type,int
 
     switch(size)
     {
-        case 1:
-            reqMsg.setCharVal (value);
-            break;
-        case 2:
-            reqMsg.setShortVal (value);
-            break;
-        case 4:
-            reqMsg.setIntVal (value);
-            break;
-        default:
-            reqMsg.setCharVal (value);
-            break;
+    case 1:
+        reqMsg.setCharVal (value);
+        break;
+    case 2:
+        reqMsg.setShortVal (value);
+        break;
+    case 4:
+        reqMsg.setIntVal (value);
+        break;
+    default:
+        reqMsg.setCharVal (value);
+        break;
     }
     sendMessage (&reqMsg);
 
@@ -468,16 +460,17 @@ int  LedCtrl::getIntResp(unsigned int id,LedCmdType type,int size,long waitMs)
         {
             switch(size)
             {
-                case 1:
-                    return respMsg.getCharVal ();
-                    break;
-                case 2:
-                    return respMsg.getShortVal ();
-                    break;
-                case 4:
-                    return respMsg.getIntVal ();
-                    break;
-                default:break;
+            case 1:
+                return respMsg.getCharVal ();
+                break;
+            case 2:
+                return respMsg.getShortVal ();
+                break;
+            case 4:
+                return respMsg.getIntVal ();
+                break;
+            default:
+                break;
             }
         }
 

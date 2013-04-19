@@ -24,13 +24,13 @@
 #ifndef __CRC_H
 #define __CRC_H
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 #include <stdint.h>
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef  short int16_t;
-uint16_t u16CRC_Calc16(const uint8_t *pu8Data, int16_t u16Len);
+    typedef unsigned char uint8_t;
+    typedef unsigned short uint16_t;
+    typedef  short int16_t;
+    uint16_t u16CRC_Calc16(const uint8_t *pu8Data, int16_t u16Len);
 
 #ifdef __cplusplus
 }

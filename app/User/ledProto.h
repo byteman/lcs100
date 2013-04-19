@@ -3,7 +3,8 @@
 
 #define PROTO_HEAD 0xA3
 
-enum LedError{
+enum LedError
+{
     ERR_OK=0,
     ERR_TOO_LARGE,
     ERR_SESSION,

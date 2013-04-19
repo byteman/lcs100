@@ -17,7 +17,9 @@ HEADERS += \
     ../src/LedUpload.h \
     ../src/LedMsgQueue.h \
     ../src/crc.h \
-    ../src/ByProtocol.h
+    ../src/ByProtocol.h \
+    ../include/ledProto.h \
+    ../include/LedCtrl.h
 INCLUDEPATH = ../include ../serial/include
 
 LIBS +=-lPocoFoundation

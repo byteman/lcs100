@@ -1,28 +1,28 @@
 //*****************************************************************************
-//   +--+       
-//   | ++----+   
-//   +-++    |  
-//     |     |  
-//   +-+--+  |   
-//   | +--+--+  
+//   +--+
+//   | ++----+
+//   +-++    |
+//     |     |
+//   +-+--+  |
+//   | +--+--+
 //   +----+    Copyright (c) 2009-10 Code Red Technologies Ltd.
 //
 // Microcontroller Startup code for use with Red Suite
 //
 // Software License Agreement
-// 
-// The software is owned by Code Red Technologies and/or its suppliers, and is 
-// protected under applicable copyright laws.  All rights are reserved.  Any 
-// use in violation of the foregoing restrictions may subject the user to criminal 
-// sanctions under applicable laws, as well as to civil liability for the breach 
+//
+// The software is owned by Code Red Technologies and/or its suppliers, and is
+// protected under applicable copyright laws.  All rights are reserved.  Any
+// use in violation of the foregoing restrictions may subject the user to criminal
+// sanctions under applicable laws, as well as to civil liability for the breach
 // of the terms and conditions of this license.
-// 
+//
 // THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
 // OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
 // USE OF THIS SOFTWARE FOR COMMERCIAL DEVELOPMENT AND/OR EDUCATION IS SUBJECT
 // TO A CURRENT END USER LICENSE AGREEMENT (COMMERCIAL OR EDUCATIONAL) WITH
-// CODE RED TECHNOLOGIES LTD. 
+// CODE RED TECHNOLOGIES LTD.
 //
 //*****************************************************************************
 #if defined (__cplusplus)
@@ -35,7 +35,7 @@
 //
 //*****************************************************************************
 extern "C" {
-	extern void __libc_init_array(void);
+    extern void __libc_init_array(void);
 }
 #endif
 #endif
@@ -57,17 +57,17 @@ extern "C" {
 //*****************************************************************************
 //
 // Forward declaration of the default handlers. These are aliased.
-// When the application defines a handler (with the same name), this will 
+// When the application defines a handler (with the same name), this will
 // automatically take precedence over these weak definitions
 //
 //*****************************************************************************
-     void ResetISR(void);
-WEAK void NMI_Handler(void);
-WEAK void HardFault_Handler(void);
-WEAK void SVCall_Handler(void);
-WEAK void PendSV_Handler(void);
-WEAK void SysTick_Handler(void);
-WEAK void IntDefaultHandler(void);
+    void ResetISR(void);
+    WEAK void NMI_Handler(void);
+    WEAK void HardFault_Handler(void);
+    WEAK void SVCall_Handler(void);
+    WEAK void PendSV_Handler(void);
+    WEAK void SysTick_Handler(void);
+    WEAK void IntDefaultHandler(void);
 //*****************************************************************************
 //
 // Forward declaration of the specific IRQ handlers. These are aliased
@@ -77,24 +77,24 @@ WEAK void IntDefaultHandler(void);
 //
 //*****************************************************************************
 
-void I2C_IRQHandler (void) ALIAS(IntDefaultHandler);
-void TIMER16_0_IRQHandler (void) ALIAS(IntDefaultHandler);
-void TIMER16_1_IRQHandler (void) ALIAS(IntDefaultHandler);
-void TIMER32_0_IRQHandler (void) ALIAS(IntDefaultHandler);
-void TIMER32_1_IRQHandler (void) ALIAS(IntDefaultHandler);
-void SSP_IRQHandler (void) ALIAS(IntDefaultHandler);
-void UART_IRQHandler (void) ALIAS(IntDefaultHandler);
-void USB_IRQHandler (void) ALIAS(IntDefaultHandler);
-void USB_FIQHandler (void) ALIAS(IntDefaultHandler);
-void ADC_IRQHandler (void) ALIAS(IntDefaultHandler);
-void WDT_IRQHandler (void) ALIAS(IntDefaultHandler);
-void BOD_IRQHandler (void) ALIAS(IntDefaultHandler);
-void FMC_IRQHandler (void) ALIAS(IntDefaultHandler);
-void PIOINT3_IRQHandler (void) ALIAS(IntDefaultHandler);
-void PIOINT2_IRQHandler (void) ALIAS(IntDefaultHandler);
-void PIOINT1_IRQHandler (void) ALIAS(IntDefaultHandler);
-void PIOINT0_IRQHandler (void) ALIAS(IntDefaultHandler);
-void WAKEUP_IRQHandler  (void) ALIAS(IntDefaultHandler);
+    void I2C_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void TIMER16_0_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void TIMER16_1_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void TIMER32_0_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void TIMER32_1_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void SSP_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void UART_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void USB_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void USB_FIQHandler (void) ALIAS(IntDefaultHandler);
+    void ADC_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void WDT_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void BOD_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void FMC_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void PIOINT3_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void PIOINT2_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void PIOINT1_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void PIOINT0_IRQHandler (void) ALIAS(IntDefaultHandler);
+    void WAKEUP_IRQHandler  (void) ALIAS(IntDefaultHandler);
 
 //*****************************************************************************
 //
@@ -110,15 +110,15 @@ void WAKEUP_IRQHandler  (void) ALIAS(IntDefaultHandler);
 //
 //*****************************************************************************
 #if defined (__REDLIB__)
-extern void __main(void);
+    extern void __main(void);
 #endif
-extern int main(void);
+    extern int main(void);
 //*****************************************************************************
 //
 // External declaration for the pointer to the stack top from the Linker Script
 //
 //*****************************************************************************
-extern void _vStackTop(void);
+    extern void _vStackTop(void);
 
 //*****************************************************************************
 #if defined (__cplusplus)
@@ -132,7 +132,8 @@ extern void _vStackTop(void);
 //*****************************************************************************
 extern void (* const g_pfnVectors[])(void);
 __attribute__ ((section(".isr_vector")))
-void (* const g_pfnVectors[])(void) = {
+void (* const g_pfnVectors[])(void) =
+{
     &_vStackTop,		    				// The initial stack pointer
     ResetISR,                               // The reset handler
     NMI_Handler,                            // The NMI handler
@@ -168,7 +169,7 @@ void (* const g_pfnVectors[])(void) = {
     WAKEUP_IRQHandler,                      // PIO1_0  Wakeup
     WAKEUP_IRQHandler,                      // PIO1_1  Wakeup
     WAKEUP_IRQHandler,                      // PIO1_2  Wakeup
-    
+
     I2C_IRQHandler,                      	// I2C0
     TIMER16_0_IRQHandler,                   // CT16B0 (16-bit Timer 0)
     TIMER16_1_IRQHandler,                   // CT16B1 (16-bit Timer 1)
@@ -229,32 +230,33 @@ void ResetISR(void)
     //
     // Zero fill the bss segment.
     //
-	for(pulDest = (unsigned char *)&_bss; pulDest < (unsigned char *)&_ebss; pulDest++)
-	  *pulDest = 0;
+    for(pulDest = (unsigned char *)&_bss; pulDest < (unsigned char *)&_ebss; pulDest++)
+        *pulDest = 0;
 
 #ifdef __USE_CMSIS
-	SystemInit();
+    SystemInit();
 #endif
 
 #if defined (__cplusplus)
-	//
-	// Call C++ library initialisation
-	//
-	__libc_init_array();
+    //
+    // Call C++ library initialisation
+    //
+    __libc_init_array();
 #endif
 
 #if defined (__REDLIB__)
-	// Call the Redlib library, which in turn calls main()
-	__main() ;
+    // Call the Redlib library, which in turn calls main()
+    __main() ;
 #else
-	main();
+    main();
 #endif
-	//
-	// main() shouldn't return, but if it does, we'll just enter an infinite loop 
-	//
-	while (1) {
-		;
-	}
+    //
+    // main() shouldn't return, but if it does, we'll just enter an infinite loop
+    //
+    while (1)
+    {
+        ;
+    }
 }
 
 //*****************************************************************************

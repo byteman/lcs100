@@ -28,7 +28,7 @@ LedUpload::LedUpload():
 }
 bool    LedUpload::init(std::string uartPath)
 {
-	return true;
+    return true;
 }
 bool    LedUpload::setPort(serial::Serial* comPort)
 {
@@ -109,7 +109,7 @@ bool    LedUpload::sendPacket(unsigned char* context, int len)
     dumpData(packet,sendlen);
     _zigbeeCom->write (packet,sendlen);
 
-	return true;
+    return true;
 }
 
 void    LedUpload::timerOut(Poco::Timer& timer)
@@ -121,7 +121,7 @@ void    LedUpload::parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsig
 {
     if(ssid != _curSessionID)
     {
-        TEventParam par(id,grp,EV_REQ,ERR_SESSION);
+        TEventParam par(id,grp,EV_UPLOAD_REQ,ERR_UPLOAD_SESSION);
         LedCtrl::get ().notify (&par);
         fprintf(stderr,"session ID err: [%d][%d]\n",ssid,_curSessionID);
         //_state = STATE_IDLE;
@@ -132,12 +132,12 @@ void    LedUpload::parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsig
     {
         _packetIdx = 0;
         _state = STATE_DATA;
-        TEventParam par(id,grp,EV_REQ,ERR_OK);
+        TEventParam par(id,grp,EV_UPLOAD_REQ,ERR_OK);
         LedCtrl::get ().notify (&par);
     }
     else
     {
-        TEventParam par(id,grp,EV_REQ,(LedError)ack,(LedError)ack);
+        TEventParam par(id,grp,EV_UPLOAD_REQ,(LedError)ack,(LedError)ack);
         LedCtrl::get ().notify (&par);
         fprintf(stderr,"err:ack=%d\n",ack);
     }
@@ -148,7 +148,7 @@ void   LedUpload::parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,uns
 {
     if(ssid != _curSessionID)
     {
-        TEventParam par(id,grp,EV_REQ,ERR_SESSION);
+        TEventParam par(id,grp,EV_UPLOAD_REQ,ERR_UPLOAD_SESSION);
         LedCtrl::get ().notify (&par);
         fprintf(stderr,"session ID err: [%d][%d]\n",ssid,_curSessionID);
         //_state = STATE_IDLE;
@@ -156,13 +156,13 @@ void   LedUpload::parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,uns
     }
     if(ack == 0)
     {
-        TEventParam par(id,grp,EV_VERIFY,ERR_OK);
+        TEventParam par(id,grp,EV_UPLOAD_VERIFY,ERR_OK);
         LedCtrl::get ().notify (&par);
         _state = STATE_OK;
     }
     else
     {
-        TEventParam par(id,grp,EV_VERIFY,(LedError)ack,(LedError)ack);
+        TEventParam par(id,grp,EV_UPLOAD_VERIFY,(LedError)ack,(LedError)ack);
         LedCtrl::get ().notify (&par);
         fprintf(stderr,"err:ack=%d\n",ack);
     }
@@ -172,7 +172,7 @@ void    LedUpload::parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsi
 {
     if(ssid != _curSessionID)
     {
-        TEventParam par(id,grp,EV_DATA,ERR_SESSION);
+        TEventParam par(id,grp,EV_UPLOAD_DATA,ERR_UPLOAD_SESSION);
         LedCtrl::get ().notify (&par);
         fprintf(stderr,"session ID err: [%d][%d]\n",ssid,_curSessionID);
         //_state = STATE_IDLE;
@@ -191,12 +191,12 @@ void    LedUpload::parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsi
             _state = STATE_VERIFY;
         }
 
-        TEventParam par(id,grp,EV_DATA,(LedError)ack,_packetIdx);
+        TEventParam par(id,grp,EV_UPLOAD_DATA,(LedError)ack,_packetIdx);
         LedCtrl::get ().notify (&par);
     }
     else
     {
-        TEventParam par(id,grp,EV_DATA,(LedError)ack,(LedError)ack);
+        TEventParam par(id,grp,EV_UPLOAD_DATA,(LedError)ack,(LedError)ack);
         LedCtrl::get ().notify (&par);
         fprintf(stderr,"err:ack=%d\n",ack);
     }
@@ -214,17 +214,17 @@ bool    LedUpload::parsePacket(unsigned char* context, int len)
 
     switch(code)
     {
-        case CMD_UPLOAD_REQ:
-            parseUploadReqResponse(termID,groupID,context[6],(context[7]<<8) + context[8]);
-            break;
-        case CMD_UPLOAD_DATA:
-            parseUploadDataResponse(termID,groupID,context[6],(context[7]<<8) + context[8],(context[9]<<8) + context[10]);
-            break;
-        case CMD_UPLOAD_VERIFY:
-            parseUploadVerifyResponse(termID,groupID,context[6],(context[7]<<8) + context[8]);
-            break;
-        default:
-            break;
+    case CMD_UPLOAD_REQ:
+        parseUploadReqResponse(termID,groupID,context[6],(context[7]<<8) + context[8]);
+        break;
+    case CMD_UPLOAD_DATA:
+        parseUploadDataResponse(termID,groupID,context[6],(context[7]<<8) + context[8],(context[9]<<8) + context[10]);
+        break;
+    case CMD_UPLOAD_VERIFY:
+        parseUploadVerifyResponse(termID,groupID,context[6],(context[7]<<8) + context[8]);
+        break;
+    default:
+        break;
     }
     return true;
 }
@@ -233,48 +233,48 @@ void    LedUpload::run()
     _evtRdy.set ();
     _quit = false;
     runStateMachine();
-	_zigbeeCom->setReadTimeout(1000);
+    _zigbeeCom->setReadTimeout(1000);
     while(!_quit && (_state != STATE_OK))
     {
 
-		try
-		{
-			unsigned char ch = 0;
+        try
+        {
+            unsigned char ch = 0;
 
-			if(_zigbeeCom->read(&ch,1) > 0)
-			{
-				if( parseChar( ch ))
-				{
-					unsigned int pktLen = 0;
-					unsigned char * pkt = readPacket(&pktLen);
-					if(pkt)
-					{
-						parsePacket(pkt,pktLen);
-						runStateMachine();
-					}
-				}
-			}
-			else
-			{
-				runStateMachine();
-			}
-		}
-		catch(serial::PortNotOpenedException& e)
-		{
-			fprintf(stderr,"%s\r\n",e.what());
-			_quit = true;
-			//runStateMachine();
-		}
-		catch(serial::IOException& e)
-		{
-			fprintf(stderr,"IOException\r\n");
-			_quit = true;
-		}
-		catch(...)
-		{
-			fprintf(stderr,"Unknown err\r\n");
-			_quit = true;
-		}
+            if(_zigbeeCom->read(&ch,1) > 0)
+            {
+                if( parseChar( ch ))
+                {
+                    unsigned int pktLen = 0;
+                    unsigned char * pkt = readPacket(&pktLen);
+                    if(pkt)
+                    {
+                        parsePacket(pkt,pktLen);
+                        runStateMachine();
+                    }
+                }
+            }
+            else
+            {
+                runStateMachine();
+            }
+        }
+        catch(serial::PortNotOpenedException& e)
+        {
+            fprintf(stderr,"%s\r\n",e.what());
+            _quit = true;
+            //runStateMachine();
+        }
+        catch(serial::IOException& e)
+        {
+            fprintf(stderr,"IOException\r\n");
+            _quit = true;
+        }
+        catch(...)
+        {
+            fprintf(stderr,"Unknown err\r\n");
+            _quit = true;
+        }
 
     }
     resetState ();
@@ -299,7 +299,7 @@ bool    LedUpload::sendUploadRequest()
 
     sendPacket(context,12);
 
-	return true;
+    return true;
     //Poco::Thread::sleep (1000);
 
 }
@@ -318,7 +318,7 @@ bool    LedUpload::sendUploadVerify()
     sendPacket (context,10);
     //Poco::Thread::sleep (1000);
 
-	return true;
+    return true;
 }
 bool    LedUpload::sendUploadData()
 {
@@ -359,25 +359,28 @@ bool    LedUpload::sendReset()
     context[5] = CMD_RESET;
     sendPacket (context,6);
 
-	return true;
+    return true;
 }
 void    LedUpload::runStateMachine()
 {
     printf("state=%d\n",_state);
     switch(_state)
     {
-        case STATE_REQ:
-            sendUploadRequest();
-            break;
-        case STATE_DATA:
-            sendUploadData();
-            break;
-        case STATE_VERIFY:
-            sendUploadVerify ();
-            break;
-        case STATE_OK:
-            sendReset ();
-            break;
+    case STATE_REQ:
+        sendUploadRequest();
+        break;
+    case STATE_DATA:
+        sendUploadData();
+        break;
+    case STATE_VERIFY:
+        sendUploadVerify ();
+        break;
+    case STATE_OK:
+        sendReset ();
+    case STATE_IDLE:
+        break;
+    default:
+        break;
     }
 }
 void LedUpload::resetState()
@@ -420,7 +423,7 @@ bool    LedUpload::startUploadFile(unsigned int devID)
 }
 bool    LedUpload::startUploadFile(DeviceIDList& devList)
 {
-    for(size_t i = 0 ;i < devList.size ();i++)
+    for(size_t i = 0 ; i < devList.size (); i++)
     {
         if(!startUploadFile(devList.at(i)))
         {

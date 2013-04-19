@@ -32,7 +32,7 @@ static uint8_t respBuf[MAX_RESP_BUFF_SIZE];
 
 static toShort(uint8_t* buf)
 {
-	return (buf[0]<<8) + buf[1];
+    return (buf[0]<<8) + buf[1];
 }
 extern volatile  uint32_t timer32_0_counter;
 
@@ -40,7 +40,8 @@ extern volatile  uint32_t timer32_0_counter;
 static void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len);
 static void RespNoPara(uint8_t command,uint8_t ack);
 static void RespCharPara(uint8_t command,uint8_t ack,uint8_t value);
-
+static void RespShortPara(uint8_t command,uint8_t ack,uint16_t value);
+static void RespIntPara(uint8_t command,uint8_t ack,uint32_t value);
 
 /**
  * Convert an u32_t from host- to network byte order.
@@ -51,10 +52,10 @@ static void RespCharPara(uint8_t command,uint8_t ack,uint8_t value);
 unsigned int
 _htonl(unsigned int n)
 {
-  return ((n & 0xff) << 24) |
-    ((n & 0xff00) << 8) |
-    ((n & 0xff0000UL) >> 8) |
-    ((n & 0xff000000UL) >> 24);
+    return ((n & 0xff) << 24) |
+           ((n & 0xff00) << 8) |
+           ((n & 0xff0000UL) >> 8) |
+           ((n & 0xff000000UL) >> 24);
 }
 
 /**
@@ -66,7 +67,7 @@ _htonl(unsigned int n)
 unsigned int
 _ntohl(unsigned int n)
 {
-  return _htonl(n);
+    return _htonl(n);
 }
 
 /**
@@ -78,7 +79,7 @@ _ntohl(unsigned int n)
 unsigned short
 _htons(unsigned short n)
 {
-  return ((n & 0xff) << 8) | ((n & 0xff00) >> 8);
+    return ((n & 0xff) << 8) | ((n & 0xff00) >> 8);
 }
 
 /**
@@ -90,25 +91,25 @@ _htons(unsigned short n)
 unsigned short
 _ntohs(unsigned short n)
 {
-  return _htons(n);
+    return _htons(n);
 }
 
 
 static void resetCtrl(uint16_t afterMs)
 {
-	RespNoPara(CMD_RESET,ERR_OK);
-	Delay1_MS(afterMs);
-	NVIC_SystemReset();
+    RespNoPara(CMD_RESET,ERR_OK);
+    Delay1_MS(afterMs);
+    NVIC_SystemReset();
 }
 
 //FIXME 到底需要闪烁多久，是一直闪到发命令停止，还是指定时间或者次数
 static void setTwinkle(uint16_t periodMs)
 {
-	
-	uint16_t cnt = 10;
-	RespNoPara(CMD_TWINKLE,ERR_OK);
 
-	
+    uint16_t cnt = 10;
+    RespNoPara(CMD_TWINKLE,ERR_OK);
+
+
     while(cnt--)
     {
         Duty_Time=100;
@@ -125,66 +126,63 @@ void SetupAdjustTime(uint8_t waitS)//设置调光时间
 {
     adj_timeS=waitS;
 
-	RespNoPara(CMD_SET_ADJ_TIME,ERR_OK);
+    RespNoPara(CMD_SET_ADJ_TIME,ERR_OK);
 
-	paramSetU8(PARAM_ADJ_TIME,waitS);
+    paramSetU8(PARAM_ADJ_TIME,waitS);
 
 
-	
+
 }
 
 void SetupDefaultBrightness(uint8_t brightness)//设置默认调光值
 {
     default_brightness=brightness;
 
-	RespNoPara(CMD_SET_DEFAULT_BRIGHTNESS,ERR_OK);
+    RespNoPara(CMD_SET_DEFAULT_BRIGHTNESS,ERR_OK);
 
-	paramSetU8(PARAM_DEF_BRIGHTNESS,brightness);
+    paramSetU8(PARAM_DEF_BRIGHTNESS,brightness);
 
 }
 void SetupGroupNumber(uint8_t group)//设置组号
 {
     group_number=group;
 
-	
-	RespNoPara(CMD_SET_GROUP,ERR_OK);
-	
-	paramSetU8(PARAM_GROUP,group_number);
+
+    RespNoPara(CMD_SET_GROUP,ERR_OK);
+
+    paramSetU8(PARAM_GROUP,group_number);
 }
 static void queryVoltage(void)
 {
-	
-	uint16_t voltage =Measuring_220V();
-	voltage = _htons(voltage);
 
-	ResponseMsg(CMD_QUERY_VOLTAGE,ERR_OK,(uint8_t*)&voltage,sizeof(uint16_t));
-	
+    uint16_t voltage =Measuring_220V();
+    voltage = _htons(voltage);
+
+    RespShortPara(CMD_QUERY_VOLTAGE,ERR_OK,voltage);
+
 }
 static void queryCurrent(void)
 {
-	
-	
-	uint16_t currentMA =Measuring_AC(); //以MA为单位
-	currentMA = _htons(currentMA);
 
-	ResponseMsg(CMD_QUERY_CURRENT,ERR_OK,(uint8_t*)&currentMA,sizeof(uint16_t));
-	
+    uint16_t currentMA =Measuring_AC(); //以MA为单位
+    currentMA = _htons(currentMA);
+    RespShortPara(CMD_QUERY_CURRENT,ERR_OK,currentMA);
+
 }
 static void queryPactive(void)
 {
 
-	uint16_t value =Measuring_Pactive(); //单位为100MW
-	value = _htons(value);
-	
-	ResponseMsg(CMD_QUERY_KW,ERR_OK,(uint8_t*)&value,sizeof(uint16_t));
-	
+    uint16_t value =Measuring_Pactive(); //单位为100MW
+    value = _htons(value);
+    RespShortPara(CMD_QUERY_KW,ERR_OK,value);
+
 }
 void Modify_ID(unsigned char* pId)    //修改设备ID号
 {
 
-   	memcpy(Terminal_ID,pId,4);
-	
-	paramSetBuff(PARAM_ID,Terminal_ID,4);
+    memcpy(Terminal_ID,pId,4);
+
+    paramSetBuff(PARAM_ID,Terminal_ID,4);
 }
 void InquiryGroupNumber(void)//查询组号
 {
@@ -196,21 +194,24 @@ void InquiryLightValue(void)//查询当前调光值
 }
 void InquiryAcquiesceLightValue(void)   //查询默认调光值
 {
-	RespCharPara(CMD_QUERY_DEFAULT_BRIGHTNESS,ERR_OK,default_brightness);
+    RespCharPara(CMD_QUERY_DEFAULT_BRIGHTNESS,ERR_OK,default_brightness);
 }
 void Inquiry_Version(void)//查询固件版本号
 {
-	RespCharPara(CMD_QUERY_VERSION,ERR_OK,LedVesion);
+    RespCharPara(CMD_QUERY_VERSION,ERR_OK,LedVesion);
 }
-
+void Inquiry_ResetNum(void)
+{
+    RespIntPara(CMD_GET_RESET_CNT,ERR_OK,resetNum);
+}
 
 void Inquiry_lighttime(void)  //查询调光时间
 {
-	RespCharPara(CMD_QUERY_ADJ_TIME,ERR_OK,adj_timeS);
+    RespCharPara(CMD_QUERY_ADJ_TIME,ERR_OK,adj_timeS);
 }
 void BroadCastDeviceID(void)
 {
-	ResponseMsg(CMD_BROADCAST_DEVID,ERR_OK,(uint8_t*)Terminal_ID,4);
+    ResponseMsg(CMD_BROADCAST_DEVID,ERR_OK,(uint8_t*)Terminal_ID,4);
 }
 void Inquiry_ZigbeeCfg()
 {
@@ -225,7 +226,7 @@ static void adjustBrightness(uint8_t brightness)
     uint32_t lightvalue=0;
 
     Duty_Time_Temp= brightness;
-	
+
     lightvalue=Duty_Time;
     if(Duty_Time_Temp!=lightvalue)
     {
@@ -280,8 +281,8 @@ static void adjustBrightness(uint8_t brightness)
         init_timer32PWM(1,TIME_INTERVAL,0x01);
     }
 
-	
-	RespNoPara(CMD_ADJUST_BRIGHTNESS,ERR_OK);
+
+    RespNoPara(CMD_ADJUST_BRIGHTNESS,ERR_OK);
 
 }
 
@@ -289,8 +290,8 @@ void Inquiry_alldata(void)   //查询所有数据
 {
 
     uint8_t ALLdata[32];
-	uint32_t temp = Measuring_220V();
-	
+    uint32_t temp = Measuring_220V();
+
     ALLdata[0] = temp>>24;
     ALLdata[1] = temp>>16;
     ALLdata[2] = temp>>8;
@@ -298,21 +299,21 @@ void Inquiry_alldata(void)   //查询所有数据
 
 
     temp = Measuring_AC();
-	
+
     ALLdata[4] = temp>>24;
     ALLdata[5] = temp>>16;
     ALLdata[6] = temp>>8;
     ALLdata[7] = temp>>0;
 
 
-	temp = Measuring_Pactive();
-	
+    temp = Measuring_Pactive();
+
     ALLdata[8]  = temp>>24;
     ALLdata[9]  = temp>>16;
     ALLdata[10] = temp>>8;
     ALLdata[11] = temp>>0;
 
-	
+
     ALLdata[12] = brightness;
     ALLdata[13] = default_brightness;
     ALLdata[14] = adj_timeS;
@@ -322,7 +323,7 @@ void Inquiry_alldata(void)   //查询所有数据
     ALLdata[18] = Terminal_ID[2];
     ALLdata[19] = Terminal_ID[3];
 
-	ResponseMsg(CMD_QUERY_ALL,ERR_OK,ALLdata,20);
+    ResponseMsg(CMD_QUERY_ALL,ERR_OK,ALLdata,20);
 
 }
 
@@ -334,85 +335,88 @@ void Write2EEPROM(unsigned char* buff, int len)
 
 void App_Command(LedRequest* pReq)//各个命令分解
 {
-		unsigned char* data = pReq->data;
+    unsigned char* data = pReq->data;
     Command=pReq->cmd;
     Mode= pReq->mode;
 
-	
-	if(pReq->cmd == CMD_BROADCAST_DEVID)
-	{
 
-	}
-	else
-	{
-		if(Terminal_ID[0] != pReq->id[0]) return;
-		if(Terminal_ID[1] != pReq->id[1]) return;
-		if(Terminal_ID[2] != pReq->id[2]) return;
-		if(Terminal_ID[3] != pReq->id[3]) return;
-	}
-						
-	switch(Command)
-	{
-		case CMD_RESET: //复位
-			resetCtrl(toShort(data));
-			break;
-		case CMD_ADJUST_BRIGHTNESS: //调节亮度
-			adjustBrightness(data[0]);
-			break;
-		case CMD_TWINKLE: //闪烁
-			setTwinkle(toShort(data));
-			break;
-		case CMD_SET_ADJ_TIME: //设置调光时间
-			SetupAdjustTime(data[0]);
-			break;
-		case CMD_SET_DEFAULT_BRIGHTNESS:
-			SetupDefaultBrightness(data[0]);
-			break;
-		case CMD_SET_GROUP:
-			SetupGroupNumber(data[0]);
-			break;
-		case CMD_MODIFY_DEVID:
-			Modify_ID(data);
-			break;
-		case CMD_QUERY_VOLTAGE:
-			queryVoltage();
-			break;
-		case CMD_QUERY_CURRENT:
-			queryCurrent();
-			break;
-		case CMD_QUERY_KW:
-			queryPactive();
-			break;
-		case CMD_QUERY_BRIGHTNESS:
-			InquiryLightValue();
-			break;
-		case CMD_QUERY_DEFAULT_BRIGHTNESS:
-			InquiryAcquiesceLightValue();
-			break;
-		case CMD_QUERY_GROUP:
-			InquiryGroupNumber();
-			break;
-		case CMD_QUERY_ALL:
-			Inquiry_alldata();
-			break;
-		case CMD_QUERY_ADJ_TIME:
-			Inquiry_lighttime();
-			break;
-		case CMD_QUERY_ZIGBEE_CFG:
-			Inquiry_ZigbeeCfg();
-			break;
-		case CMD_WRITE_EEPROM:
-			Write2EEPROM(data,10);
-			break;
-		case CMD_BROADCAST_DEVID:
-			BroadCastDeviceID();
-		  break;
-		case CMD_QUERY_VERSION:
-			Inquiry_Version();
-		  break;
-		default:
-			break;
-	}
+    if(pReq->cmd == CMD_BROADCAST_DEVID)
+    {
+
+    }
+    else
+    {
+        if(Terminal_ID[0] != pReq->id[0]) return;
+        if(Terminal_ID[1] != pReq->id[1]) return;
+        if(Terminal_ID[2] != pReq->id[2]) return;
+        if(Terminal_ID[3] != pReq->id[3]) return;
+    }
+
+    switch(Command)
+    {
+    case CMD_RESET: //复位
+        resetCtrl(toShort(data));
+        break;
+    case CMD_ADJUST_BRIGHTNESS: //调节亮度
+        adjustBrightness(data[0]);
+        break;
+    case CMD_TWINKLE: //闪烁
+        setTwinkle(toShort(data));
+        break;
+    case CMD_SET_ADJ_TIME: //设置调光时间
+        SetupAdjustTime(data[0]);
+        break;
+    case CMD_SET_DEFAULT_BRIGHTNESS:
+        SetupDefaultBrightness(data[0]);
+        break;
+    case CMD_SET_GROUP:
+        SetupGroupNumber(data[0]);
+        break;
+    case CMD_MODIFY_DEVID:
+        Modify_ID(data);
+        break;
+    case CMD_QUERY_VOLTAGE:
+        queryVoltage();
+        break;
+    case CMD_QUERY_CURRENT:
+        queryCurrent();
+        break;
+    case CMD_QUERY_KW:
+        queryPactive();
+        break;
+    case CMD_QUERY_BRIGHTNESS:
+        InquiryLightValue();
+        break;
+    case CMD_QUERY_DEFAULT_BRIGHTNESS:
+        InquiryAcquiesceLightValue();
+        break;
+    case CMD_QUERY_GROUP:
+        InquiryGroupNumber();
+        break;
+    case CMD_QUERY_ALL:
+        Inquiry_alldata();
+        break;
+    case CMD_QUERY_ADJ_TIME:
+        Inquiry_lighttime();
+        break;
+    case CMD_QUERY_ZIGBEE_CFG:
+        Inquiry_ZigbeeCfg();
+        break;
+    case CMD_WRITE_EEPROM:
+        Write2EEPROM(data,10);
+        break;
+    case CMD_BROADCAST_DEVID:
+        BroadCastDeviceID();
+        break;
+    case CMD_QUERY_VERSION:
+        Inquiry_Version();
+        break;
+    case CMD_GET_RESET_CNT:
+        Inquiry_ResetNum();
+        break;
+    default:
+        break;
+    }
 
 }
 
@@ -429,7 +433,7 @@ void ZigbeeSetup(void)          // 读ZIGBEE配置信息
     GPIOSetValue(1,8,0);
     Delay1_MS(3000);
     GPIOSetValue(1,8,1);
-	Delay1_MS(500);
+    Delay1_MS(500);
     while ((LPC_UART->LSR & 0x01) == 0x01)
     {
         num = LPC_UART->RBR;
@@ -440,7 +444,7 @@ void ZigbeeSetup(void)          // 读ZIGBEE配置信息
     temp_buf[0]=0x23;
     temp_buf[1]=0xa0;
     UARTSend((uint8_t *)temp_buf,2);
-	Delay1_MS(500);
+    Delay1_MS(500);
     while ((LPC_UART->LSR & 0x01) == 0x01)
     {
 
@@ -448,24 +452,24 @@ void ZigbeeSetup(void)          // 读ZIGBEE配置信息
         num++;
 
     }
-	//检测返回的数据是否是15个字节
-	if(num != 15) return; 
+    //检测返回的数据是否是15个字节
+    if(num != 15) return;
 #endif
 //后面的这两个命令zigbee都不会返回数据
-	temp_buf[0] = 0x23;
-	temp_buf[1] = 0xfe;
-  memcpy(temp_buf+2,Data_Buf+8,14);
-	
-	UARTSend((uint8_t *)temp_buf,16);
-	Delay1_MS(500);
-	
+    temp_buf[0] = 0x23;
+    temp_buf[1] = 0xfe;
+    memcpy(temp_buf+2,Data_Buf+8,14);
+
+    UARTSend((uint8_t *)temp_buf,16);
+    Delay1_MS(500);
+
     temp_buf[0]=0x23;
     temp_buf[1]=0x23;
     UARTSend((uint8_t *)temp_buf,2);
     Delay1_MS(200);
-	
-	UARTInit(19200); //open interrput in init
-	
+
+    UARTInit(19200); //open interrput in init
+
 // Delay1_MS(200);
 
 
@@ -489,44 +493,53 @@ void Delay1_US(uint32_t ulTime)
 }
 uint8_t checkSum(uint8_t* buff, uint8_t len)
 {
-	uint8_t sum = 0;
-	uint8_t i = 0;
-	for(; i < len; i++)
-		sum+=buff[i];
-	return sum;
+    uint8_t sum = 0;
+    uint8_t i = 0;
+    for(; i < len; i++)
+        sum+=buff[i];
+    return sum;
 }
 
 void RespCharPara(uint8_t command,uint8_t ack,uint8_t value)
 {
-	ResponseMsg(command,ack,&value,1);
+    ResponseMsg(command,ack,&value,1);
 }
-
+void RespShortPara(uint8_t command,uint8_t ack,uint16_t value)
+{
+    value = _htons(value);
+    ResponseMsg(command,ack,(unsigned char*)&value,2);
+}
+void RespIntPara(uint8_t command,uint8_t ack,uint32_t value)
+{
+    value = _htonl(value);
+    ResponseMsg(command,ack,(unsigned char*)&value,4);
+}
 void RespNoPara(uint8_t command,uint8_t ack)
 {
-	ResponseMsg(command,ack,0,0);
+    ResponseMsg(command,ack,0,0);
 }
 void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回复协议
 {
 
-	if( (10 + len) > MAX_RESP_BUFF_SIZE ) return;
-	
-	
+    if( (10 + len) > MAX_RESP_BUFF_SIZE ) return;
+
+
     respBuf[0]=PROTO_HEAD;                         //帧头
     respBuf[1]=10 + len;                           //消息长度
 
-	
+
     memcpy(&respBuf[2],Terminal_ID,4);        //地址
     respBuf[6]=group_number;                 //组号
 
     respBuf[7]=(command&0x3F)|0x80;                       //控制码
     respBuf[8]= ack;                          //应答码
 
-	if( (context != NULL) && (len > 0 ))	
-    	memcpy(respBuf+9,context,len);
+    if( (context != NULL) && (len > 0 ))
+        memcpy(respBuf+9,context,len);
 
-    respBuf[9+len]=checkSum(respBuf,9+len);	
+    respBuf[9+len]=checkSum(respBuf,9+len);
 
     UARTSend( (uint8_t *)respBuf, respBuf[1] );
     Delay1_MS(10);
-	
+
 }

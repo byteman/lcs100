@@ -46,41 +46,41 @@ extern uint32_t SystemFrequency;
 *****************************************************************************/
 void vUARTInit(uint32_t u32BaudRate)
 {
-	uint32_t Fdiv;
-	uint32_t regVal;
+    uint32_t Fdiv;
+    uint32_t regVal;
 
-	/* Not using interrupts */
-	NVIC_DisableIRQ(UART_IRQn);
+    /* Not using interrupts */
+    NVIC_DisableIRQ(UART_IRQn);
 
-	/* UART I/O config */
-	LPC_IOCON->PIO1_6 &= ~0x07;
-	LPC_IOCON->PIO1_6 |= 0x01;     /* UART RXD */
-	LPC_IOCON->PIO1_7 &= ~0x07;
-	LPC_IOCON->PIO1_7 |= 0x01;     /* UART TXD */
+    /* UART I/O config */
+    LPC_IOCON->PIO1_6 &= ~0x07;
+    LPC_IOCON->PIO1_6 |= 0x01;     /* UART RXD */
+    LPC_IOCON->PIO1_7 &= ~0x07;
+    LPC_IOCON->PIO1_7 |= 0x01;     /* UART TXD */
 
-	/* Enable UART clock */
-	LPC_SYSCON->SYSAHBCLKCTRL |= (1<<12);
-	LPC_SYSCON->UARTCLKDIV = 0x1;     /* divided by 1 */
+    /* Enable UART clock */
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<12);
+    LPC_SYSCON->UARTCLKDIV = 0x1;     /* divided by 1 */
 
-	LPC_UART->LCR = 0x83;             /* 8 bits, no Parity, 1 Stop bit */
-	regVal = LPC_SYSCON->UARTCLKDIV;
-	Fdiv = (((SystemFrequency/LPC_SYSCON->SYSAHBCLKDIV)/regVal)/16)/u32BaudRate ;	/*baud rate */
+    LPC_UART->LCR = 0x83;             /* 8 bits, no Parity, 1 Stop bit */
+    regVal = LPC_SYSCON->UARTCLKDIV;
+    Fdiv = (((SystemFrequency/LPC_SYSCON->SYSAHBCLKDIV)/regVal)/16)/u32BaudRate ;	/*baud rate */
 
-	LPC_UART->DLM = Fdiv / 256;
-	LPC_UART->DLL = Fdiv % 256;
-	LPC_UART->LCR = 0x03;		/* DLAB = 0 */
-	LPC_UART->FCR = 0x07;		/* Enable and reset TX and RX FIFO. */
+    LPC_UART->DLM = Fdiv / 256;
+    LPC_UART->DLL = Fdiv % 256;
+    LPC_UART->LCR = 0x03;		/* DLAB = 0 */
+    LPC_UART->FCR = 0x07;		/* Enable and reset TX and RX FIFO. */
 
-	/* Read to clear the line status. */
-	regVal = LPC_UART->LSR;
+    /* Read to clear the line status. */
+    regVal = LPC_UART->LSR;
 
-	/* Ensure a clean start, no data in either TX or RX FIFO. */
-	while ( (LPC_UART->LSR & (LSR_THRE|LSR_TEMT)) != (LSR_THRE|LSR_TEMT) );
+    /* Ensure a clean start, no data in either TX or RX FIFO. */
+    while ( (LPC_UART->LSR & (LSR_THRE|LSR_TEMT)) != (LSR_THRE|LSR_TEMT) );
 
-	while ( LPC_UART->LSR & LSR_RDR )
-	{
-		regVal = LPC_UART->RBR;	/* Dump data from RX FIFO */
-	}
+    while ( LPC_UART->LSR & LSR_RDR )
+    {
+        regVal = LPC_UART->RBR;	/* Dump data from RX FIFO */
+    }
 }
 
 /*****************************************************************************
@@ -96,14 +96,14 @@ void vUARTInit(uint32_t u32BaudRate)
 *****************************************************************************/
 uint8_t u8UARTReceive(uint8_t *pu8Buffer)
 {
-	uint8_t u8Len = 0;
+    uint8_t u8Len = 0;
 
-	if (LPC_UART->LSR & LSR_RDR)
-	{
-		*pu8Buffer = LPC_UART->RBR;
-		u8Len++;
-	}
-	return u8Len;
+    if (LPC_UART->LSR & LSR_RDR)
+    {
+        *pu8Buffer = LPC_UART->RBR;
+        u8Len++;
+    }
+    return u8Len;
 }
 
 /*****************************************************************************
@@ -119,15 +119,15 @@ uint8_t u8UARTReceive(uint8_t *pu8Buffer)
 *****************************************************************************/
 void vUARTSend(uint8_t *pu8Buffer, uint32_t u32Len)
 {
-	while ( u32Len != 0 )
-	{
-		/* Send character to UART */
-		LPC_UART->THR = *pu8Buffer;
-		/* Wait until transmission is complete */
-		while ((LPC_UART->LSR & LSR_TEMT) == 0);
-		pu8Buffer++;
-		u32Len--;
-	}
+    while ( u32Len != 0 )
+    {
+        /* Send character to UART */
+        LPC_UART->THR = *pu8Buffer;
+        /* Wait until transmission is complete */
+        while ((LPC_UART->LSR & LSR_TEMT) == 0);
+        pu8Buffer++;
+        u32Len--;
+    }
 }
 
 /******************************************************************************

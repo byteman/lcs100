@@ -48,58 +48,58 @@ uint32_t u32BootLoader_AppPresent(void);
 __asm void runApp()
 {
 
-		ldr r0, =0x2000
-		ldr r0, [r0]
-		mov sp, r0
+    ldr r0, =0x2000
+             ldr r0, [r0]
+             mov sp, r0
 
-		/* Load program counter with application reset vector address, located at
-		   second word of application area. */
-		ldr r0, =0x2004
-		ldr r0, [r0]
-		bx  r0
+             /* Load program counter with application reset vector address, located at
+                second word of application area. */
+             ldr r0, =0x2004
+                      ldr r0, [r0]
+                      bx  r0
 
 }
-void goApp()
+                  void goApp()
 {
-	/* Verify if a valid user application is present in the upper sectors
-		 of flash memory. */
-	if (u32BootLoader_AppPresent() == 0)
-	{
-		/* Valid application not present, execute bootloader task that will
-			 obtain a new application and program it to flash.. */
-		UploadTask();
+    /* Verify if a valid user application is present in the upper sectors
+    	 of flash memory. */
+    if (u32BootLoader_AppPresent() == 0)
+    {
+        /* Valid application not present, execute bootloader task that will
+        	 obtain a new application and program it to flash.. */
+        UploadTask();
 
-		/* Above function only returns when new application image has been
-			 successfully programmed into flash. Begin execution of this new
-			 application by resetting the device. */
-		NVIC_SystemReset();
-	}
-	else
-	{
-		/* Valid application located in the next sector(s) of flash so execute */
+        /* Above function only returns when new application image has been
+        	 successfully programmed into flash. Begin execution of this new
+        	 application by resetting the device. */
+        NVIC_SystemReset();
+    }
+    else
+    {
+        /* Valid application located in the next sector(s) of flash so execute */
 
-		/* Load main stack pointer with application stack pointer initial value,
-			 stored at first location of application area */
-		runApp();
-		/* User application execution should now start and never return here.... */
-	}
+        /* Load main stack pointer with application stack pointer initial value,
+        	 stored at first location of application area */
+        runApp();
+        /* User application execution should now start and never return here.... */
+    }
 }
 
 void initParam()
 {
-	i2c_lpc_init(0);
-	
-  loadParam();
+    i2c_lpc_init(0);
+
+    loadParam();
 
 }
 int main(void)
 {
-	SystemInit();
-	initParam();
-	UploadTask();
-	goApp();
-	/* This should never be executed.. */
-	return 0;
+    SystemInit();
+    initParam();
+    UploadTask();
+    goApp();
+    /* This should never be executed.. */
+    return 0;
 }
 
 
@@ -120,338 +120,338 @@ int main(void)
  *****************************************************************************/
 __asm void NMI_Handler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2008
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2008
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   HardFault_Handler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void HardFault_Handler(void)
+         /*****************************************************************************
+          ** Function name:   HardFault_Handler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void HardFault_Handler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x200C
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x200C
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   SVCall_Handler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void SVCall_Handler(void)
+         /*****************************************************************************
+          ** Function name:   SVCall_Handler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void SVCall_Handler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	
-	ldr r0, =0x202C
-	ldr r0, [r0]
-	bx  r0
-	nop
-	
+    /* Re-direct interrupt, get handler address from application vector table */
+
+    ldr r0, =0x202C
+             ldr r0, [r0]
+             bx  r0
+             nop
+
 }
 
-/*****************************************************************************
- ** Function name:   PendSV_Handler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- ******************************************************************************/
-__asm void PendSV_Handler(void)
+         /*****************************************************************************
+          ** Function name:   PendSV_Handler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          ******************************************************************************/
+         __asm void PendSV_Handler(void)
 {
-	
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2038
-	ldr r0, [r0]
-	bx  r0
-	nop
-	
+
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2038
+             ldr r0, [r0]
+             bx  r0
+             nop
+
 }
 
-/*****************************************************************************
- ** Function name:   SysTick_Handler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void SysTick_Handler(void)
+         /*****************************************************************************
+          ** Function name:   SysTick_Handler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void SysTick_Handler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x203C
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x203C
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   WAKEUP_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- ******************************************************************************/
-__asm void WAKEUP_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   WAKEUP_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          ******************************************************************************/
+         __asm void WAKEUP_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2040
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2040
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   I2C_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void I2C_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   I2C_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void I2C_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x207C
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x207C
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   TIMER16_0_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void TIMER16_0_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   TIMER16_0_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void TIMER16_0_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2080
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2080
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   TIMER16_1_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void TIMER16_1_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   TIMER16_1_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void TIMER16_1_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2084
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2084
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   TIMER32_0_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void TIMER32_0_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   TIMER32_0_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void TIMER32_0_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2088
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2088
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   TIMER32_1_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void TIMER32_1_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   TIMER32_1_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void TIMER32_1_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x208C
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x208C
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   SSP_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void SSP_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   SSP_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void SSP_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2090
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2090
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   UART_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void UART_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   UART_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void UART_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2094
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2094
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   USB_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void USB_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   USB_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void USB_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x2098
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x2098
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   USB_FIQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void USB_FIQHandler(void)
+         /*****************************************************************************
+          ** Function name:   USB_FIQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void USB_FIQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x209C
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x209C
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   ADC_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void ADC_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   ADC_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void ADC_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x20A0
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x20A0
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   WDT_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void WDT_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   WDT_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void WDT_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x20A4
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x20A4
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   BOD_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void BOD_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   BOD_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void BOD_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x20A8;
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x20A8;
+    ldr r0, [r0]
+    bx  r0
+    nop
 }
 
 /*****************************************************************************
@@ -466,91 +466,91 @@ __asm void BOD_IRQHandler(void)
  *****************************************************************************/
 __asm void FMC_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x20AC
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x20AC
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   PIOINT3_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void PIOINT3_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   PIOINT3_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void PIOINT3_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x20B0
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x20B0
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   PIOINT2_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void PIOINT2_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   PIOINT2_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void PIOINT2_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x20B4
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x20B4
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- ** Function name:   PIOINT1_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void PIOINT1_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   PIOINT1_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void PIOINT1_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	ldr r0, =0x20B8
-	ldr r0, [r0]
-	bx  r0
-	nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x20B8
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
 
 
-/*****************************************************************************
- ** Function name:   PIOINT0_IRQHandler
- **
- ** Description:	 Redirects CPU to application defined handler
- **
- ** Parameters:	     None
- **
- ** Returned value:  None
- **
- *****************************************************************************/
-__asm void PIOINT0_IRQHandler(void)
+         /*****************************************************************************
+          ** Function name:   PIOINT0_IRQHandler
+          **
+          ** Description:	 Redirects CPU to application defined handler
+          **
+          ** Parameters:	     None
+          **
+          ** Returned value:  None
+          **
+          *****************************************************************************/
+         __asm void PIOINT0_IRQHandler(void)
 {
-	/* Re-direct interrupt, get handler address from application vector table */
-	 ldr r0, =0x20BC
-	 ldr r0, [r0]
-	 bx  r0
-	 nop
+    /* Re-direct interrupt, get handler address from application vector table */
+    ldr r0, =0x20BC
+             ldr r0, [r0]
+             bx  r0
+             nop
 }
 
-/*****************************************************************************
- **                            End Of File
- *****************************************************************************/
+         /*****************************************************************************
+          **                            End Of File
+          *****************************************************************************/

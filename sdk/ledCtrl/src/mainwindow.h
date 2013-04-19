@@ -3,19 +3,20 @@
 
 #include <QMainWindow>
 #include "LedCtrl.h"
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void callback(TEventParam* par);
-    
+
 private slots:
     void on_btnUpload_clicked();
 

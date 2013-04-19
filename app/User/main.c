@@ -35,7 +35,7 @@ int main (void)
     CS5463_Init();
     i2c_lpc_init(0);
     loadParam();
-	
+
     while (1)
     {
         if(!tinyFifoEmpty())
@@ -50,16 +50,16 @@ int main (void)
                     if(pkt && (pktLen < Data_Len))
                     {
                         //memcpy(Data_Buf,pkt,pktLen);
-													memcpy(request.id, pkt, 4);
-													request.group = pkt[4];
-													request.cmd = 	pkt[5]&0x3F;
-													request.mode = 	pkt[5]>>6;
-													request.data = 	pkt+6;
+                        memcpy(request.id, pkt, 4);
+                        request.group = pkt[4];
+                        request.cmd = 	pkt[5]&0x3F;
+                        request.mode = 	pkt[5]>>6;
+                        request.data = 	pkt+6;
 
-													request.dataLen = pktLen - 3;
+                        request.dataLen = pktLen - 3;
 
-													App_Command(&request);
-                      
+                        App_Command(&request);
+
                     }
                 }
             }
@@ -70,7 +70,7 @@ int main (void)
 void Setup_Read(void)
 {
 
-	
+
 }
 
 

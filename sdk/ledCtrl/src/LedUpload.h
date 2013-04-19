@@ -8,13 +8,15 @@
 #include "serial/serial.h"
 #include "LedCtrl.h"
 
-typedef struct{
+typedef struct
+{
     unsigned int _id;
-}DeviceID;
+} DeviceID;
 class LedUpload:public Poco::Runnable
 {
 public:
-    enum UploadState{
+    enum UploadState
+    {
         STATE_IDLE=0,
         STATE_REQ,
         STATE_DATA,
@@ -30,7 +32,10 @@ public:
     bool    loadUploadFile(std::string fileName);
     bool    startUploadFile(unsigned int devID);
     bool    startUploadFile(DeviceIDList& devList);
-    int     getPacketNum() {return _packetNum;}
+    int     getPacketNum()
+    {
+        return _packetNum;
+    }
 private:
     void    notify(LedEvent event,unsigned int id, LedError err);
     bool    sendUploadRequest();

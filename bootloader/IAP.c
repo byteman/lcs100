@@ -54,25 +54,25 @@ extern uint32_t SystemFrequency;
 ******************************************************************************/
 uint32_t u32IAP_PrepareSectors(uint32_t u32StartSector, uint32_t u32EndSector)
 {
-	uint32_t u32Status;
-	uint32_t au32Result[3];
-	uint32_t au32Command[5];
+    uint32_t u32Status;
+    uint32_t au32Result[3];
+    uint32_t au32Command[5];
 
-	if (u32EndSector < u32StartSector)
-	{
-		u32Status = IAP_STA_INVALD_PARAM;
-	}
-	else
-	{
-		au32Command[0] = IAP_CMD_PREPARE_SECTORS;
-		au32Command[1] = u32StartSector;
-		au32Command[2] = u32EndSector;
+    if (u32EndSector < u32StartSector)
+    {
+        u32Status = IAP_STA_INVALD_PARAM;
+    }
+    else
+    {
+        au32Command[0] = IAP_CMD_PREPARE_SECTORS;
+        au32Command[1] = u32StartSector;
+        au32Command[2] = u32EndSector;
 
-		IAP_EXECUTE_CMD(au32Command, au32Result);
+        IAP_EXECUTE_CMD(au32Command, au32Result);
 
-		u32Status = au32Result[0];
-	}
-	return u32Status;
+        u32Status = au32Result[0];
+    }
+    return u32Status;
 }
 
 /*****************************************************************************
@@ -91,18 +91,18 @@ uint32_t u32IAP_PrepareSectors(uint32_t u32StartSector, uint32_t u32EndSector)
 ******************************************************************************/
 uint32_t u32IAP_CopyRAMToFlash(uint32_t u32DstAddr, uint32_t u32SrcAddr, uint32_t u32Len)
 {
-	uint32_t au32Result[3];
-	uint32_t au32Command[5];
+    uint32_t au32Result[3];
+    uint32_t au32Command[5];
 
-	au32Command[0] = IAP_CMD_COPY_RAM_TO_FLASH;
-	au32Command[1] = u32DstAddr;
-	au32Command[2] = u32SrcAddr;
-	au32Command[3] = u32Len;
-	au32Command[4] = SystemFrequency / 1000UL;	/* Core clock frequency in kHz */
+    au32Command[0] = IAP_CMD_COPY_RAM_TO_FLASH;
+    au32Command[1] = u32DstAddr;
+    au32Command[2] = u32SrcAddr;
+    au32Command[3] = u32Len;
+    au32Command[4] = SystemFrequency / 1000UL;	/* Core clock frequency in kHz */
 
-	IAP_EXECUTE_CMD(au32Command, au32Result);
+    IAP_EXECUTE_CMD(au32Command, au32Result);
 
-	return au32Result[0];
+    return au32Result[0];
 }
 
 /*****************************************************************************
@@ -118,26 +118,26 @@ uint32_t u32IAP_CopyRAMToFlash(uint32_t u32DstAddr, uint32_t u32SrcAddr, uint32_
 ******************************************************************************/
 uint32_t u32IAP_EraseSectors(uint32_t u32StartSector, uint32_t u32EndSector)
 {
-	uint32_t u32Status;
-	uint32_t au32Result[3];
-	uint32_t au32Command[5];
+    uint32_t u32Status;
+    uint32_t au32Result[3];
+    uint32_t au32Command[5];
 
-	if (u32EndSector < u32StartSector)
-	{
-		u32Status = IAP_STA_INVALD_PARAM;
-	}
-	else
-	{
-		au32Command[0] = IAP_CMD_ERASE_SECTORS;
-		au32Command[1] = u32StartSector;
-		au32Command[2] = u32EndSector;
-		au32Command[3] = SystemFrequency / 1000UL;	/* Core clock frequency in kHz */
+    if (u32EndSector < u32StartSector)
+    {
+        u32Status = IAP_STA_INVALD_PARAM;
+    }
+    else
+    {
+        au32Command[0] = IAP_CMD_ERASE_SECTORS;
+        au32Command[1] = u32StartSector;
+        au32Command[2] = u32EndSector;
+        au32Command[3] = SystemFrequency / 1000UL;	/* Core clock frequency in kHz */
 
-		IAP_EXECUTE_CMD(au32Command, au32Result);
+        IAP_EXECUTE_CMD(au32Command, au32Result);
 
-		u32Status = au32Result[0];
-	}
-	return u32Status;
+        u32Status = au32Result[0];
+    }
+    return u32Status;
 }
 
 /*****************************************************************************
@@ -157,30 +157,30 @@ uint32_t u32IAP_EraseSectors(uint32_t u32StartSector, uint32_t u32EndSector)
 ******************************************************************************/
 uint32_t u32IAP_BlankCheckSectors(uint32_t u32StartSector, uint32_t u32EndSector, uint32_t *pu32Result)
 {
-	uint32_t u32Status;
-	uint32_t au32Result[3];
-	uint32_t au32Command[5];
+    uint32_t u32Status;
+    uint32_t au32Result[3];
+    uint32_t au32Command[5];
 
-	if (u32EndSector < u32StartSector)
-	{
-		u32Status = IAP_STA_INVALD_PARAM;
-	}
-	else
-	{
-		au32Command[0] = IAP_CMD_BLANK_CHECK_SECTORS;
-		au32Command[1] = u32StartSector;
-		au32Command[2] = u32EndSector;
+    if (u32EndSector < u32StartSector)
+    {
+        u32Status = IAP_STA_INVALD_PARAM;
+    }
+    else
+    {
+        au32Command[0] = IAP_CMD_BLANK_CHECK_SECTORS;
+        au32Command[1] = u32StartSector;
+        au32Command[2] = u32EndSector;
 
-		IAP_EXECUTE_CMD(au32Command, au32Result);
+        IAP_EXECUTE_CMD(au32Command, au32Result);
 
-		if (au32Result[0] == IAP_STA_SECTOR_NOT_BLANK)
-		{
-			*pu32Result       = au32Result[0];
-			*(pu32Result + 1) = au32Result[1];
-		}
-		u32Status = au32Result[0];
-	}
-	return u32Status;
+        if (au32Result[0] == IAP_STA_SECTOR_NOT_BLANK)
+        {
+            *pu32Result       = au32Result[0];
+            *(pu32Result + 1) = au32Result[1];
+        }
+        u32Status = au32Result[0];
+    }
+    return u32Status;
 }
 
 /*****************************************************************************
@@ -195,16 +195,16 @@ uint32_t u32IAP_BlankCheckSectors(uint32_t u32StartSector, uint32_t u32EndSector
 ******************************************************************************/
 uint32_t u32IAP_ReadPartID(uint32_t *pu32PartID)
 {
-	uint32_t au32Result[3];
-	uint32_t au32Command[5];
+    uint32_t au32Result[3];
+    uint32_t au32Command[5];
 
-	au32Command[0] = IAP_CMD_READ_PART_ID;
+    au32Command[0] = IAP_CMD_READ_PART_ID;
 
-	IAP_EXECUTE_CMD(au32Command, au32Result);
+    IAP_EXECUTE_CMD(au32Command, au32Result);
 
-	*pu32PartID = au32Result[1];
+    *pu32PartID = au32Result[1];
 
-	return au32Result[0];
+    return au32Result[0];
 }
 
 /*****************************************************************************
@@ -220,17 +220,17 @@ uint32_t u32IAP_ReadPartID(uint32_t *pu32PartID)
 ******************************************************************************/
 uint32_t u32IAP_ReadBootVersion(uint32_t *pu32Major, uint32_t *pu32Minor)
 {
-	uint32_t au32Result[3];
-	uint32_t au32Command[5];
+    uint32_t au32Result[3];
+    uint32_t au32Command[5];
 
-	au32Command[0] = IAP_CMD_READ_BOOT_ROM_VERSION;
+    au32Command[0] = IAP_CMD_READ_BOOT_ROM_VERSION;
 
-	IAP_EXECUTE_CMD(au32Command, au32Result);
+    IAP_EXECUTE_CMD(au32Command, au32Result);
 
-	*pu32Major = (au32Result[1] & 0x0000FF00UL) >> 8;
-	*pu32Minor = au32Result[1] & 0x000000FFUL;
+    *pu32Major = (au32Result[1] & 0x0000FF00UL) >> 8;
+    *pu32Minor = au32Result[1] & 0x000000FFUL;
 
-	return au32Result[0];
+    return au32Result[0];
 }
 
 /*****************************************************************************
@@ -246,24 +246,24 @@ uint32_t u32IAP_ReadBootVersion(uint32_t *pu32Major, uint32_t *pu32Minor)
 ******************************************************************************/
 uint32_t u32IAP_Compare(uint32_t u32DstAddr, uint32_t u32SrcAddr, uint32_t u32Len, uint32_t *pu32Offset)
 {
-	uint32_t au32Result[3];
-	uint32_t au32Command[5];
+    uint32_t au32Result[3];
+    uint32_t au32Command[5];
 
-	au32Command[0] = IAP_CMD_COMPARE;
-	au32Command[1] = u32DstAddr;
-	au32Command[2] = u32SrcAddr;
-	au32Command[3] = u32Len;
+    au32Command[0] = IAP_CMD_COMPARE;
+    au32Command[1] = u32DstAddr;
+    au32Command[2] = u32SrcAddr;
+    au32Command[3] = u32Len;
 
-	IAP_EXECUTE_CMD(au32Command, au32Result);
+    IAP_EXECUTE_CMD(au32Command, au32Result);
 
-	if (au32Result[0] == IAP_STA_COMPARE_ERROR)
-	{
-		if (pu32Offset != 0)
-		{
-			*pu32Offset = au32Result[1];
-		}
-	}
-	return au32Result[0];
+    if (au32Result[0] == IAP_STA_COMPARE_ERROR)
+    {
+        if (pu32Offset != 0)
+        {
+            *pu32Offset = au32Result[1];
+        }
+    }
+    return au32Result[0];
 }
 
 /*****************************************************************************
@@ -278,12 +278,12 @@ uint32_t u32IAP_Compare(uint32_t u32DstAddr, uint32_t u32SrcAddr, uint32_t u32Le
 ******************************************************************************/
 void vIAP_ReinvokeISP(void)
 {
-	uint32_t au32Result[3];
-	uint32_t au32Command[5];
+    uint32_t au32Result[3];
+    uint32_t au32Command[5];
 
-	au32Command[0] = IAP_CMD_REINVOKE_ISP;
+    au32Command[0] = IAP_CMD_REINVOKE_ISP;
 
-	IAP_EXECUTE_CMD(au32Command, au32Result);
+    IAP_EXECUTE_CMD(au32Command, au32Result);
 }
 
 /*****************************************************************************

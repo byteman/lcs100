@@ -10,7 +10,7 @@ LedMessage::LedMessage()
     cmd    = 0;
     timeout= 0;
     isRespMsg = false;
-	paramLen = 0;
+    paramLen = 0;
     memset(param,0,MAX_DATA_SIZE);
     evt.reset ();
 }
@@ -23,7 +23,7 @@ LedMessage::LedMessage(unsigned int _id,unsigned char _group,unsigned char _cmd,
     needResp = _needResp;
     isRespMsg = false;
     respSize = _respSize + 10;
-	paramLen = 0;
+    paramLen = 0;
     memset(param,0,MAX_DATA_SIZE);
     evt.reset ();
 }
@@ -43,29 +43,29 @@ bool LedMessage::buildMessage(unsigned char* pktBuff,int pktSize)
     if(checkSum(pktBuff,pktSize-1) != pktBuff[pktSize-1]) return false;
 
 
-     int len = pktBuff[1];
+    int len = pktBuff[1];
 
-     int  parmLen = 0;
-     id     = (pktBuff[2]<<24) + (pktBuff[3]<<16) +(pktBuff[4]<<8) +(pktBuff[5]<<0);
-     group  = pktBuff[6];
-     cmd    = pktBuff[7]&0x3F;
-     isRespMsg = ((pktBuff[7]>>6)&0x3)?true:false;
+    int  parmLen = 0;
+    id     = (pktBuff[2]<<24) + (pktBuff[3]<<16) +(pktBuff[4]<<8) +(pktBuff[5]<<0);
+    group  = pktBuff[6];
+    cmd    = pktBuff[7]&0x3F;
+    isRespMsg = ((pktBuff[7]>>6)&0x3)?true:false;
 
-     if(isRespMsg)
-     {
-         respCode = pktBuff[8];
-         parmLen  = len - PROTO_ACK_PAD;
-         if(paramLen < 0) return false;
-         memcpy(param,pktBuff+9,parmLen);
+    if(isRespMsg)
+    {
+        respCode = pktBuff[8];
+        parmLen  = len - PROTO_ACK_PAD;
+        if(paramLen < 0) return false;
+        memcpy(param,pktBuff+9,parmLen);
 
-     }
-     else
-     {
-         parmLen = len - PROTO_ACK_PAD + 1;
-         if(paramLen < 0) return false;
+    }
+    else
+    {
+        parmLen = len - PROTO_ACK_PAD + 1;
+        if(paramLen < 0) return false;
 
-         memcpy(param,pktBuff+8,parmLen);
-     }
+        memcpy(param,pktBuff+8,parmLen);
+    }
 
     paramLen = parmLen;
 

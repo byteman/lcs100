@@ -41,7 +41,7 @@ MainWindow::~MainWindow()
 
 
 void MainWindow::on_btnUpload_clicked()
-{    
+{
     if(uploadFile.length () == 0)
     {
         QMessageBox::information (this,tr("错误提示"),tr("还没有选择升级文件"));
@@ -117,15 +117,18 @@ void MainWindow::on_btnFile_clicked()
     dlg->setWindowTitle(tr("Open Image"));
     dlg->setDirectory(".");
     dlg->setFilter(tr("upload Files(*.bin)"));
-    if(dlg->exec() == QDialog::Accepted) {
-            QString path = dlg->selectedFiles()[0];
-            if(path.length () > 0 )
-            {
-                uploadFile = path.toStdString ();
-            }
-            QMessageBox::information(NULL, tr("Path"), tr("You selected ") + path);
-    } else {
-            QMessageBox::information(NULL, tr("Path"), tr("You didn't select any files."));
+    if(dlg->exec() == QDialog::Accepted)
+    {
+        QString path = dlg->selectedFiles()[0];
+        if(path.length () > 0 )
+        {
+            uploadFile = path.toStdString ();
+        }
+        QMessageBox::information(NULL, tr("Path"), tr("You selected ") + path);
+    }
+    else
+    {
+        QMessageBox::information(NULL, tr("Path"), tr("You didn't select any files."));
     }
 
 }

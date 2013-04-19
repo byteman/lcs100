@@ -36,26 +36,26 @@
 ******************************************************************************/
 uint16_t u16CRC_Calc16(const uint8_t *pu8Data, int16_t i16Len)
 {
-	uint8_t i;
-	uint16_t u16CRC = 0;
+    uint8_t i;
+    uint16_t u16CRC = 0;
 
     while(--i16Len >= 0)
     {
-    	i = 8;
-    	u16CRC = u16CRC ^ (((uint16_t)*pu8Data++) << 8);
+        i = 8;
+        u16CRC = u16CRC ^ (((uint16_t)*pu8Data++) << 8);
 
-    	do
+        do
         {
-    		if (u16CRC & 0x8000)
-    		{
-    			u16CRC = u16CRC << 1 ^ 0x1021;
-    		}
-    		else
-    		{
-    			u16CRC = u16CRC << 1;
-    		}
+            if (u16CRC & 0x8000)
+            {
+                u16CRC = u16CRC << 1 ^ 0x1021;
+            }
+            else
+            {
+                u16CRC = u16CRC << 1;
+            }
         }
-    	while(--i);
+        while(--i);
     }
     return u16CRC;
 }

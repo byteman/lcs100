@@ -9,9 +9,9 @@
  * Copyright (C) 2009-2010 ARM Limited. All rights reserved.
  *
  * @par
- * ARM Limited (ARM) is supplying this software for use with Cortex-M 
- * processor based microcontrollers.  This file can be freely distributed 
- * within development tools that are supporting such ARM based processors. 
+ * ARM Limited (ARM) is supplying this software for use with Cortex-M
+ * processor based microcontrollers.  This file can be freely distributed
+ * within development tools that are supporting such ARM based processors.
  *
  * @par
  * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
@@ -32,30 +32,30 @@ extern "C" {
 
 #include <stdint.h>
 
-extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
+    extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
 
 
-/**
- * Initialize the system
- *
- * @param  none
- * @return none
- *
- * @brief  Setup the microcontroller system.
- *         Initialize the System and update the SystemCoreClock variable.
- */
-extern void SystemInit (void);
+    /**
+     * Initialize the system
+     *
+     * @param  none
+     * @return none
+     *
+     * @brief  Setup the microcontroller system.
+     *         Initialize the System and update the SystemCoreClock variable.
+     */
+    extern void SystemInit (void);
 
-/**
- * Update SystemCoreClock variable
- *
- * @param  none
- * @return none
- *
- * @brief  Updates the SystemCoreClock with current core Clock 
- *         retrieved from cpu registers.
- */
-extern void SystemCoreClockUpdate (void);
+    /**
+     * Update SystemCoreClock variable
+     *
+     * @param  none
+     * @return none
+     *
+     * @brief  Updates the SystemCoreClock with current core Clock
+     *         retrieved from cpu registers.
+     */
+    extern void SystemCoreClockUpdate (void);
 
 #ifdef __cplusplus
 }

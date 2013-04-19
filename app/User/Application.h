@@ -2,15 +2,16 @@
 #define _Application_H
 
 
-typedef struct{
-	unsigned char  id[4];
-	unsigned char  group;
-	unsigned char  cmd;
+typedef struct
+{
+    unsigned char  id[4];
+    unsigned char  group;
+    unsigned char  cmd;
     unsigned char  mode;
-	unsigned char  dataLen;
-	unsigned char* data;
-	
-}LedRequest;
+    unsigned char  dataLen;
+    unsigned char* data;
+
+} LedRequest;
 
 #define Data_Len 200
 

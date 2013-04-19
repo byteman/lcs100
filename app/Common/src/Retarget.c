@@ -17,20 +17,27 @@
 extern int  sendchar(int ch);  /* in serial.c */
 
 
-struct __FILE { int handle; /* Add whatever you need here */ };
+struct __FILE
+{
+    int handle; /* Add whatever you need here */
+};
 FILE __stdout;
 
 
-int fputc(int ch, FILE *f) {
-  return (sendchar(ch));
+int fputc(int ch, FILE *f)
+{
+    return (sendchar(ch));
 }
 
 
-void _ttywrch(int ch) {
-  sendchar(ch);
+void _ttywrch(int ch)
+{
+    sendchar(ch);
 }
 
 
-void _sys_exit(int return_code) {
-label:  goto label;  /* endless loop */
+void _sys_exit(int return_code)
+{
+label:
+    goto label;  /* endless loop */
 }
