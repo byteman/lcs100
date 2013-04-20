@@ -219,13 +219,15 @@ void Inquiry_ZigbeeCfg()
 }
 
 /*************************µ÷¹âº¯Êý**********************************************/
-static void adjustBrightness(uint8_t brightness)
+static void adjustBrightness(uint8_t value)
 {
 
     uint32_t timer=2,pwmtimer1=0,pwmtimer0=0,pwmtimer2=0;
     uint32_t lightvalue=0;
 
-    Duty_Time_Temp= brightness;
+    Duty_Time_Temp= value;
+    brightness =  value;
+	RespNoPara(CMD_ADJUST_BRIGHTNESS,ERR_OK);
 
     lightvalue=Duty_Time;
     if(Duty_Time_Temp!=lightvalue)
@@ -282,7 +284,7 @@ static void adjustBrightness(uint8_t brightness)
     }
 
 
-    RespNoPara(CMD_ADJUST_BRIGHTNESS,ERR_OK);
+    
 
 }
 

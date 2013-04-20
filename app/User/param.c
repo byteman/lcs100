@@ -23,7 +23,7 @@ uint32_t adj_timeS=ADJ_TIME_DEFAULT;
 uint8_t brightness=BRIGHT_DEFAULT; //当前的亮度
 uint8_t default_brightness=BRIGHT_DEFAULT;//默认的亮度
 uint32_t resetNum = 0;
-
+extern uint32_t  Duty_Time;
 
 static uint8_t checkBuf[PARAM_MAX];
 
@@ -107,11 +107,12 @@ void	loadParam()
 
     default_brightness = paramGetU8(PARAM_DEF_BRIGHTNESS);
     brightness = default_brightness;
-		
+	Duty_Time = brightness;	
 		resetNum = paramGetU32(PARAM_RESET_NUM);
 		paramSetU32(PARAM_RESET_NUM,++resetNum);
 
 }
+
 void	recoveryDefaultParam()
 {
 
@@ -134,6 +135,7 @@ void	recoveryDefaultParam()
     paramSetU8(PARAM_DEF_BRIGHTNESS,default_brightness);
 
     brightness = default_brightness;
+	Duty_Time =  brightness;
 
     Brate = BAUD_DEFAULT;
     paramSetU32(PARAM_BAUD,Brate);

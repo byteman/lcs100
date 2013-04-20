@@ -27,14 +27,16 @@ static u8 rxChar;
 static LedRequest request;
 int main (void)
 {
-    SystemInit();
-    init_time();
+    SystemInit(); 
     UARTInit(19200);
     SSP_Init();
     GPIOInit();
     CS5463_Init();
     i2c_lpc_init(0);
     loadParam();
+	//load参数后才开始设置亮度
+	init_time();
+
 
     while (1)
     {
