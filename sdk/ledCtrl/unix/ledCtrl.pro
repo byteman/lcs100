@@ -20,6 +20,15 @@ HEADERS += \
     ../src/ByProtocol.h \
     ../include/ledProto.h \
     ../include/LedCtrl.h
-INCLUDEPATH = ../include ../serial/include
+INCLUDEPATH += ../include ../serial/include
 
+linux-g++ {
+    message(g++ = linux-g++)
+}
+linux-arm-g++ {
+    message(g++ = linux-arm-g++ compile)
+    INCLUDEPATH += /media/linuxdata/home/byteman/library/Poco-ARM/include
+    LIBS += -L/media/linuxdata/home/byteman/library/Poco-ARM/lib
+}
 LIBS +=-lPocoFoundation
+

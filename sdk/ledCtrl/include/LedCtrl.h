@@ -5,12 +5,12 @@
 #include "ledProto.h"
 #ifdef _WIN32
 #ifdef LEDCTRL_EXPORTS
-#define LEDCTRL_API __declspec(dllexport)
+    #define LEDCTRL_API __declspec(dllexport)
 #else
-#define LEDCTRL_API __declspec(dllimport)
+    #define LEDCTRL_API __declspec(dllimport)
 #endif
 #else
-#define  LEDCTRL_API
+    #define  LEDCTRL_API
 #endif
 
 #define MAX_SCENE_NUM 4
@@ -158,10 +158,41 @@ public:
     \param[in] group 单灯的组号
     \param[in] value 调光值0-100
     \param[in] waitMs 等待多少ms后如果都没有获取到数据就返回
-    \return 返回当前亮度
-    \retval -1 超时失败 >=0 当前亮度
+    \return 返回设置结果
+    \retval <0 失败 ==0 成功
     */
     int  setBrigtness(unsigned int id,unsigned char group,unsigned char value,long waitMs=1000);
+
+    /*!
+    \brief 获取当前的亮度值
+    \param[in] id 单灯的id
+    \param[in] waitMs 等待多少ms后如果都没有获取到数据就返回
+    \return 返回当前亮度
+    \retval <0 失败 >=0 当前亮度
+    */
+    int  getBrigtness(unsigned int id,long waitMs=1000);
+
+
+    /*!
+    \brief 设置默认亮度
+    \param[in] id 单灯的id
+    \param[in] group 单灯的组号
+    \param[in] value 调光值0-100
+    \param[in] waitMs 等待多少ms后如果都没有获取到数据就返回
+    \return 返回设置结果
+    \retval <0 失败 ==0 成功
+    */
+    int  setDefaultBrigtness(unsigned int id,unsigned char group,unsigned char value,long waitMs=1000);
+
+    /*!
+    \brief 获取默认亮度值
+    \param[in] id 单灯的id
+    \param[in] waitMs 等待多少ms后如果都没有获取到数据就返回
+    \return 返回默认亮度值
+    \retval <0 失败 >=0 默认亮度
+    */
+    int  getDefaultBrigtness(unsigned int id,long waitMs=1000);
+
 
     /*!
     \brief 闪烁LED

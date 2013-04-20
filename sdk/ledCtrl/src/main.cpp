@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "LedCtrl.h"
 #include "Poco/Thread.h"
-
+#include <assert.h>
 int gTermId = 1;
 unsigned char gGroup = 0;
 bool gQuit = false;
@@ -14,27 +14,48 @@ typedef struct
 } TestItem;
 
 
+bool assertTest()
+{
+    int testCnt = 0;
+    while(1)
+    {
+        assert( LedCtrl::get().getDeviceResetCount(gTermId) >= 0);
+        assert( LedCtrl::get().getGroup(gTermId) >= 0);
+        assert( LedCtrl::get().getCureent(gTermId) >= 0);
+        assert( LedCtrl::get().getAdjustTime(gTermId) >= 0);
+        assert( LedCtrl::get().getDefaultAdjValue(gTermId) >= 0);
+        assert( LedCtrl::get().getBrigtness(gTermId) >= 0);
+        assert( LedCtrl::get().getKw(gTermId) >= 0);
+        assert( LedCtrl::get().getVersion(gTermId) >= 0);
+        printf("test ok =%d\n",testCnt++);
+        Poco::Thread::sleep (1000);
+    }
 
+
+}
 
 bool testReadAll()
 {
     TZigbeeCfg* cfg;
+    printf("reset counter=%d\r\n",LedCtrl::get().getDeviceResetCount(gTermId));
+#if 1
+    printf("Voltage=%d\r\n",LedCtrl::get().getVoltage(gTermId));
     printf("group=%d\r\n",LedCtrl::get().getGroup(gTermId));
     printf("current=%d\r\n",LedCtrl::get().getCureent(gTermId));
     printf("adj time=%d\r\n",LedCtrl::get().getAdjustTime(gTermId));
     printf("default adj time=%d\r\n",LedCtrl::get().getDefaultAdjValue(gTermId));
+    printf("brightness=%d\r\n",LedCtrl::get().getBrigtness (gTermId));
 
-    printf("reset counter=%d\r\n",LedCtrl::get().getDeviceResetCount(gTermId));
     printf("KW=%d\r\n",LedCtrl::get().getKw(gTermId));
     printf("version=%d\r\n",LedCtrl::get().getVersion(gTermId));
-    printf("Voltage=%d\r\n",LedCtrl::get().getVoltage(gTermId));
+
 
     cfg = LedCtrl::get().getZigbeeCfg(gTermId);
     if (cfg)
     {
         printf("zigbee addr=%d\r\n",cfg->address);
     }
-
+#endif
     return true;
 }
 class UploadTest:public ILedEventNofityer
@@ -95,6 +116,18 @@ bool setAdjtime()
     }
     return true;
 }
+bool setDefaultBrightness()
+{
+    int value = 0;
+    printf("input default brightness\r\n");
+    scanf("%d",&value);
+
+    if (LedCtrl::get().setDefaultBrigtness (gTermId,gGroup,value) == ERR_OK)
+    {
+        printf("set ok\r\n");
+    }
+    return true;
+}
 bool setBrightness()
 {
     int value = 0;
@@ -125,7 +158,9 @@ static TestItem testList[] =
     {"set group",setGroup},
     {"set adj time",setAdjtime},
     {"set brightness",setBrightness},
+    {"set default brightness",setDefaultBrightness},
     {"reset device",setReset},
+    {"assert all",assertTest},
     {"quit app",quitApp},
 };
 

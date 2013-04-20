@@ -245,7 +245,7 @@ int LedCtrl::sendMessage(LedMessage* pMsg)
 
 bool LedCtrl::setDeviceReset(unsigned int id,unsigned char group,unsigned int afterMs)
 {
-    return false;
+    return setIntResp(id,group,CMD_RESET,afterMs,2,1000);
 }
 bool LedCtrl::hasUploadComplete(void)
 {
@@ -306,23 +306,23 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
 }
 int  LedCtrl::getDeviceResetCount(unsigned int id,long waitMs)
 {
-    return getIntResp(id,CMD_GET_RESET_CNT,2,waitMs);
+    return getIntResp(id,CMD_GET_RESET_CNT,4,waitMs);
+}
+int  LedCtrl::getBrigtness(unsigned int id,long waitMs)
+{
+    return getIntResp(id,CMD_QUERY_BRIGHTNESS,1,waitMs);
 }
 int  LedCtrl::setBrigtness(unsigned int id,unsigned char group,unsigned char value,long waitMs)
 {
-    LedMessage respMsg;
-    LedMessage reqMsg(id,group,CMD_ADJUST_BRIGHTNESS,true,0,waitMs);
-    reqMsg.setCharVal (value);
-
-    sendMessage (&reqMsg);
-
-    if( waitRespMessage (&reqMsg,&respMsg))
-    {
-        if(respMsg.respCode == ERR_OK)
-            return value;
-    }
-
-    return -1;
+   return setIntResp(id,group,CMD_ADJUST_BRIGHTNESS,value,1,waitMs);
+}
+int  LedCtrl::getDefaultBrigtness(unsigned int id,long waitMs)
+{
+    return getIntResp(id,CMD_QUERY_DEFAULT_BRIGHTNESS,1,waitMs);
+}
+int  LedCtrl::setDefaultBrigtness(unsigned int id,unsigned char group,unsigned char value,long waitMs)
+{
+   return setIntResp(id,group,CMD_SET_DEFAULT_BRIGHTNESS,value,1,waitMs);
 }
 int  LedCtrl::setIntResp(unsigned int id,unsigned char group,LedCmdType type,int value,int size,long waitMs)
 {
