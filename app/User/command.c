@@ -24,7 +24,7 @@ uint8_t Data_Buf[Data_Len];
 //uint8_t value[10]= {0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64};
 
 //uint8_t zigbeeflag=0;
-uint8_t LedVesion = 100;  //1.00版本 0.01 - 2.53
+uint8_t LedVesion = 101;  //1.00版本 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
@@ -356,6 +356,9 @@ void App_Command(LedRequest* pReq)//各个命令分解
 
     switch(Command)
     {
+	case CMD_UPLOAD_REQ:
+		resetCtrl(10);
+        break;
     case CMD_RESET: //复位
         resetCtrl(toShort(data));
         break;
