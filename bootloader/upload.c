@@ -361,6 +361,21 @@ static uint8_t broadCastDeviceID(void)
 
     return 1;
 }
+static uint8_t queryMode(uint8_t code,uint8_t ack)
+{
+	ctxBuf[0] = Terminal_ID[0];
+	ctxBuf[1] = Terminal_ID[1];
+	ctxBuf[2] = Terminal_ID[2];
+	ctxBuf[3] = Terminal_ID[3];
+	ctxBuf[4] = group;
+	ctxBuf[5] = code|0x80; //slave ack
+	
+	ctxBuf[6] = ack;
+	ctxBuf[7] = MODE_BOOT;
+
+	return sendPacket(ctxBuf,8);
+
+}
 static uint8_t parseUpload(uint8_t* buff, uint32_t len)
 {
     uint8_t i = 0;
@@ -402,6 +417,9 @@ static uint8_t parseUpload(uint8_t* buff, uint32_t len)
     case CMD_BROADCAST_DEVID:
         ret = broadCastDeviceID();
         break;
+	case CMD_QUERY_MODE:
+		ret = queryMode(CMD_QUERY_MODE,ERR_OK);
+		break;
     default:
         break;
     }
