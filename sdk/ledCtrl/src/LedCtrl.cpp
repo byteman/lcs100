@@ -21,6 +21,11 @@ static ILedEventNofityer* gEventNotifyer = NULL;
 
 static unsigned char context[1024];
 static unsigned char param[1024];
+static TStreeLightList	simStreetList;
+static StreetLight	 simStreetLight;
+
+#define SIMULATE_DEBUG
+
 class LedUploadThread:public Poco::Runnable
 {
 public:
@@ -51,76 +56,10 @@ private:
 
 static LedUploadThread uploader;
 
-class LedDispatcher:public Poco::Runnable
-{
-public:
-    LedDispatcher():
-        _quit(false)
-    {
-
-    }
-    bool    parsePacket(unsigned char* context, int len)
-    {
-        Poco::UInt32 termID  = ( ( context[0]<<24) + ( context[1]<<16) + ( context[2]<<8) +( context[3]<<0));
-        Poco::UInt8  groupID = context[4];
-        Poco::UInt8  code    = context[5] & 0x3F;
 
 
-        return true;
-    }
-    void run()
-    {
-        _evtRdy.set ();
-        _quit = false;
-        //runStateMachine();
-        while(!_quit)
-        {
-            try
-            {
-                unsigned char ch = 0;
-
-                if(pZigbeeCom->read(&ch,1) > 0)
-                {
-                    if( parseChar( ch ))
-                    {
-                        unsigned int pktLen = 0;
-                        unsigned char * pkt = readPacket(&pktLen);
-                        if(pkt)
-                        {
-                            parsePacket(pkt,pktLen);
-                            //runStateMachine();
-                        }
-                    }
-                }
-            }
-            catch(serial::PortNotOpenedException& e)
-            {
-                fprintf(stderr,"%s\r\n",e.what());
-                _quit = true;
-                //runStateMachine();
-            }
-            catch(serial::IOException& e)
-            {
-                fprintf(stderr,"IOException\r\n");
-                _quit = true;
-            }
-            catch(...)
-            {
-                fprintf(stderr,"Unkown err\r\n");
-                _quit = true;
-            }
-
-        }
-        //resetState ();
-
-    }
-private:
-    bool _quit;
-    Poco::Event _evtRdy;
-};
 LedCtrl::LedCtrl()
 {
-
 
 }
 void LedCtrl::notify(TEventParam* par)
@@ -304,13 +243,60 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
     }
     return false;
 }
+void loadSimData(unsigned int id,unsigned group)
+{
+	simStreetLight.adjustTime = 20;
+	simStreetLight.brightness = 100;
+	simStreetLight.current	  = 100;
+	simStreetLight.defBright  = 100;
+	simStreetLight.devId	  = id;
+	simStreetLight.group	  = group;
+	simStreetLight.kw		  = 1;
+	simStreetLight.ver		  = 100;
+	simStreetLight.resetCnt	  = 1;
+}
+
+StreetLight* getSimLight(unsigned int id,unsigned group)
+{
+	if(simStreetList.find(id) != simStreetList.end())
+	{
+		return &simStreetList[id];
+	}
+	loadSimData(id,group);
+	simStreetList[id] = simStreetLight;
+	return &simStreetList[id]; 
+}
+int getSimParam(unsigned int id,unsigned group,LedCmdType type)
+{
+	int value  = -1;
+	switch(type)
+	{
+		case CMD_QUERY_BRIGHTNESS:
+			value = getSimLight(id,0)->brightness;
+			break;
+		case CMD_GET_RESET_CNT:
+			value = getSimLight(id,0)->resetCnt;
+			break;
+		case CMD_QUERY_DEFAULT_BRIGHTNESS:
+			value = getSimLight(id,0)->defBright;
+			break;
+		case CMD_QUERY_CURRENT:
+			value = getSimLight(id,0)->current;
+			break;
+
+		default: break;
+	}
+	return value;
+}
 int  LedCtrl::getDeviceResetCount(unsigned int id,long waitMs)
 {
     return getIntResp(id,CMD_GET_RESET_CNT,4,waitMs);
 }
+
 int  LedCtrl::getBrigtness(unsigned int id,long waitMs)
 {
     return getIntResp(id,CMD_QUERY_BRIGHTNESS,1,waitMs);
+   
 }
 int  LedCtrl::setBrigtness(unsigned int id,unsigned char group,unsigned char value,long waitMs)
 {
@@ -377,11 +363,23 @@ int  LedCtrl::writeE2prom(unsigned int id,unsigned char group,LedParam* pPara,lo
 
     return -1;
 }
+
 int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight,long waitMs)
 {
-    fprintf(stderr,"not support\n");
-    return -1;
+#ifdef SIMULATE_DEBUG
+	StreetLight* _pTemp = getSimLight(id,group);
 
+	if(_pTemp != NULL)
+	{
+		memcpy(pLight,_pTemp,sizeof(StreetLight));
+
+		return ERR_OK;
+	}
+#else
+    fprintf(stderr,"not support\n");
+
+#endif
+	return -1;
 }
 int  LedCtrl::getCureent(unsigned int id,long waitMs)
 {

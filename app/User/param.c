@@ -141,6 +141,6 @@ void	recoveryDefaultParam()
     paramSetU32(PARAM_BAUD,Brate);
 
     paramSetU32(PARAM_MAGIC,MAGIC_VALID);
-		resetNum = 0;
-		paramSetU32(PARAM_RESET_NUM,resetNum);
+	resetNum = 0;
+	paramSetU32(PARAM_RESET_NUM,resetNum);
 }

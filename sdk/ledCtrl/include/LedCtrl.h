@@ -25,8 +25,7 @@ typedef struct
     int adjustTime; //调光时间
     int ver;    //单灯的版本号
     int devId; //设备编号
-    int sceneNum; //场景个数
-    int sceneLight[MAX_SCENE_NUM]; //每个场景的调光值
+	int resetCnt; //复位次数
     unsigned char zigbeeCfg[15];
 } StreetLight;
 

@@ -34,17 +34,18 @@ bool assertTest()
 
 }
 
-bool testReadAll()
+bool testReadRealTimeAll()
 {
     TZigbeeCfg* cfg;
     printf("reset counter=%d\r\n",LedCtrl::get().getDeviceResetCount(gTermId));
-#if 1
+	printf("brightness=%d\r\n",LedCtrl::get().getBrigtness (gTermId));
+#if 0
     printf("Voltage=%d\r\n",LedCtrl::get().getVoltage(gTermId));
     printf("group=%d\r\n",LedCtrl::get().getGroup(gTermId));
     printf("current=%d\r\n",LedCtrl::get().getCureent(gTermId));
     printf("adj time=%d\r\n",LedCtrl::get().getAdjustTime(gTermId));
     printf("default adj time=%d\r\n",LedCtrl::get().getDefaultAdjValue(gTermId));
-    printf("brightness=%d\r\n",LedCtrl::get().getBrigtness (gTermId));
+    
 
     printf("KW=%d\r\n",LedCtrl::get().getKw(gTermId));
     printf("version=%d\r\n",LedCtrl::get().getVersion(gTermId));
@@ -58,6 +59,36 @@ bool testReadAll()
 #endif
     return true;
 }
+bool testReadAll()
+{
+    TZigbeeCfg* cfg;
+
+	StreetLight Light;
+	if( ERR_OK != LedCtrl::get().getAllData(gTermId,gGroup,&Light))
+	{
+		printf("get All data failed\r\n");
+		return false;
+	}
+	printf("reset counter=%d\r\n",Light.resetCnt);
+	printf("brightness=%d\r\n",Light.brightness);
+
+	printf("Voltage=%d\r\n",Light.voltage);
+	printf("group=%d\r\n",Light.group);
+	printf("current=%d\r\n",Light.current);
+	printf("adj time=%d\r\n",Light.adjustTime);
+	printf("default brightness=%d\r\n",Light.defBright);
+    
+
+	printf("KW=%d\r\n",Light.kw);
+	printf("version=%d\r\n",Light.ver);
+
+
+    //printf("zigbee addr=%d\r\n",cfg->address);
+    
+
+    return true;
+}
+
 class UploadTest:public ILedEventNofityer
 {
 public:
@@ -154,7 +185,8 @@ bool setReset()
 static TestItem testList[] =
 {
     {"test Upload file",testUpload},
-    {"read all param",testReadAll},
+    {"read all realtime param",testReadRealTimeAll},
+	{"read all param",testReadAll},
     {"set group",setGroup},
     {"set adj time",setAdjtime},
     {"set brightness",setBrightness},

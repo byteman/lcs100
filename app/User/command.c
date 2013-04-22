@@ -334,7 +334,10 @@ void Write2EEPROM(unsigned char* buff, int len)
 
 }
 
-
+void Inquiry_Mode(void)
+{
+	RespCharPara(CMD_QUERY_MODE,ERR_OK,MODE_APP);	
+}
 void App_Command(LedRequest* pReq)//各个命令分解
 {
     unsigned char* data = pReq->data;
@@ -419,6 +422,9 @@ void App_Command(LedRequest* pReq)//各个命令分解
     case CMD_GET_RESET_CNT:
         Inquiry_ResetNum();
         break;
+	case CMD_QUERY_MODE:
+		Inquiry_Mode();
+		break;
     default:
         break;
     }

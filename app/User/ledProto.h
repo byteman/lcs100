@@ -15,6 +15,11 @@ enum LedError
     ERR_PACKET_NUM
 };
 
+enum LedMode
+{
+	MODE_BOOT=0,
+	MODE_APP =1
+};
 
 enum   LedCmdType
 {
@@ -51,7 +56,8 @@ enum   LedCmdType
     CMD_BROADCAST_DEVID, //广播查询所有设备ID
     CMD_SET_ZIGBEE_CFG,  //对单灯的zigbee设备进行配置
     CMD_GET_RESET_CNT, //获取单灯复位次数
-    CMD_QUERY_ZIGBEE_CFG
+    CMD_QUERY_ZIGBEE_CFG,
+	CMD_QUERY_MODE, //查询当前模式 [0: boot模式和1: app模式]
 };
 
 
