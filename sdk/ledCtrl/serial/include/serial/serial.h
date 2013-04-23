@@ -58,6 +58,7 @@ __LINE__, (message) )
 #define  SERIALPORT_API
 #endif
 
+#define SERIALPORT_API //如果直接将串口库的代码加入到exe工程中的时候，不要使用__declspec(dllimport)。
 namespace serial
 {
 

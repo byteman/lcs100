@@ -148,6 +148,7 @@
           <EnabledFlag>1</EnabledFlag>
           <Address>6396</Address>
           <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
@@ -220,10 +221,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>115</ColumnNumber>
+      <ColumnNumber>27</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>36</TopLine>
-      <CurrentLine>36</CurrentLine>
+      <TopLine>37</TopLine>
+      <CurrentLine>43</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -276,10 +277,10 @@
       <FileType>1</FileType>
       <tvExp>1</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>92</ColumnNumber>
+      <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>523</TopLine>
-      <CurrentLine>556</CurrentLine>
+      <TopLine>411</TopLine>
+      <CurrentLine>557</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\command.c</PathWithFileName>
       <FilenameWithoutPath>command.c</FilenameWithoutPath>
@@ -362,7 +363,7 @@
       <Focus>0</Focus>
       <ColumnNumber>14</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>439</TopLine>
+      <TopLine>420</TopLine>
       <CurrentLine>445</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\timer32.c</PathWithFileName>
@@ -376,7 +377,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>139</TopLine>
+      <TopLine>138</TopLine>
       <CurrentLine>139</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\uart.c</PathWithFileName>
@@ -418,7 +419,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>37</TopLine>
+      <TopLine>15</TopLine>
       <CurrentLine>47</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\TinyFifo.c</PathWithFileName>
@@ -446,91 +447,12 @@
       <Focus>0</Focus>
       <ColumnNumber>40</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>113</TopLine>
+      <TopLine>112</TopLine>
       <CurrentLine>145</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\param.c</PathWithFileName>
       <FilenameWithoutPath>param.c</FilenameWithoutPath>
     </File>
   </Group>
-
-  <AlienFiles>
-    <PathWithFilename>F:\proj\led\lcs100\lcs100\app\User\LedProto.h</PathWithFilename>
-    <TopLine>31</TopLine>
-    <CurrentLine>60</CurrentLine>
-    <Constant>0</Constant>
-    <WindowPosition>
-      <length>0</length>
-      <flags>0</flags>
-      <showCmd>0</showCmd>
-      <MinPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MinPosition>
-      <MaxPosition>
-        <xPos>0</xPos>
-        <yPos>0</yPos>
-      </MaxPosition>
-      <NormalPosition>
-        <Top>0</Top>
-        <Left>0</Left>
-        <Right>0</Right>
-        <Bottom>0</Bottom>
-      </NormalPosition>
-    </WindowPosition>
-  </AlienFiles>
-
-  <MDIGroups>
-    <Orientation>1</Orientation>
-    <ActiveMDIGroup>0</ActiveMDIGroup>
-    <MDIGroup>
-      <Size>100</Size>
-      <ActiveTab>4</ActiveTab>
-      <Documents>
-        <Doc>
-          <Name>..\User\main.c</Name>
-          <ColumnNumber>115</ColumnNumber>
-          <TopLine>36</TopLine>
-          <CurrentLine>36</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\User\command.c</Name>
-          <ColumnNumber>92</ColumnNumber>
-          <TopLine>523</TopLine>
-          <CurrentLine>556</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\User\TinyFifo.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>37</TopLine>
-          <CurrentLine>47</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\User\timer32.c</Name>
-          <ColumnNumber>14</ColumnNumber>
-          <TopLine>439</TopLine>
-          <CurrentLine>445</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\User\param.c</Name>
-          <ColumnNumber>40</ColumnNumber>
-          <TopLine>113</TopLine>
-          <CurrentLine>145</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\User\uart.c</Name>
-          <ColumnNumber>0</ColumnNumber>
-          <TopLine>139</TopLine>
-          <CurrentLine>139</CurrentLine>
-        </Doc>
-        <Doc>
-          <Name>..\User\LedProto.h</Name>
-          <ColumnNumber>63</ColumnNumber>
-          <TopLine>31</TopLine>
-          <CurrentLine>60</CurrentLine>
-        </Doc>
-      </Documents>
-    </MDIGroup>
-  </MDIGroups>
 
 </ProjectOpt>

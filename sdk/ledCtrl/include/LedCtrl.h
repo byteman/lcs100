@@ -102,6 +102,8 @@ typedef std::vector<unsigned int> DeviceList;
 
 typedef void (*LedCallBackProc)(TEventParam* param,void* arg);
 
+
+
 struct ILedEventNofityer
 {
     virtual int notify(TEventParam* arg) = 0 ;
@@ -335,5 +337,9 @@ private:
     bool checkPacketValid(LedMessage* pReqMsg,LedMessage* pRespMsg);
     unsigned char checkSum(unsigned char* buff, int size);
 };
+/*!
+	SDK内部实现的一个测试SDK的各个接口的接口函数
+*/
+LEDCTRL_API int  lcs100_SDKTest(int argc, char *argv[]);
 
 #endif // LEDCTRL_H

@@ -231,29 +231,32 @@ void displayHelp(void)
 
 }
 
+int lcs100_SDKTest(int argc, char *argv[])
+{
+	char* comPath = "/dev/ttyUSB0";
+	if(argc == 2)
+	{
+		//fprintf(stderr,"usage: lcs100.exe COM[n]\r\n");
+		//return -1;
+		comPath =  argv[1];
+	}
+
+
+	if(!LedCtrl::get().open(comPath))
+	{
+		fprintf(stderr,"Open ComPort Failed\r\n");
+		return 0;
+
+	}
+	while (!gQuit)
+	{
+		displayHelp();
+	}
+
+
+	return 0;
+}
 int main(int argc, char *argv[])
 {
-    //char* comPath = "COM5";
-    char* comPath = "/dev/ttyUSB0";
-    if(argc == 2)
-    {
-        //fprintf(stderr,"usage: lcs100.exe COM[n]\r\n");
-        //return -1;
-        comPath =  argv[1];
-    }
-
-
-    if(!LedCtrl::get().open(comPath))
-    {
-        fprintf(stderr,"Open ComPort Failed\r\n");
-        return 0;
-
-    }
-    while (!gQuit)
-    {
-        displayHelp();
-    }
-
-
-    return 0;
+    return lcs100_SDKTest(argc,argv);
 }
