@@ -37,6 +37,7 @@ public:
         return _packetNum;
     }
 private:
+    void    simulateUpload(void);
     void    notify(LedEvent event,unsigned int id, LedError err);
     bool    sendUploadRequest();
     bool    sendUploadData();

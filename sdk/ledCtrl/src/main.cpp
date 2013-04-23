@@ -95,14 +95,34 @@ public:
     int notify(TEventParam* arg)
     {
         if(arg)
+        {
             printf("event=%d\n",arg->event);
+            switch(arg->event)
+            {
+                case EV_UPLOAD_REQ:
+                    printf("upload request\n");
+                    break;
+                case EV_UPLOAD_DATA:
+                    printf("upload data [%d]-[%d]\n",(arg->arg)>>16,(arg->arg)&0xFFFF);
+                    break;
+                case EV_UPLOAD_VERIFY:
+                    printf("upload verify\n");
+                    break;
+                case EV_UPLOAD_COMPLETE:
+                    printf("upload complete\n");
+                    break;
+                default:
+                    break;
+            }
+        }
+
         return 0;
     }
 };
 UploadTest ut;
 bool testUpload()
 {
-    int  timeout = 5;
+    int  timeout = 60;
     DeviceList dl;
     dl.push_back(1);
 
@@ -111,10 +131,12 @@ bool testUpload()
     LedCtrl::get().upload("lcs100.bin",dl);
 
     printf ("upload return\n");
-    while (!LedCtrl::get().hasUploadComplete() || timeout--)
+    while (!LedCtrl::get().hasUploadComplete())
     {
         printf("uploading.....\n");
         Poco::Thread::sleep(1000);
+        timeout--;
+        if(timeout == 0) break;
     }
     printf("timeout=%d\n",timeout);
     printf("upload end.....%s\n",(timeout<=0)?"timeout":"successful");
@@ -207,6 +229,8 @@ bool enableSimu(void)
     lcs100_EnableSimulate (isEn);
 
     printf("current [%s] simulate\n",isEn?"en":"disEn");
+
+    return true;
 }
 static TestItem testList[] =
 {
@@ -234,8 +258,8 @@ void displayHelp(void)
     }
 
     int ch = 0;
-    scanf("%d",&ch);
-
+    int ret = scanf("%d",&ch);
+    //assert(ret == 0);
     if(ch >=0 && ch <= i)
     {
         if(testList[ch].proc)
@@ -246,7 +270,7 @@ void displayHelp(void)
 
 int lcs100_SDKTest(int argc, char *argv[])
 {
-	char* comPath = "/dev/ttyUSB0";
+    const char* comPath = "/dev/ttyUSB0";
 	if(argc == 2)
 	{
 		//fprintf(stderr,"usage: lcs100.exe COM[n]\r\n");
@@ -257,9 +281,9 @@ int lcs100_SDKTest(int argc, char *argv[])
 
 	if(!LedCtrl::get().open(comPath))
 	{
-		fprintf(stderr,"Open ComPort Failed\r\n");
-		return 0;
 
+        fprintf(stderr,"Open ComPort[%s] Failed\r\n",comPath);
+        return 0;
 	}
 	while (!gQuit)
 	{

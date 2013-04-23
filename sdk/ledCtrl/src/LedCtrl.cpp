@@ -7,6 +7,8 @@
 #include <Poco/ThreadPool.h>
 #include <stdexcept>
 #include <map>
+#include <assert.h>
+#define ZIGBEE_CFG_SIZE 14
 typedef std::map<unsigned int,StreetLight> TStreeLightList;
 #define PROTO_HEAD 0xA3
 #define PROTO_ACK_PAD 10
@@ -24,7 +26,7 @@ static unsigned char param[1024];
 static TStreeLightList	simStreetList;
 static StreetLight	 simStreetLight;
 static bool isSimulate = false;
-
+static bool bPortOpen = false;
 class LedUploadThread:public Poco::Runnable
 {
 public:
@@ -36,15 +38,19 @@ public:
 
     void set(DeviceList devlist)
     {
+        _complete = false;
         _devlist = devlist;
     }
     void run()
     {
+        _complete = false;
         LedUpload::get ().startUploadFile (_devlist);
+        //assert(1==0);
         _complete = true;
     }
     bool hasComplete()
     {
+        printf("complete=%d\n",_complete);
         return _complete;
     }
 private:
@@ -184,7 +190,9 @@ int LedCtrl::sendMessage(LedMessage* pMsg)
     totalLen++;
 
     dumpData(context,totalLen);
-    return pZigbeeCom->write (context,totalLen);
+    if(pZigbeeCom)
+        return pZigbeeCom->write (context,totalLen);
+    return 0;
 }
 
 int LedCtrl::setDeviceReset(unsigned int id,unsigned char group,unsigned int afterMs,long waitMs)
@@ -230,7 +238,7 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
     unsigned char buf[128];
 
     if(!pReqMsg->needResp) return true;
-
+    if(pZigbeeCom == NULL) return false;
     try
     {
         pZigbeeCom->setReadTimeout(pReqMsg->timeout);
@@ -426,6 +434,10 @@ unsigned int Buf2Int32(unsigned char* buff)
 {
     return (buff[0]<<24) + (buff[1]<<16)+ (buff[2]<<16)+ (buff[3]<<0);
 }
+unsigned int Buf2Short16(unsigned char* buff)
+{
+    return (buff[0]<<16)+ (buff[1]<<0);
+}
 int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight,long waitMs)
 {
     if(isSimulate)
@@ -492,48 +504,98 @@ StreetLight*  LedCtrl::getLightParam(unsigned int id)
 {
     return NULL;
 }
-
+//FIXME
 int  LedCtrl::setZigbeeCfg(unsigned int id,TZigbeeCfg* pCfg,long waitMs)
 {
-    LedMessage respMsg;
-    LedMessage reqMsg(id,0,CMD_SET_ZIGBEE_CFG,true,0,waitMs);
+	if(isSimulate)
+	{
+        StreetLight* _pTemp = getSimLight(id,0);
 
-    sendMessage (&reqMsg);
-
-    if( waitRespMessage (&reqMsg,&respMsg))
-    {
-        if(respMsg.respCode == ERR_OK)
+        if(_pTemp != NULL)
         {
-            return 0;
+            //memcpy(pLight->zigbeeCfg,_pTemp,sizeof(StreetLight));
+            _pTemp->zigbeeCfg = *pCfg;
+            return ERR_OK;
         }
-        return -respMsg.respCode;
+        return  -1;
+	}
+	else
+	{
+		LedMessage respMsg;
+		LedMessage reqMsg(id,0,CMD_SET_ZIGBEE_CFG,true,0,waitMs);
 
-    }
+		sendMessage (&reqMsg);
+
+		if( waitRespMessage (&reqMsg,&respMsg))
+		{
+		    if(respMsg.respCode == ERR_OK)
+		    {
+                int len = 0;
+                unsigned char* pData = respMsg.getBuffVal (len);
+                if(len > 0)
+                {
+
+
+                }
+		        return 0;
+		    }
+		    return -respMsg.respCode;
+
+		}
+	}
     return -1;
 }
 
-TZigbeeCfg*  LedCtrl::getZigbeeCfg(unsigned int id,long waitMs)
+int  LedCtrl::getZigbeeCfg(unsigned int id,TZigbeeCfg* cfg,long waitMs)
 {
-    LedMessage respMsg;
-    LedMessage reqMsg(id,0,CMD_QUERY_ZIGBEE_CFG,true,sizeof(TZigbeeCfg),waitMs);
-
-    sendMessage (&reqMsg);
-
-    if( waitRespMessage (&reqMsg,&respMsg))
+    if(isSimulate)
     {
-        if(respMsg.respCode == ERR_OK)
+        StreetLight* _pTemp = getSimLight(id,0);
+
+        if(_pTemp != NULL)
         {
-            int len = 0;
-            unsigned char* pSrc = respMsg.getBuffVal (len);
-            if(len != sizeof(TZigbeeCfg)) return NULL;
-
-            memcpy((unsigned char*)&gZigbeeCfg,pSrc,len);
-            return &gZigbeeCfg;
+            //memcpy(pLight->zigbeeCfg,_pTemp,sizeof(StreetLight));
+            *cfg = _pTemp->zigbeeCfg;
+            return ERR_OK;
         }
+        return  -1;
+    }
+    else
+    {
+        LedMessage respMsg;
+        LedMessage reqMsg(id,0,CMD_QUERY_ZIGBEE_CFG,true,sizeof(TZigbeeCfg),waitMs);
 
+        sendMessage (&reqMsg);
+
+        if( waitRespMessage (&reqMsg,&respMsg))
+        {
+            if(respMsg.respCode == ERR_OK)
+            {
+                int len = 0;
+                unsigned char* pData = respMsg.getBuffVal (len);
+
+                if(len != ZIGBEE_CFG_SIZE) return NULL;
+
+                cfg->address    = Buf2Short16 (pData);
+                cfg->netID      = pData[2];
+                cfg->netType    = (ZgbNetType)pData[3];
+                cfg->nodeType   = (ZgbNodeType)pData[4];
+                cfg->txMode     = (ZgbTxMode)pData[5];
+                cfg->baudRate   = (ZgbBaud)pData[6];
+                cfg->parity     = (ZgbParity)pData[7];
+                cfg->dataBit    = (ZgbDataBit)pData[8];
+                cfg->dataMode   = (ZgbDataMode)pData[9];
+                cfg->timeOut    = pData[10];
+                cfg->channal    = pData[11];
+                cfg->kw         = pData[12];
+                cfg->addrMode   = (ZgbAddressMode)pData[13];
+                return ERR_OK;
+            }
+
+        }
     }
 
-    return NULL;
+    return -1;
 }
 int  LedCtrl::getIntResp(unsigned int id,LedCmdType type,int size,long waitMs)
 {

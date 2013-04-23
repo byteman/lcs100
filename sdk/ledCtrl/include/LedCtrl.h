@@ -12,6 +12,75 @@
 #else
     #define  LEDCTRL_API
 #endif
+/*！
+zigbee 网络类型
+*/
+enum ZgbNetType{
+    ZGB_NET_MESH=1, //网状网
+    ZGB_NET_STAR=2, //星型网
+    ZGB_NET_PEER=7 //对等网
+};
+/*！
+zigbee 节点类型
+*/
+enum ZgbNodeType{
+    ZGB_NODE_CORD=1, //中心节点
+    ZGB_NODE_ROUTE=3, //中继路由
+    ZGB_NODE_TERM=4 //终端节点
+};
+
+enum ZgbTxMode{
+    ZGB_TX_BROADCAST=1, //广播
+    ZGB_TX_MASTER_SLAVE=2, //主从
+    ZGB_TX_P2P=3 //点对点
+};
+
+enum ZgbBaud{
+    ZGB_BAUD_1200=1, //1200
+    ZGB_BAUD_2400=2, //2400
+    ZGB_BAUD_4800=3, //4800
+    ZGB_BAUD_9600=4, //9600
+    ZGB_BAUD_19200=5, //19200 [默认的通讯波特率]
+    ZGB_BAUD_38400=6 //38400 [zigbee模块配置用的波特率]
+};
+enum ZgbParity{
+    ZGB_PARITY_NONE=1, //无校验
+    ZGB_PARITY_ODD, //奇校验
+    ZGB_PARITY_EVEN //偶校验
+};
+enum ZgbDataBit{
+    ZGB_DATABIT_8=1, //8个数据位
+    ZGB_DATABIT_9=3 //9个数据位
+};
+enum ZgbDataMode{
+    ZGB_DATA_ASCII=1, //数据采用ascii格式
+    ZGB_DATA_HEX=2 //数据采用hex格式
+};
+/*!
+数据源地址选项
+*/
+enum ZgbAddressMode{
+    ZGB_ADDR_NONE=1, //不输出
+    ZGB_ADDR_ASCII=2, //ASCII输出
+    ZGB_ADDR_HEX=3 //16进制输出
+};
+typedef struct
+{
+    unsigned short  address; // 0-0xFFFF(其中0是cord的地址)
+    unsigned char   netID; //0-0xFF
+    ZgbNetType      netType;
+    ZgbNodeType     nodeType;
+    ZgbTxMode       txMode;
+    ZgbBaud         baudRate;
+    ZgbParity       parity;
+    ZgbDataBit      dataBit;
+    ZgbDataMode     dataMode;
+    unsigned char   timeOut; //串口超时
+    unsigned char   channal; //通信信道 0-0xFF
+    unsigned char   kw; //发射功率
+    ZgbAddressMode  addrMode;
+} TZigbeeCfg;
+
 
 #define MAX_SCENE_NUM 4
 typedef struct
@@ -26,7 +95,7 @@ typedef struct
     int ver;    //单灯的版本号
     int devId; //设备编号
 	int resetCnt; //复位次数
-    unsigned char zigbeeCfg[15];
+    TZigbeeCfg zigbeeCfg;
 } StreetLight;
 
 #define MAX_SENCE_NUM 10
@@ -78,24 +147,7 @@ struct TEventParam
     LedError err;
     unsigned int arg;
 };
-#pragma push(1)
-typedef struct
-{
-    unsigned short address;
-    unsigned char  netID;
-    unsigned char  netType;
-    unsigned char  nodeType;
-    unsigned char  sendMode;
-    unsigned char  baudRate;
-    unsigned char  parity;
-    unsigned char  dataBit;
-    unsigned char  dataMode;
-    unsigned char  timeOut;
-    unsigned char  channal;
-    unsigned char  kw;
-    unsigned char  addrMode;
-} TZigbeeCfg;
-#pragma pop()
+
 typedef std::vector<unsigned int> DeviceList;
 
 
@@ -250,7 +302,7 @@ public:
         \return 返回zigbee配置
         \retval NULL 失败 >0 zigbee配置
     */
-    TZigbeeCfg*  getZigbeeCfg(unsigned int id,long waitMs=1000);
+    int  getZigbeeCfg(unsigned int id,TZigbeeCfg* cfg,long waitMs=1000);
     /*!
         \brief 设置单灯zigbee配置
         \param[in] id 单灯的id
@@ -342,6 +394,12 @@ private:
 	SDK内部实现的一个测试SDK的各个接口的接口函数
 */
 LEDCTRL_API int  lcs100_SDKTest(int argc, char *argv[]);
+/*!
+	运行时指定是否模拟运行
+*/
 LEDCTRL_API void lcs100_EnableSimulate(bool enable);
+/*!
+	判断当前是否模拟运行的
+*/
 LEDCTRL_API bool lcs100_IsSimulate(void);
 #endif // LEDCTRL_H

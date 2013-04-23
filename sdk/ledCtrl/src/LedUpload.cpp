@@ -33,6 +33,7 @@ bool    LedUpload::init(std::string uartPath)
 bool    LedUpload::setPort(serial::Serial* comPort)
 {
     _zigbeeCom = comPort;
+    assert(_zigbeeCom);
     return true;
 }
 
@@ -107,9 +108,12 @@ bool    LedUpload::sendPacket(unsigned char* context, int len)
 {
     int sendlen = buildPacket(context,len,packet,512);
     dumpData(packet,sendlen);
-    _zigbeeCom->write (packet,sendlen);
-
-    return true;
+    if(_zigbeeCom)
+    {
+        _zigbeeCom->write (packet,sendlen);
+        return true;
+    }
+    return false;
 }
 
 void    LedUpload::timerOut(Poco::Timer& timer)
@@ -157,6 +161,9 @@ void   LedUpload::parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,uns
     if(ack == 0)
     {
         TEventParam par(id,grp,EV_UPLOAD_VERIFY,ERR_OK);
+        LedCtrl::get ().notify (&par);
+        par.event = EV_UPLOAD_COMPLETE;
+        par.err   = ERR_OK;
         LedCtrl::get ().notify (&par);
         _state = STATE_OK;
     }
@@ -228,10 +235,41 @@ bool    LedUpload::parsePacket(unsigned char* context, int len)
     }
     return true;
 }
+void    LedUpload::simulateUpload(void)
+{
+    Poco::Thread::sleep (10);
+    TEventParam par(_targetID,0,EV_UPLOAD_REQ,ERR_OK);
+    LedCtrl::get ().notify (&par);
+
+    while(_packetIdx < _packetNum)
+    {
+        par.event = EV_UPLOAD_DATA;
+        par.err = ERR_OK;
+        par.arg = (_packetNum<<16) + _packetIdx;
+        LedCtrl::get ().notify (&par);
+        Poco::Thread::sleep (10);
+        _packetIdx++;
+    }
+    par.event = EV_UPLOAD_VERIFY;
+    par.err = ERR_OK;
+    LedCtrl::get ().notify (&par);
+    Poco::Thread::sleep (10);
+    par.event = EV_UPLOAD_COMPLETE;
+    par.err = ERR_OK;
+    LedCtrl::get ().notify (&par);
+
+
+}
 void    LedUpload::run()
 {
     _evtRdy.set ();
     _quit = false;
+    if(lcs100_IsSimulate ())
+    {
+        simulateUpload();
+        resetState ();
+        return;
+    }
     protoParserInit(NULL);
     runStateMachine();
     _zigbeeCom->setReadTimeout(1000);
@@ -412,7 +450,7 @@ bool    LedUpload::startUploadFile(unsigned int devID)
     //等待30秒升级线程结束
     //这里Poco库有一个bug，需要修改
     // /media/linuxdata/home/byteman/library/poco/Foundation/src/Thread_POSIX.cpp中 304 line
-    if(false == _thread.tryJoin (3000))
+    if(false == _thread.tryJoin (60000))
     {
         _quit = true;
         printf("printf try join\n");
@@ -420,6 +458,7 @@ bool    LedUpload::startUploadFile(unsigned int devID)
         printf("printf  join end\n");
         return false;
     }
+    printf("startUploadFile end\n");
     return true;
 
 }
