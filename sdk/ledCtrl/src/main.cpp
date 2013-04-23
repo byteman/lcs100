@@ -39,7 +39,7 @@ bool testReadRealTimeAll()
     TZigbeeCfg* cfg;
     printf("reset counter=%d\r\n",LedCtrl::get().getDeviceResetCount(gTermId));
 	printf("brightness=%d\r\n",LedCtrl::get().getBrigtness (gTermId));
-#if 0
+
     printf("Voltage=%d\r\n",LedCtrl::get().getVoltage(gTermId));
     printf("group=%d\r\n",LedCtrl::get().getGroup(gTermId));
     printf("current=%d\r\n",LedCtrl::get().getCureent(gTermId));
@@ -50,7 +50,7 @@ bool testReadRealTimeAll()
     printf("KW=%d\r\n",LedCtrl::get().getKw(gTermId));
     printf("version=%d\r\n",LedCtrl::get().getVersion(gTermId));
 
-
+#if 0
     cfg = LedCtrl::get().getZigbeeCfg(gTermId);
     if (cfg)
     {
@@ -102,7 +102,7 @@ public:
 UploadTest ut;
 bool testUpload()
 {
-    int  timeout = 60;
+    int  timeout = 5;
     DeviceList dl;
     dl.push_back(1);
 
@@ -110,11 +110,14 @@ bool testUpload()
     LedCtrl::get().addObserver(&ut);
     LedCtrl::get().upload("lcs100.bin",dl);
 
-
-    while (!LedCtrl::get().hasUploadComplete() && timeout--)
+    printf ("upload return\n");
+    while (!LedCtrl::get().hasUploadComplete() || timeout--)
     {
+        printf("uploading.....\n");
         Poco::Thread::sleep(1000);
     }
+    printf("timeout=%d\n",timeout);
+    printf("upload end.....%s\n",(timeout<=0)?"timeout":"successful");
 
     return timeout?true:false;
 }
@@ -181,7 +184,18 @@ bool setReset()
     }
     return true;
 }
-
+bool changeGroupAndID()
+{
+    int tmp = 0;
+    printf("please input new ID\n");
+    scanf("%d",&tmp);
+    if(tmp > 0)
+    {
+        gTermId =  tmp ;
+        return true;
+    }
+    return false;
+}
 static TestItem testList[] =
 {
     {"test Upload file",testUpload},
@@ -193,12 +207,14 @@ static TestItem testList[] =
     {"set default brightness",setDefaultBrightness},
     {"reset device",setReset},
     {"assert all",assertTest},
+    {"change ID",changeGroupAndID},
     {"quit app",quitApp},
 };
 
 void displayHelp(void)
 {
     size_t i =0;
+    printf("current ID=%d,group=%d\n",gTermId,gGroup);
     for (; i < sizeof(testList)/sizeof(TestItem); i++)
     {
         printf("[%d].%s\r\n",i,testList[i].itemText);

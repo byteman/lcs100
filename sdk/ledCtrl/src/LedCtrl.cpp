@@ -139,7 +139,7 @@ bool LedCtrl::upload(std::string file,DeviceList devlist)
     LedUpload::get ().setPort (pZigbeeCom);
     if(!LedUpload::get ().loadUploadFile (file)) return false;
     uploader.set (devlist);
-
+    //uploader.run ();
     Poco::ThreadPool::defaultPool ().start (uploader);
 }
 
@@ -182,9 +182,9 @@ int LedCtrl::sendMessage(LedMessage* pMsg)
     return pZigbeeCom->write (context,totalLen);
 }
 
-bool LedCtrl::setDeviceReset(unsigned int id,unsigned char group,unsigned int afterMs)
+int LedCtrl::setDeviceReset(unsigned int id,unsigned char group,unsigned int afterMs,long waitMs)
 {
-    return setIntResp(id,group,CMD_RESET,afterMs,2,1000);
+    return setIntResp(id,group,CMD_RESET,afterMs,2,waitMs);
 }
 bool LedCtrl::hasUploadComplete(void)
 {
@@ -245,15 +245,21 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
 }
 void loadSimData(unsigned int id,unsigned group)
 {
-	simStreetLight.adjustTime = 20;
-	simStreetLight.brightness = 100;
-	simStreetLight.current	  = 100;
-	simStreetLight.defBright  = 100;
-	simStreetLight.devId	  = id;
+    static int adj_time = 20;
+    static int brightness = 20;
+    static int current = 20;
+    static int defBright = 20;
+    static int kw = 20;
+
+    simStreetLight.adjustTime = adj_time++;
+    simStreetLight.brightness = brightness++;
+    simStreetLight.current	  = current++;
+    simStreetLight.defBright  = defBright++;
+    simStreetLight.devId	  = id;
 	simStreetLight.group	  = group;
-	simStreetLight.kw		  = 1;
+    simStreetLight.kw		  = kw++;
 	simStreetLight.ver		  = 100;
-	simStreetLight.resetCnt	  = 1;
+    simStreetLight.resetCnt	  = 0;
 }
 
 StreetLight* getSimLight(unsigned int id,unsigned group)
@@ -272,21 +278,61 @@ int getSimParam(unsigned int id,unsigned group,LedCmdType type)
 	switch(type)
 	{
 		case CMD_QUERY_BRIGHTNESS:
-			value = getSimLight(id,0)->brightness;
+            value = getSimLight(id,group)->brightness;
 			break;
 		case CMD_GET_RESET_CNT:
-			value = getSimLight(id,0)->resetCnt;
+            value = getSimLight(id,group)->resetCnt;
 			break;
 		case CMD_QUERY_DEFAULT_BRIGHTNESS:
-			value = getSimLight(id,0)->defBright;
+            value = getSimLight(id,group)->defBright;
 			break;
 		case CMD_QUERY_CURRENT:
-			value = getSimLight(id,0)->current;
+            value = getSimLight(id,group)->current;
 			break;
-
+        case CMD_QUERY_VOLTAGE:
+            value = getSimLight(id,group)->voltage;
+            break;
+        case CMD_QUERY_VERSION:
+            value = getSimLight(id,group)->ver;
+            break;
+        case CMD_QUERY_KW:
+            value = getSimLight(id,group)->kw;
+            break;
+        case CMD_QUERY_ADJ_TIME:
+            value = getSimLight(id,group)->adjustTime;
+            break;
+        case CMD_QUERY_GROUP:
+            value = getSimLight(id,group)->group;
+            break;
 		default: break;
 	}
 	return value;
+}
+int setSimParam(unsigned int id,unsigned group,LedCmdType type,int value)
+{
+
+    switch(type)
+    {
+        case CMD_ADJUST_BRIGHTNESS:
+            getSimLight(id,group)->brightness = value;
+            break;
+        case CMD_RESET:
+            getSimLight(id,group)->resetCnt++;
+            break;
+        case CMD_SET_DEFAULT_BRIGHTNESS:
+            getSimLight(id,group)->defBright = value;
+            break;
+        case CMD_SET_ADJ_TIME:
+            getSimLight(id,group)->adjustTime = value;
+            break;
+        case CMD_SET_GROUP:
+            getSimLight(id,group)->group = value;
+            break;
+        default:
+            return -1;
+            break;
+    }
+    return ERR_OK;
 }
 int  LedCtrl::getDeviceResetCount(unsigned int id,long waitMs)
 {
@@ -312,6 +358,9 @@ int  LedCtrl::setDefaultBrigtness(unsigned int id,unsigned char group,unsigned c
 }
 int  LedCtrl::setIntResp(unsigned int id,unsigned char group,LedCmdType type,int value,int size,long waitMs)
 {
+#ifdef SIMULATE_DEBUG
+    return setSimParam (id,group,type,value);
+#else
     if(!uploader.hasComplete ())
     {
         printf("upload has not complete\n");
@@ -343,6 +392,7 @@ int  LedCtrl::setIntResp(unsigned int id,unsigned char group,LedCmdType type,int
     }
 
     return -1;
+#endif
 }
 int  LedCtrl::setShakeLed(unsigned int id,unsigned char group,unsigned short value,long waitMs)
 {
@@ -442,6 +492,11 @@ TZigbeeCfg*  LedCtrl::getZigbeeCfg(unsigned int id,long waitMs)
 }
 int  LedCtrl::getIntResp(unsigned int id,LedCmdType type,int size,long waitMs)
 {
+#ifdef SIMULATE_DEBUG
+    return getSimParam(id,0,type);
+#else
+
+
     if(!uploader.hasComplete ())
     {
         printf("upload has not complete\n");
@@ -476,6 +531,7 @@ int  LedCtrl::getIntResp(unsigned int id,LedCmdType type,int size,long waitMs)
     }
 
     return -1;
+#endif
 }
 int  LedCtrl::getVersion(unsigned int id,long waitMs)
 {

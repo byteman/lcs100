@@ -232,6 +232,7 @@ void    LedUpload::run()
 {
     _evtRdy.set ();
     _quit = false;
+    protoParserInit(NULL);
     runStateMachine();
     _zigbeeCom->setReadTimeout(1000);
     while(!_quit && (_state != STATE_OK))
@@ -407,15 +408,16 @@ bool    LedUpload::startUploadFile(unsigned int devID)
     _thread.start (*this);
     if(_evtRdy.tryWait (1000)==false) return false;
 
-    protoParserInit(NULL);
+
     //等待30秒升级线程结束
     //这里Poco库有一个bug，需要修改
     // /media/linuxdata/home/byteman/library/poco/Foundation/src/Thread_POSIX.cpp中 304 line
-    if(false == _thread.tryJoin (50000))
+    if(false == _thread.tryJoin (3000))
     {
         _quit = true;
+        printf("printf try join\n");
         _thread.join ();
-
+        printf("printf  join end\n");
         return false;
     }
     return true;

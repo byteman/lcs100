@@ -148,8 +148,10 @@ public:
 
     /*!
        \brief 通知设备[afterMs]ms后复位
+       \param[in] afterMs 等待多少ms后复位
+       \return 0 成功 <0 失败
     */
-    bool setDeviceReset(unsigned int id,unsigned char group,unsigned int afterMs=1000);
+    int setDeviceReset(unsigned int id,unsigned char group,unsigned int afterMs=10,long waitMs = 1000);
 
     /*!
     \brief 调光指令
