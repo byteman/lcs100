@@ -23,8 +23,7 @@ static unsigned char context[1024];
 static unsigned char param[1024];
 static TStreeLightList	simStreetList;
 static StreetLight	 simStreetLight;
-
-#define SIMULATE_DEBUG
+static bool isSimulate = false;
 
 class LedUploadThread:public Poco::Runnable
 {
@@ -56,8 +55,14 @@ private:
 
 static LedUploadThread uploader;
 
-
-
+void lcs100_EnableSimulate(bool enable)
+{
+    isSimulate = enable;
+}
+bool lcs100_IsSimulate(void)
+{
+    return isSimulate;
+}
 LedCtrl::LedCtrl()
 {
 
@@ -358,41 +363,45 @@ int  LedCtrl::setDefaultBrigtness(unsigned int id,unsigned char group,unsigned c
 }
 int  LedCtrl::setIntResp(unsigned int id,unsigned char group,LedCmdType type,int value,int size,long waitMs)
 {
-#ifdef SIMULATE_DEBUG
-    return setSimParam (id,group,type,value);
-#else
-    if(!uploader.hasComplete ())
+    if(isSimulate)
     {
-        printf("upload has not complete\n");
+        return setSimParam (id,group,type,value);
+    }
+    else
+    {
+        if(!uploader.hasComplete ())
+        {
+            printf("upload has not complete\n");
+            return -1;
+        }
+        LedMessage respMsg;
+        LedMessage reqMsg(id,group,type,true,size,waitMs);
+
+        switch(size)
+        {
+        case 1:
+            reqMsg.setCharVal (value);
+            break;
+        case 2:
+            reqMsg.setShortVal (value);
+            break;
+        case 4:
+            reqMsg.setIntVal (value);
+            break;
+        default:
+            reqMsg.setCharVal (value);
+            break;
+        }
+        sendMessage (&reqMsg);
+
+        if( waitRespMessage (&reqMsg,&respMsg))
+        {
+            return -respMsg.respCode;
+        }
+
         return -1;
     }
-    LedMessage respMsg;
-    LedMessage reqMsg(id,group,type,true,size,waitMs);
 
-    switch(size)
-    {
-    case 1:
-        reqMsg.setCharVal (value);
-        break;
-    case 2:
-        reqMsg.setShortVal (value);
-        break;
-    case 4:
-        reqMsg.setIntVal (value);
-        break;
-    default:
-        reqMsg.setCharVal (value);
-        break;
-    }
-    sendMessage (&reqMsg);
-
-    if( waitRespMessage (&reqMsg,&respMsg))
-    {
-        return -respMsg.respCode;
-    }
-
-    return -1;
-#endif
 }
 int  LedCtrl::setShakeLed(unsigned int id,unsigned char group,unsigned short value,long waitMs)
 {
@@ -413,22 +422,58 @@ int  LedCtrl::writeE2prom(unsigned int id,unsigned char group,LedParam* pPara,lo
 
     return -1;
 }
-
+unsigned int Buf2Int32(unsigned char* buff)
+{
+    return (buff[0]<<24) + (buff[1]<<16)+ (buff[2]<<16)+ (buff[3]<<0);
+}
 int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight,long waitMs)
 {
-#ifdef SIMULATE_DEBUG
-	StreetLight* _pTemp = getSimLight(id,group);
+    if(isSimulate)
+    {
+        StreetLight* _pTemp = getSimLight(id,group);
 
-	if(_pTemp != NULL)
-	{
-		memcpy(pLight,_pTemp,sizeof(StreetLight));
+        if(_pTemp != NULL)
+        {
+            memcpy(pLight,_pTemp,sizeof(StreetLight));
 
-		return ERR_OK;
-	}
-#else
-    fprintf(stderr,"not support\n");
+            return ERR_OK;
+        }
+        return  -1;
+    }
+    else
+    {
+        if(!uploader.hasComplete ())
+        {
+            printf("upload has not complete\n");
+            return -1;
+        }
+        LedMessage respMsg;
+        LedMessage reqMsg(id,0,CMD_QUERY_ALL,true,20,waitMs);
 
-#endif
+        sendMessage (&reqMsg);
+
+        if( waitRespMessage (&reqMsg,&respMsg))
+        {
+            if(respMsg.respCode == ERR_OK)
+            {
+                int len = 0;
+                unsigned char* pData = respMsg.getBuffVal (len);
+                if(len == 20)
+                {
+                    pLight->voltage = Buf2Int32(pData);
+                    pLight->current = Buf2Int32(pData+4);
+                    pLight->kw = Buf2Int32(pData+8);
+                    pLight->brightness = pData[12];
+                    pLight->defBright = pData[13];
+                    pLight->adjustTime = pData[14];
+                    pLight->group = pData[15];
+                    pLight->devId = Buf2Int32(pData+16);
+                    return ERR_OK;
+                }
+
+            }
+        }
+    }
 	return -1;
 }
 int  LedCtrl::getCureent(unsigned int id,long waitMs)
@@ -492,46 +537,48 @@ TZigbeeCfg*  LedCtrl::getZigbeeCfg(unsigned int id,long waitMs)
 }
 int  LedCtrl::getIntResp(unsigned int id,LedCmdType type,int size,long waitMs)
 {
-#ifdef SIMULATE_DEBUG
-    return getSimParam(id,0,type);
-#else
-
-
-    if(!uploader.hasComplete ())
+    if(isSimulate)
     {
-        printf("upload has not complete\n");
-        return -1;
+        return getSimParam(id,0,type);
     }
-    LedMessage respMsg;
-    LedMessage reqMsg(id,0,type,true,size,waitMs);
-
-    sendMessage (&reqMsg);
-
-    if( waitRespMessage (&reqMsg,&respMsg))
+    else
     {
-        if(respMsg.respCode == ERR_OK)
+        if(!uploader.hasComplete ())
         {
-            switch(size)
+            printf("upload has not complete\n");
+            return -1;
+        }
+        LedMessage respMsg;
+        LedMessage reqMsg(id,0,type,true,size,waitMs);
+
+        sendMessage (&reqMsg);
+
+        if( waitRespMessage (&reqMsg,&respMsg))
+        {
+            if(respMsg.respCode == ERR_OK)
             {
-            case 1:
-                return respMsg.getCharVal ();
-                break;
-            case 2:
-                return respMsg.getShortVal ();
-                break;
-            case 4:
-                return respMsg.getIntVal ();
-                break;
-            default:
-                break;
+                switch(size)
+                {
+                case 1:
+                    return respMsg.getCharVal ();
+                    break;
+                case 2:
+                    return respMsg.getShortVal ();
+                    break;
+                case 4:
+                    return respMsg.getIntVal ();
+                    break;
+                default:
+                    break;
+                }
             }
+
+            return -respMsg.respCode;
         }
 
-        return -respMsg.respCode;
-    }
 
+    }
     return -1;
-#endif
 }
 int  LedCtrl::getVersion(unsigned int id,long waitMs)
 {

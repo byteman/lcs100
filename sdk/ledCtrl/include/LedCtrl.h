@@ -115,6 +115,7 @@ public:
     LedCtrl();
     static LedCtrl& get();
 public:
+
     /*!
         \brief 设置回调函数，有任何异步事件发生的时候，就会回调通知接口
         \param[in] arg :附加参数
@@ -341,5 +342,6 @@ private:
 	SDK内部实现的一个测试SDK的各个接口的接口函数
 */
 LEDCTRL_API int  lcs100_SDKTest(int argc, char *argv[]);
-
+LEDCTRL_API void lcs100_EnableSimulate(bool enable);
+LEDCTRL_API bool lcs100_IsSimulate(void);
 #endif // LEDCTRL_H

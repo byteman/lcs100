@@ -1,2 +1,2 @@
 export LD_LIBRARY_PATH=.
-./test
+./test /dev/ttyUSB0

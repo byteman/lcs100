@@ -196,6 +196,18 @@ bool changeGroupAndID()
     }
     return false;
 }
+bool enableSimu(void)
+{
+    bool isEn = lcs100_IsSimulate();
+
+    //printf("press anykey to change\n");
+    //int tmp = 0;
+    //scanf("%d",&tmp);
+    isEn = !isEn;
+    lcs100_EnableSimulate (isEn);
+
+    printf("current [%s] simulate\n",isEn?"en":"disEn");
+}
 static TestItem testList[] =
 {
     {"test Upload file",testUpload},
@@ -208,6 +220,7 @@ static TestItem testList[] =
     {"reset device",setReset},
     {"assert all",assertTest},
     {"change ID",changeGroupAndID},
+    {"enable/disable simulate",enableSimu},
     {"quit app",quitApp},
 };
 
