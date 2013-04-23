@@ -256,7 +256,9 @@ int lcs100_SDKTest(int argc, char *argv[])
 
 	return 0;
 }
+#if 0
 int main(int argc, char *argv[])
 {
     return lcs100_SDKTest(argc,argv);
 }
+#endif

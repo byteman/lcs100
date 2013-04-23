@@ -1,4 +1,5 @@
-TEMPLATE = app
+#TEMPLATE = app
+TEMPLATE = lib
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
@@ -25,7 +26,7 @@ INCLUDEPATH += ../include ../serial/include
 linux-g++ {
     message(g++ = linux-g++)
 }
-linux-arm-g++ {
+linux-armv7-g++ {
     message(g++ = linux-arm-g++ compile)
     INCLUDEPATH += /media/linuxdata/home/byteman/library/Poco-ARM/include
     LIBS += -L/media/linuxdata/home/byteman/library/Poco-ARM/lib
