@@ -8,6 +8,12 @@
 #include <stdexcept>
 #include <map>
 #include <assert.h>
+
+/*!
+跨模块的接口中，参数和返回值都应该使用内置数据类型
+接口不用使用stl，用基本类型
+*/
+
 #define ZIGBEE_CFG_SIZE 14
 typedef std::map<unsigned int,StreetLight> TStreeLightList;
 #define PROTO_HEAD 0xA3
@@ -36,10 +42,14 @@ public:
 
     }
 
-    void set(DeviceList devlist)
+    void set(unsigned int *devlist, int devNum)
     {
         _complete = false;
-        _devlist = devlist;
+		//_devlist.clear();
+		for(int i = 0; i < devNum; i++)
+		{
+			_devlist.push_back(devlist[i]);
+		}
     }
     void run()
     {
@@ -55,7 +65,7 @@ public:
     }
 private:
     std::string _file;
-    DeviceList _devlist;
+    std::vector<unsigned int> _devlist;
     bool _complete;
 };
 
@@ -85,7 +95,12 @@ LedCtrl& LedCtrl::get()
     static Poco::SingletonHolder<LedCtrl> sh;
     return *sh.get ();
 }
-bool LedCtrl::open(std::string comPath,unsigned int bps)
+bool LedCtrl::close()
+{
+	printf("not support\n");
+	return true;
+}
+bool LedCtrl::open(const char* comPath,unsigned int bps)
 {
 #if 1
 
@@ -99,7 +114,6 @@ bool LedCtrl::open(std::string comPath,unsigned int bps)
         }
         if(pZigbeeCom == NULL)
             pZigbeeCom = new serial::Serial(comPath,bps);
-        //pZigbeeCom->open ();
         return true;
     }
     catch(std::invalid_argument& e)
@@ -122,34 +136,15 @@ bool LedCtrl::open(std::string comPath,unsigned int bps)
         fprintf(stderr,"ledCtrl Open failed: unknown err\r\n");
         return false;
     }
-#else
-
-    try
-    {
-        if(_zigbeeCom == NULL)
-        {
-            _zigbeeCom = new LibSerial::SerialPort(comPath);
-        }
-        _zigbeeCom->Open (LibSerial::SerialPort::BAUD_19200);
-        return true;
-    }
-    catch(LibSerial::SerialPort::AlreadyOpen& e)
-    {
-        fprintf(stderr,"already open\n");
-    }
-    catch(LibSerial::SerialPort::OpenFailed& e)
-    {
-        fprintf(stderr,"OpenFailed\n");
-    }
-    return false;
+	
 #endif
-
+	return false;
 }
-bool LedCtrl::upload(std::string file,DeviceList devlist)
+bool LedCtrl::upload(const char* file,unsigned int *devlist, int devNum)
 {
     LedUpload::get ().setPort (pZigbeeCom);
     if(!LedUpload::get ().loadUploadFile (file)) return false;
-    uploader.set (devlist);
+    uploader.set (devlist,devNum);
     //uploader.run ();
     Poco::ThreadPool::defaultPool ().start (uploader);
 }

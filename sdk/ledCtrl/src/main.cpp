@@ -123,12 +123,12 @@ UploadTest ut;
 bool testUpload()
 {
     int  timeout = 60;
-    DeviceList dl;
+    std::vector<int> dl;
     dl.push_back(1);
 
 
     LedCtrl::get().addObserver(&ut);
-    LedCtrl::get().upload("lcs100.bin",dl);
+    LedCtrl::get().upload("lcs100.bin",(unsigned int*)dl.data(),dl.size());
 
     printf ("upload return\n");
     while (!LedCtrl::get().hasUploadComplete())
@@ -279,7 +279,7 @@ int lcs100_SDKTest(int argc, char *argv[])
 	}
 
 
-	if(!LedCtrl::get().open(comPath))
+	if(!LedCtrl::get().open(comPath,19200))
 	{
 
         fprintf(stderr,"Open ComPort[%s] Failed\r\n",comPath);

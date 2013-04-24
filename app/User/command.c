@@ -422,9 +422,9 @@ void App_Command(LedRequest* pReq)//各个命令分解
     case CMD_GET_RESET_CNT:
         Inquiry_ResetNum();
         break;
-	case CMD_QUERY_MODE:
-		Inquiry_Mode();
-		break;
+		case CMD_QUERY_MODE:
+				Inquiry_Mode();
+				break;
     default:
         break;
     }

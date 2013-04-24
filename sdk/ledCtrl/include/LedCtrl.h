@@ -45,8 +45,8 @@ enum ZgbBaud{
 };
 enum ZgbParity{
     ZGB_PARITY_NONE=1, //无校验
-    ZGB_PARITY_ODD, //奇校验
-    ZGB_PARITY_EVEN //偶校验
+	ZGB_PARITY_EVEN, //偶校验
+    ZGB_PARITY_ODD //奇校验
 };
 enum ZgbDataBit{
     ZGB_DATABIT_8=1, //8个数据位
@@ -148,9 +148,6 @@ struct TEventParam
     unsigned int arg;
 };
 
-typedef std::vector<unsigned int> DeviceList;
-
-
 
 typedef void (*LedCallBackProc)(TEventParam* param,void* arg);
 
@@ -173,17 +170,18 @@ public:
         \param[in] arg :附加参数
     */
     void addObserver(ILedEventNofityer* obs);
+	bool close();
     /*!
     \brief 打开串口，初始化模块
     \return true: 成功 false:失败
     */
-    bool open(std::string comPath,unsigned int bps=19200);
+    bool open(const char* comPath,unsigned int bps);
     /*!
     \brief 升级单灯设备.
     \param[in] file :升级文件全路径.
     \param[in] devlist: 升级单灯设备列表.
     */
-    bool upload(std::string file,DeviceList devlist);
+    bool upload(const char* file,unsigned int *devlist, int devNum);
 
     /*!
       判断升级操作是否已经结束
