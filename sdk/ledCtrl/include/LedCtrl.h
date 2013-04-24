@@ -179,7 +179,8 @@ public:
     /*!
     \brief 升级单灯设备.
     \param[in] file :升级文件全路径.
-    \param[in] devlist: 升级单灯设备列表.
+    \param[in] devlist: 升级单灯设备ID数组.
+	\param[in] devNum:  升级单灯设备ID数组的个数
     */
     bool upload(const char* file,unsigned int *devlist, int devNum);
 
