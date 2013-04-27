@@ -222,6 +222,18 @@ bool changeGroupAndID()
     }
     return false;
 }
+bool updateGroupAndID()
+{
+	int tmp = 0;
+	printf("please input new ID\n");
+	scanf("%d",&tmp);
+	if(tmp > 0)
+	{
+		LedCtrl::get().setID(gTermId,tmp);
+		return true;
+	}
+	return false;
+}
 bool enableSimu(void)
 {
     bool isEn = lcs100_IsSimulate();
@@ -248,6 +260,7 @@ static TestItem testList[] =
     {"reset device",setReset},
     {"assert all",assertTest},
     {"change ID",changeGroupAndID},
+	{"update id",updateGroupAndID},
     {"enable/disable simulate",enableSimu},
     {"quit app",quitApp},
 };
