@@ -125,11 +125,12 @@ bool testUpload()
     int  timeout = 60;
     std::vector<int> dl;
     dl.push_back(1);
-	dl.push_back(2);
-	dl.push_back(3);
+	//dl.push_back(2);
+	//dl.push_back(3);
 	
     LedCtrl::get().addObserver(&ut);
-    LedCtrl::get().upload("lcs100.bin",(unsigned int*)dl.data(),dl.size());
+	LedCtrl::get().upload("lcs100.bin",(unsigned int*)dl.data(),dl.size());
+    //LedCtrl::get().upload("D:\\proj\\2013\\led\\lcs100\\sdk\\ledCtrl\\windows\\outputD\\lcs100.bin",(unsigned int*)dl.data(),dl.size());
 #if 0
     printf ("upload return\n");
     while (!LedCtrl::get().hasUploadComplete())
@@ -273,7 +274,11 @@ void displayHelp(void)
 
 int lcs100_SDKTest(int argc, char *argv[])
 {
-    const char* comPath = "/dev/ttyUSB0";
+#if defined(_WIN32)
+    const char* comPath = "COM5";
+#elif defined(__GNUC__)
+	const char* comPath = "/dev/ttyUSB0";
+#endif
 	if(argc == 2)
 	{
 		//fprintf(stderr,"usage: lcs100.exe COM[n]\r\n");
