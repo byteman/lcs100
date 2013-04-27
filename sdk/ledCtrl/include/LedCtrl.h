@@ -115,7 +115,8 @@ enum LedEvent
     EV_UPLOAD_REQ,	//升级请求中...
     EV_UPLOAD_DATA, //升级数据传输中...
     EV_UPLOAD_VERIFY, //升级完毕，数据校验中...
-    EV_UPLOAD_COMPLETE //升级完毕，返回升级结果。
+    EV_UPLOAD_COMPLETE, //升级完毕，返回升级结果。
+	EV_UPLOAD_TIMEOUT
 };
 /*！
 错误代码

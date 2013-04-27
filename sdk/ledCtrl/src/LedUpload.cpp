@@ -22,8 +22,10 @@ LedUpload::LedUpload():
 {
     _packetSize = MAX_PACKET_SIZE;
     _packetIdx  = 0;
+	_timeout = 0;
     _totalFileSize = 0;
     _state = STATE_IDLE;
+	_complete = true;
 
 }
 bool    LedUpload::init(std::string uartPath)
@@ -34,6 +36,10 @@ bool    LedUpload::setPort(serial::Serial* comPort)
 {
     _zigbeeCom = comPort;
     assert(_zigbeeCom);
+
+	_thread.start (*this);
+	if(_evtRdy.tryWait (1000)==false) 
+		return false;
     return true;
 }
 
@@ -116,11 +122,6 @@ bool    LedUpload::sendPacket(unsigned char* context, int len)
     return false;
 }
 
-void    LedUpload::timerOut(Poco::Timer& timer)
-{
-    fprintf(stderr,"calltimer\n");
-    runStateMachine();
-}
 void    LedUpload::parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid)
 {
     if(ssid != _curSessionID)
@@ -260,63 +261,41 @@ void    LedUpload::simulateUpload(void)
 
 
 }
+
+bool	LedUpload::uploadHasComplete(void)
+{
+	return _complete;
+}
 void    LedUpload::run()
 {
     _evtRdy.set ();
     _quit = false;
-    if(lcs100_IsSimulate ())
-    {
-        simulateUpload();
-        resetState ();
-        return;
-    }
-    protoParserInit(NULL);
-    runStateMachine();
-    _zigbeeCom->setReadTimeout(1000);
-    while(!_quit && (_state != STATE_OK))
-    {
+	
 
-        try
-        {
-            unsigned char ch = 0;
-
-            if(_zigbeeCom->read(&ch,1) > 0)
-            {
-                if( parseChar( ch ))
-                {
-                    unsigned int pktLen = 0;
-                    unsigned char * pkt = readPacket(&pktLen);
-                    if(pkt)
-                    {
-                        parsePacket(pkt,pktLen);
-                        runStateMachine();
-                    }
-                }
-            }
-            else
-            {
-                runStateMachine();
-            }
-        }
-        catch(serial::PortNotOpenedException& e)
-        {
-            fprintf(stderr,"%s\r\n",e.what());
-            _quit = true;
-            //runStateMachine();
-        }
-        catch(serial::IOException& e)
-        {
-            fprintf(stderr,"IOException\r\n");
-            _quit = true;
-        }
-        catch(...)
-        {
-            fprintf(stderr,"Unknown err\r\n");
-            _quit = true;
-        }
-
-    }
-    resetState ();
+	while(!_quit)
+	{
+		if (_deviceList.size() == 0)
+		{
+			_complete = true;
+			_evtUpload.wait();
+		}
+		else
+		{
+			_targetID		= _deviceList.front();
+			_curSessionID	= getSessionID();
+			_state			= STATE_REQ;
+			_deviceList.pop();
+			if(lcs100_IsSimulate ())
+			{
+				simulateUpload();
+				resetState ();
+			}
+			else
+			{
+				uploadProc();
+			}
+		}
+	}
 }
 bool    LedUpload::sendUploadRequest()
 {
@@ -427,49 +406,93 @@ void LedUpload::resetState()
     _state = STATE_IDLE;
     _packetIdx = 0;
     _targetID = 0;
+	_timeout = 0;
 }
-bool    LedUpload::startUploadFile(unsigned int devID)
+bool    LedUpload::startUploadGroupFile(unsigned group)
 {
-    if(_state != STATE_IDLE)
-    {
-        return false;
-    }
-    _state = STATE_REQ;
-    _targetID = devID;
-    _curSessionID = getSessionID();
-#if 0
-    Poco::TimerCallback<LedUpload> callback(*this,&LedUpload::timerOut);
-    _timer.setStartInterval (10);
-    _timer.setPeriodicInterval (1000);
-    _timer.start(callback);
-#endif
-    _thread.start (*this);
-    if(_evtRdy.tryWait (1000)==false) return false;
-
-
-    //等待30秒升级线程结束
-    //这里Poco库有一个bug，需要修改
-    // /media/linuxdata/home/byteman/library/poco/Foundation/src/Thread_POSIX.cpp中 304 line
-    if(false == _thread.tryJoin (60000))
-    {
-        _quit = true;
-        printf("printf try join\n");
-        _thread.join ();
-        printf("printf  join end\n");
-        return false;
-    }
-    printf("startUploadFile end\n");
-    return true;
-
+	fprintf(stderr,"upload group not support\n");
+	return false;
 }
-bool    LedUpload::startUploadFile(DeviceIDList& devList)
+
+bool    LedUpload::startUploadFile(std::vector<unsigned int>& devList)
 {
-    for(size_t i = 0 ; i < devList.size (); i++)
-    {
-        if(!startUploadFile(devList.at(i)))
-        {
-            fprintf(stderr,"%d upload failed\n",devList.at(i));
-        }
-    }
+	
+	if(_state != STATE_IDLE)
+	{
+		return false;
+	}
+	if(devList.size() ==0 ) return true;
+
+	_complete = false;
+
+	for(size_t i = 0; i < devList.size(); i++)
+	{
+		_deviceList.push(devList.at(i));
+	}
+	_evtUpload.set();
+
     return true;
+}
+bool	LedUpload::uploadProc(void)
+{
+	protoParserInit(NULL);
+	runStateMachine();
+
+	_zigbeeCom->setReadTimeout(1000);
+
+	while (!_quit && (_state != STATE_OK) )
+	{
+		try
+		{
+			unsigned char ch = 0;
+
+			if(_zigbeeCom->read(&ch,1) > 0)
+			{
+				if( parseChar( ch ))
+				{
+					unsigned int pktLen = 0;
+					unsigned char * pkt = readPacket(&pktLen);
+					if(pkt)
+					{
+						parsePacket(pkt,pktLen);
+						runStateMachine();
+					}
+				}
+			}
+			else
+			{
+
+				if (_timeout++ >= 3)
+				{
+					TEventParam par(_targetID,0,EV_UPLOAD_TIMEOUT);
+					LedCtrl::get().notify(&par);
+					break;
+				}
+				else
+				{
+					runStateMachine();
+				}
+			}
+		}
+		catch(serial::PortNotOpenedException& e)
+		{
+			fprintf(stderr,"%s\r\n",e.what());
+			_quit = true;
+			//runStateMachine();
+		}
+		catch(serial::IOException& e)
+		{
+			fprintf(stderr,"IOException\r\n");
+			_quit = true;
+		}
+		catch(...)
+		{
+			fprintf(stderr,"Unknown err\r\n");
+			_quit = true;
+		}
+	}
+	resetState();
+
+	return true;
+		
 }

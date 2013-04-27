@@ -125,11 +125,12 @@ bool testUpload()
     int  timeout = 60;
     std::vector<int> dl;
     dl.push_back(1);
-
-
+	dl.push_back(2);
+	dl.push_back(3);
+	
     LedCtrl::get().addObserver(&ut);
     LedCtrl::get().upload("lcs100.bin",(unsigned int*)dl.data(),dl.size());
-
+#if 0
     printf ("upload return\n");
     while (!LedCtrl::get().hasUploadComplete())
     {
@@ -142,6 +143,8 @@ bool testUpload()
     printf("upload end.....%s\n",(timeout<=0)?"timeout":"successful");
 
     return timeout?true:false;
+#endif
+	return true;
 }
 
 bool quitApp()
@@ -278,11 +281,12 @@ int lcs100_SDKTest(int argc, char *argv[])
 		comPath =  argv[1];
 	}
 
-
+	//lcs100_EnableSimulate(true);
 	if(!LedCtrl::get().open(comPath,19200))
 	{
 
         fprintf(stderr,"Open ComPort[%s] Failed\r\n",comPath);
+		fprintf(stderr,"usage: lcs100.exe COM[n]\r\n");
         return 0;
 	}
 	while (!gQuit)

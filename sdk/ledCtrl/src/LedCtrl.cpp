@@ -25,51 +25,13 @@ static LedMsgQueue syncMsgQue;
 static LedMsgQueue asyncMsgQue;
 static TZigbeeCfg gZigbeeCfg;
 static ILedEventNofityer* gEventNotifyer = NULL;
-
-
 static unsigned char context[1024];
 static unsigned char param[1024];
 static TStreeLightList	simStreetList;
 static StreetLight	 simStreetLight;
 static bool isSimulate = false;
 static bool bPortOpen = false;
-class LedUploadThread:public Poco::Runnable
-{
-public:
-    LedUploadThread():
-        _complete(true)
-    {
 
-    }
-
-    void set(unsigned int *devlist, int devNum)
-    {
-        _complete = false;
-		//_devlist.clear();
-		for(int i = 0; i < devNum; i++)
-		{
-			_devlist.push_back(devlist[i]);
-		}
-    }
-    void run()
-    {
-        _complete = false;
-        LedUpload::get ().startUploadFile (_devlist);
-        //assert(1==0);
-        _complete = true;
-    }
-    bool hasComplete()
-    {
-        printf("complete=%d\n",_complete);
-        return _complete;
-    }
-private:
-    std::string _file;
-    std::vector<unsigned int> _devlist;
-    bool _complete;
-};
-
-static LedUploadThread uploader;
 
 void lcs100_EnableSimulate(bool enable)
 {
@@ -114,7 +76,16 @@ bool LedCtrl::open(const char* comPath,unsigned int bps)
         }
         if(pZigbeeCom == NULL)
             pZigbeeCom = new serial::Serial(comPath,bps);
-        return true;
+
+		bool ret = LedUpload::get ().setPort (pZigbeeCom);
+
+		if(ret)
+		{
+			bPortOpen = true;
+		}
+
+		return true;
+
     }
     catch(std::invalid_argument& e)
     {
@@ -142,11 +113,23 @@ bool LedCtrl::open(const char* comPath,unsigned int bps)
 }
 bool LedCtrl::upload(const char* file,unsigned int *devlist, int devNum)
 {
-    LedUpload::get ().setPort (pZigbeeCom);
+    
+	if (!bPortOpen) 
+	{
+		fprintf(stderr,"not open\r\n");
+		return false;
+	}
+
     if(!LedUpload::get ().loadUploadFile (file)) return false;
-    uploader.set (devlist,devNum);
-    //uploader.run ();
-    Poco::ThreadPool::defaultPool ().start (uploader);
+
+	std::vector<unsigned int> upLoadList;
+	for(int i = 0 ; i < devNum ; i++)
+	{
+		upLoadList.push_back(devlist[i]);
+	}
+
+	return LedUpload::get ().startUploadFile (upLoadList);
+
 }
 
 unsigned char LedCtrl::checkSum(unsigned char* buff, int len)
@@ -196,7 +179,7 @@ int LedCtrl::setDeviceReset(unsigned int id,unsigned char group,unsigned int aft
 }
 bool LedCtrl::hasUploadComplete(void)
 {
-    return uploader.hasComplete ();
+    return LedUpload::get().uploadHasComplete();
 }
 void LedCtrl::addObserver(ILedEventNofityer* obs)
 {
@@ -372,11 +355,7 @@ int  LedCtrl::setIntResp(unsigned int id,unsigned char group,LedCmdType type,int
     }
     else
     {
-        if(!uploader.hasComplete ())
-        {
-            printf("upload has not complete\n");
-            return -1;
-        }
+
         LedMessage respMsg;
         LedMessage reqMsg(id,group,type,true,size,waitMs);
 
@@ -449,11 +428,7 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
     }
     else
     {
-        if(!uploader.hasComplete ())
-        {
-            printf("upload has not complete\n");
-            return -1;
-        }
+
         LedMessage respMsg;
         LedMessage reqMsg(id,0,CMD_QUERY_ALL,true,20,waitMs);
 
@@ -600,11 +575,7 @@ int  LedCtrl::getIntResp(unsigned int id,LedCmdType type,int size,long waitMs)
     }
     else
     {
-        if(!uploader.hasComplete ())
-        {
-            printf("upload has not complete\n");
-            return -1;
-        }
+
         LedMessage respMsg;
         LedMessage reqMsg(id,0,type,true,size,waitMs);
 

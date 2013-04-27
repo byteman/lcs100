@@ -7,11 +7,10 @@
 //#include "SerialPort.h"
 #include "serial/serial.h"
 #include "LedCtrl.h"
+#include <queue>
 
-typedef struct
-{
-    unsigned int _id;
-} DeviceID;
+
+
 class LedUpload:public Poco::Runnable
 {
 public:
@@ -23,20 +22,25 @@ public:
         STATE_VERIFY,
         STATE_OK
     };
-    typedef std::vector<unsigned int> DeviceIDList;
+    typedef std::queue<unsigned int> DeviceIDList;
     LedUpload();
     static  LedUpload& get();
     bool    init(std::string uartPath);
     bool    setPort(serial::Serial* comPort);
 
     bool    loadUploadFile(std::string fileName);
-    bool    startUploadFile(unsigned int devID);
-    bool    startUploadFile(DeviceIDList& devList);
+
+    bool    startUploadFile(std::vector<unsigned int>& devList);
+
+	bool	startUploadGroupFile(unsigned group);
+	bool	uploadHasComplete(void);
+	bool	uploadProc(void);
     int     getPacketNum()
     {
         return _packetNum;
     }
 private:
+	
     void    simulateUpload(void);
     void    notify(LedEvent event,unsigned int id, LedError err);
     bool    sendUploadRequest();
@@ -64,13 +68,18 @@ private:
     unsigned int   _targetID;
     unsigned short _curSessionID;
     UploadState    _state;
+	unsigned int	_timeout;
     Poco::Timer    _timer;
+
     Poco::Thread   _thread;
     Poco::Event    _evtRdy;
     bool           _quit;
     unsigned char context[512];
     unsigned char packet[512];
 
+	DeviceIDList		_deviceList;
+	Poco::Event		_evtUpload;
+	bool	_complete;
 };
 
 #endif // LEDUPLOAD_H
