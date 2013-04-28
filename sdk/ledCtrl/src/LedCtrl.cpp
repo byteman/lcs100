@@ -45,6 +45,10 @@ LedCtrl::LedCtrl()
 {
 
 }
+int  getUploadFileVersion(void)
+{
+	return LedUpload::get().getFileVersion();
+}
 void LedCtrl::notify(TEventParam* par)
 {
     if(gEventNotifyer)
@@ -440,7 +444,7 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
             {
                 int len = 0;
                 unsigned char* pData = respMsg.getBuffVal (len);
-                if(len == 20)
+                if(len == 25)
                 {
                     pLight->voltage = Buf2Int32(pData);
                     pLight->current = Buf2Int32(pData+4);
@@ -450,6 +454,8 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
                     pLight->adjustTime = pData[14];
                     pLight->group = pData[15];
                     pLight->devId = Buf2Int32(pData+16);
+					pLight->ver  = pData[20];
+					pLight->resetCnt = Buf2Int32(pData+21);
                     return ERR_OK;
                 }
 

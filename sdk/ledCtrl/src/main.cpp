@@ -109,7 +109,7 @@ public:
                     printf("upload verify\n");
                     break;
                 case EV_UPLOAD_COMPLETE:
-                    printf("upload complete\n");
+                    printf("upload complete ver=%d\n",arg->arg);
                     break;
                 default:
                     break;

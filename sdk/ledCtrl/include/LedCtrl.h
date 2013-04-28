@@ -184,6 +184,12 @@ public:
 	\param[in] devNum:  升级单灯设备ID数组的个数
     */
     bool upload(const char* file,unsigned int *devlist, int devNum);
+	 /*!
+    \brief 获取升级文件的版本号
+   
+    该函数需要在upload调用后，并且返回true后，才能正确获取到。
+    */
+	int  getUploadFileVersion(void);
 
     /*!
       判断升级操作是否已经结束
