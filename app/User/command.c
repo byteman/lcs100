@@ -21,7 +21,7 @@
 
 uint8_t Data_Buf[Data_Len];
 
-const int LedVesion __attribute__((at(0x03000)))=101; 	  //1.00版本 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=101; 	  //1.00版本 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
@@ -195,7 +195,7 @@ void InquiryAcquiesceLightValue(void)   //查询默认调光值
 }
 void Inquiry_Version(void)//查询固件版本号
 {
-    RespCharPara(CMD_QUERY_VERSION,ERR_OK,LedVesion);
+    RespCharPara(CMD_QUERY_VERSION,ERR_OK,LedVersion);
 }
 void Inquiry_ResetNum(void)
 {
@@ -555,6 +555,6 @@ void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回
     respBuf[9+len]=checkSum(respBuf,9+len);
 
     UARTSend( (uint8_t *)respBuf, respBuf[1] );
-    Delay1_MS(10);
+    //Delay1_MS(10);
 
 }

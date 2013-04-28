@@ -144,21 +144,6 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>27</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>command.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
           <LineNumber>44</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>6396</Address>
@@ -291,10 +276,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>47</ColumnNumber>
+      <ColumnNumber>48</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>317</TopLine>
-      <CurrentLine>332</CurrentLine>
+      <TopLine>187</TopLine>
+      <CurrentLine>198</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\command.c</PathWithFileName>
       <FilenameWithoutPath>command.c</FilenameWithoutPath>
@@ -471,7 +456,7 @@
 
   <AlienFiles>
     <PathWithFilename>F:\proj\led\lcs100\lcs100\app\User\param.h</PathWithFilename>
-    <TopLine>1</TopLine>
+    <TopLine>7</TopLine>
     <CurrentLine>21</CurrentLine>
     <Constant>0</Constant>
     <WindowPosition>
@@ -510,14 +495,14 @@
         </Doc>
         <Doc>
           <Name>..\User\command.c</Name>
-          <ColumnNumber>47</ColumnNumber>
-          <TopLine>317</TopLine>
-          <CurrentLine>332</CurrentLine>
+          <ColumnNumber>48</ColumnNumber>
+          <TopLine>187</TopLine>
+          <CurrentLine>198</CurrentLine>
         </Doc>
         <Doc>
           <Name>..\User\param.h</Name>
           <ColumnNumber>24</ColumnNumber>
-          <TopLine>1</TopLine>
+          <TopLine>7</TopLine>
           <CurrentLine>21</CurrentLine>
         </Doc>
       </Documents>
