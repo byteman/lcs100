@@ -20,11 +20,8 @@
 
 
 uint8_t Data_Buf[Data_Len];
-//uint8_t field[10];
-//uint8_t value[10]= {0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64,0X64};
 
-//uint8_t zigbeeflag=0;
-uint8_t LedVesion = 101;  //1.00版本 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=101; 	  //1.00版本 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
@@ -198,7 +195,7 @@ void InquiryAcquiesceLightValue(void)   //查询默认调光值
 }
 void Inquiry_Version(void)//查询固件版本号
 {
-    RespCharPara(CMD_QUERY_VERSION,ERR_OK,LedVesion);
+    RespCharPara(CMD_QUERY_VERSION,ERR_OK,LedVersion);
 }
 void Inquiry_ResetNum(void)
 {
@@ -324,8 +321,15 @@ void Inquiry_alldata(void)   //查询所有数据
     ALLdata[17] = Terminal_ID[1];
     ALLdata[18] = Terminal_ID[2];
     ALLdata[19] = Terminal_ID[3];
+	ALLdata[20] = LedVersion&0xFF;
 
-    ResponseMsg(CMD_QUERY_ALL,ERR_OK,ALLdata,20);
+	ALLdata[21] = (resetNum>>24)&0xFF;
+	ALLdata[22] = (resetNum>>16)&0xFF;
+	ALLdata[23] = (resetNum>>8)&0xFF;
+	ALLdata[24] = resetNum&0xFF;
+
+
+    ResponseMsg(CMD_QUERY_ALL,ERR_OK,ALLdata,25);
 
 }
 
@@ -551,6 +555,6 @@ void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回
     respBuf[9+len]=checkSum(respBuf,9+len);
 
     UARTSend( (uint8_t *)respBuf, respBuf[1] );
-    Delay1_MS(10);
+    //Delay1_MS(10);
 
 }

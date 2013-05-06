@@ -75,10 +75,10 @@ bool    LedUpload::loadUploadFile(std::string fileName)
 
         Poco::FileInputStream ss(fileName);
         ss.read ((char*)pUploadFile,sz);
-
+		_fileVersion= *((int*)(pUploadFile+0x1000));
         _fileCRC16 = u16CRC_Calc16(pUploadFile,_totalFileSize);
 
-        fprintf(stderr,"totalsize=%d,pktsize=%d,ptknum=%d,crc=%02x\n",_totalFileSize,_packetSize,_packetNum,_fileCRC16);
+        fprintf(stderr,"version=%d totalsize=%d,pktsize=%d,ptknum=%d,crc=%02x\n",_fileVersion,_totalFileSize,_packetSize,_packetNum,_fileCRC16);
         return true;
     }
     catch(Poco::FileNotFoundException& e)
@@ -165,6 +165,7 @@ void   LedUpload::parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,uns
         LedCtrl::get ().notify (&par);
         par.event = EV_UPLOAD_COMPLETE;
         par.err   = ERR_OK;
+		par.arg   = _fileVersion;
         LedCtrl::get ().notify (&par);
         _state = STATE_OK;
     }
@@ -257,6 +258,7 @@ void    LedUpload::simulateUpload(void)
     Poco::Thread::sleep (10);
     par.event = EV_UPLOAD_COMPLETE;
     par.err = ERR_OK;
+	par.arg = _fileVersion;
     LedCtrl::get ().notify (&par);
 
 

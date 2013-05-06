@@ -31,7 +31,7 @@ public:
     bool    loadUploadFile(std::string fileName);
 
     bool    startUploadFile(std::vector<unsigned int>& devList);
-
+	int     getFileVersion(){return _fileVersion;}
 	bool	startUploadGroupFile(unsigned group);
 	bool	uploadHasComplete(void);
 	bool	uploadProc(void);
@@ -80,6 +80,7 @@ private:
 	DeviceIDList		_deviceList;
 	Poco::Event		_evtUpload;
 	bool	_complete;
+	unsigned int   _fileVersion;
 };
 
 #endif // LEDUPLOAD_H
