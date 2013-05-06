@@ -356,6 +356,8 @@ public:
         \retval <0 失败 >=0 默认调光值
     */
     int getDefaultAdjValue(unsigned int id,long waitMs=1000);
+
+	int broadcastGetID(unsigned int waitMs=1000);
 public:
     /*!
        \brief 设置组号,修改当前单灯的组号为newGroup,其中组号0为无效组号，如果想把

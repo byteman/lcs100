@@ -124,7 +124,13 @@ bool testUpload()
 {
     int  timeout = 60;
     std::vector<int> dl;
-    dl.push_back(1);
+
+	printf("input upload id\n");
+	int tmp;
+
+	scanf("%d",&tmp);
+
+    dl.push_back(tmp);
 	//dl.push_back(2);
 	//dl.push_back(3);
 	
@@ -234,6 +240,12 @@ bool updateGroupAndID()
 	}
 	return false;
 }
+bool broadCastID(void)
+{
+	printf("broad cast id=%d\n",LedCtrl::get().broadcastGetID());
+
+	return true;
+}
 bool enableSimu(void)
 {
     bool isEn = lcs100_IsSimulate();
@@ -262,6 +274,7 @@ static TestItem testList[] =
     {"change ID",changeGroupAndID},
 	{"update id",updateGroupAndID},
     {"enable/disable simulate",enableSimu},
+	{"broadcast query id",broadCastID},
     {"quit app",quitApp},
 };
 
@@ -288,7 +301,7 @@ void displayHelp(void)
 int lcs100_SDKTest(int argc, char *argv[])
 {
 #if defined(_WIN32)
-    const char* comPath = "COM5";
+    const char* comPath = "COM7";
 #elif defined(__GNUC__)
 	const char* comPath = "/dev/ttyUSB0";
 #endif
@@ -315,7 +328,7 @@ int lcs100_SDKTest(int argc, char *argv[])
 
 	return 0;
 }
-#if 0
+#if 1
 int main(int argc, char *argv[])
 {
     return lcs100_SDKTest(argc,argv);
