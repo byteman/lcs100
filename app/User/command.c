@@ -21,7 +21,7 @@
 
 uint8_t Data_Buf[Data_Len];
 
-const int LedVersion __attribute__((at(0x03000)))=101; 	  //1.00°æ±¾ 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=102; 	  //1.00°æ±¾ 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 

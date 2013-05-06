@@ -209,6 +209,8 @@ bool    parsePacket(LedMessage* pMsg,unsigned char* context, int len)
 
 bool LedCtrl::checkPacketValid(LedMessage* pReqMsg,LedMessage* pRespMsg)
 {
+	if(pReqMsg->cmd == CMD_BROADCAST_DEVID) return (pReqMsg->cmd == pRespMsg->cmd);
+
     if(pReqMsg->id  != pRespMsg->id)  return false;
     if(pReqMsg->cmd != pRespMsg->cmd) return false;
 
@@ -434,7 +436,7 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
     {
 
         LedMessage respMsg;
-        LedMessage reqMsg(id,0,CMD_QUERY_ALL,true,20,waitMs);
+        LedMessage reqMsg(id,0,CMD_QUERY_ALL,true,25,waitMs);
 
         sendMessage (&reqMsg);
 
@@ -641,4 +643,8 @@ int LedCtrl::setGroup(unsigned int id,unsigned char newGroup,unsigned int waitMs
 int LedCtrl::setID(unsigned int id,unsigned int newId,unsigned int waitMs)
 {
     return setIntResp(id,0,CMD_MODIFY_DEVID,newId,4,waitMs);
+}
+int LedCtrl::broadcastGetID(unsigned int waitMs)
+{
+	return getIntResp(0,CMD_BROADCAST_DEVID,4,waitMs);
 }
