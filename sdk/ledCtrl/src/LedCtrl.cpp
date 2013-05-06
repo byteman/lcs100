@@ -167,7 +167,7 @@ int LedCtrl::sendMessage(LedMessage* pMsg)
     context[totalLen]   = checkSum(context,totalLen);
     totalLen++;
 
-    dumpData(context,totalLen);
+    //dumpData(context,totalLen);
     if(pZigbeeCom)
         return pZigbeeCom->write (context,totalLen);
     return 0;

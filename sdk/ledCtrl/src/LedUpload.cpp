@@ -113,7 +113,7 @@ void LedUpload::dumpData(unsigned char* buff, int len)
 bool    LedUpload::sendPacket(unsigned char* context, int len)
 {
     int sendlen = buildPacket(context,len,packet,512);
-    dumpData(packet,sendlen);
+    //dumpData(packet,sendlen);
     if(_zigbeeCom)
     {
         _zigbeeCom->write (packet,sendlen);
