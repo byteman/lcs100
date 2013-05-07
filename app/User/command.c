@@ -18,7 +18,10 @@
 
 #define MAX_RESP_BUFF_SIZE  128
 
-
+enum{
+	MODE_UNICAST=0,
+	MODE_GROUP=1	
+};
 uint8_t Data_Buf[Data_Len];
 
 const int LedVersion __attribute__((at(0x03000)))=102; 	  //1.00版本 0.01 - 2.53
@@ -94,6 +97,7 @@ _ntohs(unsigned short n)
 
 static void resetCtrl(uint16_t afterMs)
 {
+	
     RespNoPara(CMD_RESET,ERR_OK);
     Delay1_MS(afterMs);
     NVIC_SystemReset();
@@ -342,24 +346,35 @@ void Inquiry_Mode(void)
 {
 	RespCharPara(CMD_QUERY_MODE,ERR_OK,MODE_APP);	
 }
+
+	
 void App_Command(LedRequest* pReq)//各个命令分解
 {
     unsigned char* data = pReq->data;
     Command=pReq->cmd;
-    Mode= pReq->mode;
+		Mode = MODE_UNICAST;
 
 
     if(pReq->cmd == CMD_BROADCAST_DEVID)
     {
 
     }
-    else
-    {
-        if(Terminal_ID[0] != pReq->id[0]) return;
-        if(Terminal_ID[1] != pReq->id[1]) return;
-        if(Terminal_ID[2] != pReq->id[2]) return;
-        if(Terminal_ID[3] != pReq->id[3]) return;
-    }
+		else if(pReq->group != group_number) 
+				return; //组号优先
+		
+		
+		if(pReq->group == 0)
+		{
+				if(Terminal_ID[0] != pReq->id[0]) return;
+				if(Terminal_ID[1] != pReq->id[1]) return;
+				if(Terminal_ID[2] != pReq->id[2]) return;
+				if(Terminal_ID[3] != pReq->id[3]) return;
+		}
+		else 
+		{
+				Mode = MODE_GROUP;
+		}
+
 
     switch(Command)
     {
