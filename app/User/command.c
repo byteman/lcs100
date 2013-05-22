@@ -30,7 +30,7 @@ uint8_t Mode;
 
 static uint8_t respBuf[MAX_RESP_BUFF_SIZE];
 
-static toShort(uint8_t* buf)
+static unsigned short toShort(uint8_t* buf)
 {
     return (buf[0]<<8) + buf[1];
 }
@@ -378,8 +378,8 @@ void App_Command(LedRequest* pReq)//各个命令分解
 
     switch(Command)
     {
-	case CMD_UPLOAD_REQ:
-		resetCtrl(10);
+		case CMD_UPLOAD_REQ:
+				resetCtrl(10);
         break;
     case CMD_RESET: //复位
         resetCtrl(toShort(data));
