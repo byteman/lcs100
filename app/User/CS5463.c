@@ -298,6 +298,7 @@ uint32_t Measuring_Pactive(void) //测量有功功率
     Delay_MS(10);
     CS5463_ReadData(0x14);
     Delay_MS(10);
+
     for(i=0; i<10; i++)
     {
         Temp_220V=CS5463_ReadData(0x14);

@@ -412,7 +412,7 @@ int  LedCtrl::writeE2prom(unsigned int id,unsigned char group,LedParam* pPara,lo
 }
 unsigned int Buf2Int32(unsigned char* buff)
 {
-    return (buff[0]<<24) + (buff[1]<<16)+ (buff[2]<<16)+ (buff[3]<<0);
+    return (buff[0]<<24) + (buff[1]<<16)+ (buff[2]<<8)+ (buff[3]<<0);
 }
 unsigned int Buf2Short16(unsigned char* buff)
 {
@@ -468,15 +468,15 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
 }
 int  LedCtrl::getCureent(unsigned int id,long waitMs)
 {
-    return getIntResp(id,CMD_QUERY_CURRENT,2,waitMs);
+    return getIntResp(id,CMD_QUERY_CURRENT,sizeof(int),waitMs);
 }
 int  LedCtrl::getVoltage(unsigned int id,long waitMs)
 {
-    return getIntResp(id,CMD_QUERY_VOLTAGE,2,waitMs);
+    return getIntResp(id,CMD_QUERY_VOLTAGE,sizeof(int),waitMs);
 }
 int  LedCtrl::getKw(unsigned int id,long waitMs)
 {
-    return getIntResp(id,CMD_QUERY_KW,2,waitMs);
+    return getIntResp(id,CMD_QUERY_KW,sizeof(int),waitMs);
 }
 StreetLight*  LedCtrl::getLightParam(unsigned int id)
 {
