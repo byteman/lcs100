@@ -200,7 +200,7 @@ void    LedUpload::parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsi
             _state = STATE_VERIFY;
         }
 
-        TEventParam par(id,grp,EV_UPLOAD_DATA,(LedError)ack,_packetIdx);
+        TEventParam par(id,grp,EV_UPLOAD_DATA,(LedError)ack,(_packetNum<<16) + _packetIdx);
         LedCtrl::get ().notify (&par);
     }
     else
