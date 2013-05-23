@@ -24,7 +24,7 @@ enum{
 };
 uint8_t Data_Buf[Data_Len];
 
-const int LedVersion __attribute__((at(0x03000)))=102; 	  //1.00版本 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=103; 	  //1.00版本 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
@@ -156,26 +156,25 @@ void SetupGroupNumber(uint8_t group)//设置组号
 static void queryVoltage(void)
 {
 
-    uint16_t voltage =Measuring_220V();
-    voltage = _htons(voltage);
+    uint32_t voltage =Measuring_220V();
 
-    RespShortPara(CMD_QUERY_VOLTAGE,ERR_OK,voltage);
+    RespIntPara(CMD_QUERY_VOLTAGE,ERR_OK,voltage);
 
 }
 static void queryCurrent(void)
 {
 
-    uint16_t currentMA =Measuring_AC(); //以MA为单位
-    currentMA = _htons(currentMA);
-    RespShortPara(CMD_QUERY_CURRENT,ERR_OK,currentMA);
+    uint32_t currentMA =Measuring_AC(); //以MA为单位
+
+    RespIntPara(CMD_QUERY_CURRENT,ERR_OK,currentMA);
 
 }
 static void queryPactive(void)
 {
 
-    uint16_t value =Measuring_Pactive(); //单位为100MW
-    value = _htons(value);
-    RespShortPara(CMD_QUERY_KW,ERR_OK,value);
+    uint32_t value =Measuring_Pactive(); //单位为100MW
+
+    RespIntPara(CMD_QUERY_KW,ERR_OK,value);
 
 }
 void Modify_ID(unsigned char* pId)    //修改设备ID号
@@ -357,10 +356,8 @@ void App_Command(LedRequest* pReq)//各个命令分解
 
     if(pReq->cmd == CMD_BROADCAST_DEVID)
     {
-
+				goto cmd;
     }
-		else if(pReq->group != group_number) 
-				return; //组号优先
 		
 		
 		if(pReq->group == 0)
@@ -372,9 +369,11 @@ void App_Command(LedRequest* pReq)//各个命令分解
 		}
 		else 
 		{
-				Mode = MODE_GROUP;
+			 if(pReq->group != group_number) 
+					return; //组号优先
+			 Mode = MODE_GROUP;
 		}
-
+cmd:
 
     switch(Command)
     {
@@ -550,7 +549,8 @@ void RespNoPara(uint8_t command,uint8_t ack)
 }
 void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回复协议
 {
-
+	  if(Mode == MODE_GROUP) return;
+	
     if( (10 + len) > MAX_RESP_BUFF_SIZE ) return;
 
 

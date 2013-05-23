@@ -3,7 +3,7 @@
 #include "Poco/Thread.h"
 #include <assert.h>
 int gTermId = 1;
-unsigned char gGroup = 0;
+unsigned char gGroup = 5;
 bool gQuit = false;
 
 typedef bool (*TestProc)(void);
