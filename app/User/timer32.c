@@ -79,7 +79,8 @@ void TIMER32_0_IRQHandler(void)//20ms
     if ( LPC_TMR32B0->IR & 0x01 )
     {
         LPC_TMR32B0->IR = 1;				/* clear interrupt flag */
-        timer32_0_counter++;
+        //timer32_0_counter++;
+			  //bFlag10ms = 1;
     }
     if ( LPC_TMR32B0->IR & (0x1<<4) )
     {

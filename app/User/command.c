@@ -14,7 +14,7 @@
 #include "LedProto.h"
 #include "param.h"
 #include "cs5463.h"
-
+#include "Brightness.h"
 
 #define MAX_RESP_BUFF_SIZE  128
 
@@ -37,11 +37,11 @@ static unsigned short toShort(uint8_t* buf)
 extern volatile  uint32_t timer32_0_counter;
 
 //回复协议
-static void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len);
-static void RespNoPara(uint8_t command,uint8_t ack);
-static void RespCharPara(uint8_t command,uint8_t ack,uint8_t value);
-static void RespShortPara(uint8_t command,uint8_t ack,uint16_t value);
-static void RespIntPara(uint8_t command,uint8_t ack,uint32_t value);
+void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len);
+void RespNoPara(uint8_t command,uint8_t ack);
+void RespCharPara(uint8_t command,uint8_t ack,uint8_t value);
+void RespShortPara(uint8_t command,uint8_t ack,uint16_t value);
+void RespIntPara(uint8_t command,uint8_t ack,uint32_t value);
 
 /**
  * Convert an u32_t from host- to network byte order.
@@ -175,14 +175,15 @@ static void queryPactive(void)
     uint32_t value =Measuring_Pactive(); //单位为100MW
 
     RespIntPara(CMD_QUERY_KW,ERR_OK,value);
-
+	  
 }
 void Modify_ID(unsigned char* pId)    //修改设备ID号
 {
-
+	  RespNoPara(CMD_MODIFY_DEVID,ERR_OK);
+	
     memcpy(Terminal_ID,pId,4);
-
     paramSetBuff(PARAM_ID,Terminal_ID,4);
+	  
 }
 void InquiryGroupNumber(void)//查询组号
 {
@@ -215,76 +216,6 @@ void BroadCastDeviceID(void)
 }
 void Inquiry_ZigbeeCfg()
 {
-
-}
-
-/*************************调光函数**********************************************/
-static void adjustBrightness(uint8_t value)
-{
-
-    uint32_t timer=2,pwmtimer1=0,pwmtimer0=0,pwmtimer2=0;
-    uint32_t lightvalue=0;
-
-    Duty_Time_Temp= value;
-    brightness =  value;
-	RespNoPara(CMD_ADJUST_BRIGHTNESS,ERR_OK);
-
-    lightvalue=Duty_Time;
-    if(Duty_Time_Temp!=lightvalue)
-    {
-        timer = (uint32_t)pow(2,adj_timeS);
-        pwmtimer2=(timer*20);
-        if(Duty_Time_Temp>lightvalue)
-        {
-            pwmtimer1 = pwmtimer2/(Duty_Time_Temp-lightvalue);
-            if(lightvalue<5)
-            {
-                lightvalue=5;
-                Duty_Time=lightvalue;
-                init_timer32PWM(1,TIME_INTERVAL,0x01);
-            }
-            while((Duty_Time_Temp>lightvalue)&&(lightvalue>=5))
-            {
-
-                Delay1_MS(pwmtimer1);
-                lightvalue++;
-                Duty_Time=lightvalue;
-                init_timer32PWM(1,TIME_INTERVAL,0x01);
-            }
-        }
-
-
-        if(Duty_Time_Temp<lightvalue)
-        {
-            pwmtimer0=pwmtimer2/(lightvalue-Duty_Time_Temp);
-            while(Duty_Time_Temp<lightvalue)
-            {
-                if(lightvalue>5)
-                {
-                    Delay1_MS(pwmtimer0);
-                    lightvalue--;
-                    Duty_Time=lightvalue;
-                    init_timer32PWM(1,TIME_INTERVAL,0x01);
-                }
-                else
-                {
-                    lightvalue=0;
-                    Duty_Time=lightvalue;
-                    init_timer32PWM(1,TIME_INTERVAL,0x01);
-                }
-                Delay1_MS(1);
-            }
-        }
-    }
-    else
-    {
-        lightvalue=Duty_Time_Temp;
-        Duty_Time=lightvalue;
-        init_timer32PWM(1,TIME_INTERVAL,0x01);
-    }
-
-
-    
 
 }
 

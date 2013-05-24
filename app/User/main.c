@@ -13,12 +13,14 @@
 #include "tinyfifo.h"
 #include "byprotocol.h"
 #include "param.h"
+#include "Brightness.h"
+#include "timer16.h"
 //****************************************************************************
 void Setup_Read(void);
 
 unsigned char* pkt = NULL;
 unsigned int pktLen = 0;
-
+extern volatile uint32_t bFlag10ms; 
 
 /*****************************主函数*******************************************/
 
@@ -35,9 +37,9 @@ int main (void)
     i2c_lpc_init(0);
     loadParam();
 	//load参数后才开始设置亮度
-	init_time();
-
-
+		init_time();
+		init_timer16(0,TIME_INTERVAL);
+		enable_timer16(0);
     while (1)
     {
         if(!tinyFifoEmpty())
@@ -67,6 +69,12 @@ int main (void)
             }
 
         }
+				if(bFlag10ms) //10ms
+				{
+						BrightnessSrv();
+					  bFlag10ms = 0;
+				}
+				
     }
 }
 void Setup_Read(void)

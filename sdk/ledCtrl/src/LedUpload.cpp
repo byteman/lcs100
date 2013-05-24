@@ -457,9 +457,10 @@ bool	LedUpload::uploadProc(void)
 					if(pkt)
 					{
 						parsePacket(pkt,pktLen);
-						runStateMachine();
+						runStateMachine();					
 					}
 				}
+				_timeout = 0;
 			}
 			else
 			{

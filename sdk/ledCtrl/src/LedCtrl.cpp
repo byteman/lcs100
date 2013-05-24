@@ -173,7 +173,10 @@ int LedCtrl::sendMessage(LedMessage* pMsg)
 
     //dumpData(context,totalLen);
     if(pZigbeeCom)
+	{
+		//pZigbeeCom->flushInput();
         return pZigbeeCom->write (context,totalLen);
+	}
     return 0;
 }
 
@@ -439,7 +442,7 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
     {
 
         LedMessage respMsg;
-        LedMessage reqMsg(id,group,CMD_QUERY_ALL,true,25,waitMs);
+        LedMessage reqMsg(id,0,CMD_QUERY_ALL,true,25,waitMs);
 
         sendMessage (&reqMsg);
 

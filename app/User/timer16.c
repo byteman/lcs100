@@ -17,7 +17,7 @@ volatile uint32_t timer16_0_capture = 0;
 volatile uint32_t timer16_1_capture = 0;
 volatile uint32_t timer16_0_period = 0;
 volatile uint32_t timer16_1_period = 0;
-
+volatile uint32_t bFlag10ms = 0;
 /*****************************************************************************
 ** Function name:		delayMs
 **
@@ -78,6 +78,7 @@ void TIMER16_0_IRQHandler(void)
     {
         LPC_TMR16B0->IR = 1;			/* clear interrupt flag */
         timer16_0_counter++;
+			  bFlag10ms = 1;
     }
     if ( LPC_TMR16B0->IR & (0x1<<4) )
     {

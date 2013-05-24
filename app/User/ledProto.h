@@ -12,7 +12,8 @@ enum LedError
     ERR_WRITE_DATA,
     ERR_CRC,
     ERR_WRITE_CRC,
-    ERR_PACKET_NUM
+    ERR_PACKET_NUM,
+		ERR_BUSY, //ϵͳæ
 };
 
 enum LedMode

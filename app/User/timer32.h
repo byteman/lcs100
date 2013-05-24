@@ -27,10 +27,11 @@
 #define TEST_TIMER_NUM		0
 #define TEST_TIMER_NUM2		1
 
-#define TIME_INTERVAL	(SystemAHBFrequency/1000 - 1)
-/* depending on the SystemFrequency and SystemAHBFrequency setting,
-if SystemFrequency = 60Mhz, SystemAHBFrequency = 1/4 SystemAHBFrequency,
-10mSec = 150.000-1 counts */
+#define TIME_INTERVAL	(SystemAHBFrequency/100 - 1) //10ms
+/*
+SystemFrequency = 48Mhz, SystemAHBFrequency = 1/1 SystemAHBFrequency, 
+10ms = [ (48,000,000 /100)-1 ] = (480000-1)
+*/
 
 //extern uint32_t Duty_Frequency;
 extern uint32_t  Duty_Time;
