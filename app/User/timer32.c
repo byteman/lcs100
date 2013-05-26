@@ -322,7 +322,8 @@ void init_timer32PWM(uint8_t timer_num, uint32_t period, uint8_t match_enable)
         /* set the period value to a global variable */
         //Duty_Time=100-Duty_Time;
 
-        Value=((100-Duty_Time)*TIME_INTERVAL)/500;
+        //Value=((100-Duty_Time)*TIME_INTERVAL)/500;
+				Value=(Duty_Time*TIME_INTERVAL)/500;
         timer32_1_period =(period/10);
         LPC_TMR32B1->MR3 = timer32_1_period;//1000hz,1ms
         LPC_TMR32B1->MR0	= Value/2;
