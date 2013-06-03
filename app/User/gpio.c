@@ -135,20 +135,20 @@ void PIOINT3_IRQHandler(void)
 void GPIOInit( void )
 {
     /* Enable AHB clock to the GPIO domain. */
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<6);
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<6);	//ENABLE GPIO CLOCK
     /*I2C*///***********************************************************//
-    LPC_SYSCON->PRESETCTRL |= (0x1<<1);
-    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<5);
+    LPC_SYSCON->PRESETCTRL |= (0x1<<1); 
+    LPC_SYSCON->SYSAHBCLKCTRL |= (1<<5);  //ENABLE I2C  CLOCK
     LPC_IOCON->PIO0_4 &= ~0x3F;	/*  I2C I/O config */
     LPC_IOCON->PIO0_4 |= 0x01;		/* I2C SCL */
     LPC_IOCON->PIO0_5 &= ~0x3F;
     LPC_IOCON->PIO0_5 |= 0x01;		/* I2C SDA */
 //***********************************************************//
-    LPC_IOCON->PIO1_9 &= ~0x07; 										/* 将P1.9初始化为GPIO功能		*/
+    LPC_IOCON->PIO1_9 &= ~0x07; 										/* 将P1.9初始化为GPIO功能,继电器		*/
     LPC_GPIO1->DIR	  |= Relay;											/* 将P1.9方向设置为输出 		*/
     //LPC_GPIO1->DATA   |= Relay;		  									/* 将P1.9初始化输出高电平       */
     LPC_GPIO1->DATA   &= ~Relay;
-    LPC_IOCON->PIO1_8 &= ~0x07; 										/* 将P1.8初始化为GPIO功能		*/
+    LPC_IOCON->PIO1_8 &= ~0x07; 										/* 将P1.8初始化为GPIO功能		zigbee CFG pin*/
 //	LPC_GPIO1->DIR	  |= McuLed; 										/* 将P1.8方向设置为输出 		*/
 //	LPC_GPIO1->DATA   |= McuLed; 										/* 将P1.8初始化输出高电平		*/
 //	LPC_GPIO1->DIR	  |= Zigbee_CFG;

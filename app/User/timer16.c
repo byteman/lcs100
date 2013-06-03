@@ -216,8 +216,9 @@ void init_timer16(uint8_t timer_num, uint32_t TimerInterval)
 
         timer16_0_counter = 0;
         timer16_0_capture = 0;
+				LPC_TMR16B0->PR = 60000;
         LPC_TMR16B0->MR0 = TimerInterval;
-#if TIMER_MATCH
+#if 1
         LPC_TMR16B0->EMR &= ~(0xFF<<4);
         LPC_TMR16B0->EMR |= ((0x3<<4)|(0x3<<6)|(0x3<<8));
 #else

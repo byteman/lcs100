@@ -24,7 +24,7 @@ enum{
 };
 uint8_t Data_Buf[Data_Len];
 
-const int LedVersion __attribute__((at(0x03000)))=103; 	  //1.00°æ±¾ 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=105; 	  //1.00°æ±¾ 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
@@ -113,11 +113,9 @@ static void setTwinkle(uint16_t periodMs)
 
     while(cnt--)
     {
-        Duty_Time=100;
-        init_timer32PWM(1,TIME_INTERVAL,0x01);
+        PWM0_Init(100);
         Delay1_MS(periodMs);
-        Duty_Time=00;
-        init_timer32PWM(1,TIME_INTERVAL,0x01);
+        PWM0_Init(0);
         Delay1_MS(periodMs);
     }
 

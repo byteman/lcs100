@@ -444,13 +444,20 @@ Serial::SerialImpl::flush ()
 void
 Serial::SerialImpl::flushInput ()
 {
-  THROW (IOException, "flushInput is not supported on Windows.");
+	if(PurgeComm(fd_,PURGE_RXABORT|PURGE_RXCLEAR) == false)
+	{
+		THROW (IOException, "flushInput failed");
+	}
+  
 }
 
 void
 Serial::SerialImpl::flushOutput ()
 {
-  THROW (IOException, "flushOutput is not supported on Windows.");
+	if(PurgeComm(fd_,PURGE_TXABORT|PURGE_TXCLEAR) == false)
+	{
+		THROW (IOException, "flushOutput failed");
+	}
 }
 
 void

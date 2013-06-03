@@ -37,9 +37,12 @@ int main (void)
     i2c_lpc_init(0);
     loadParam();
 	//load参数后才开始设置亮度
-		init_time();
-		init_timer16(0,TIME_INTERVAL);
+
+	  PWM0_Init(brightness);
+	
+		init_timer16(0,8);
 		enable_timer16(0);
+	
     while (1)
     {
         if(!tinyFifoEmpty())

@@ -174,7 +174,7 @@ int LedCtrl::sendMessage(LedMessage* pMsg)
     //dumpData(context,totalLen);
     if(pZigbeeCom)
 	{
-		//pZigbeeCom->flushInput();
+		pZigbeeCom->flushInput();
         return pZigbeeCom->write (context,totalLen);
 	}
     return 0;
@@ -230,7 +230,12 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
     {
         pZigbeeCom->setReadTimeout(pReqMsg->timeout);
         int ret = pZigbeeCom->read (buf,pReqMsg->respSize);
-
+		if(ret != pReqMsg->respSize) 
+		{
+			fprintf(stderr,"ret len=%d\r\n",ret);
+			return false;
+		}
+		
         if(!pRespMsg->buildMessage (buf, ret))
         {
             return false;

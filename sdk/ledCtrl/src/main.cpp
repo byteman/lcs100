@@ -17,17 +17,23 @@ typedef struct
 bool assertTest()
 {
     int testCnt = 0;
+	StreetLight slt;
     while(1)
     {
-        assert( LedCtrl::get().getDeviceResetCount(gTermId) >= 0);
-        assert( LedCtrl::get().getGroup(gTermId) >= 0);
-        assert( LedCtrl::get().getCureent(gTermId) >= 0);
-        assert( LedCtrl::get().getAdjustTime(gTermId) >= 0);
-        assert( LedCtrl::get().getDefaultAdjValue(gTermId) >= 0);
-        assert( LedCtrl::get().getBrigtness(gTermId) >= 0);
-        assert( LedCtrl::get().getKw(gTermId) >= 0);
-        assert( LedCtrl::get().getVersion(gTermId) >= 0);
-        printf("test ok =%d\n",testCnt++);
+#if 0
+		assert( LedCtrl::get().getDeviceResetCount(gTermId) >= 0);
+		assert( LedCtrl::get().getGroup(gTermId) >= 0);
+		assert( LedCtrl::get().getCureent(gTermId) >= 0);
+		assert( LedCtrl::get().getAdjustTime(gTermId) >= 0);
+		assert( LedCtrl::get().getDefaultAdjValue(gTermId) >= 0);
+		assert( LedCtrl::get().getBrigtness(gTermId) >= 0);
+		assert( LedCtrl::get().getKw(gTermId) >= 0);
+		assert( LedCtrl::get().getVersion(gTermId) >= 0);
+#else
+		printf("all data=%d\n",LedCtrl::get().getAllData(gTermId,0,&slt));
+		//assert(LedCtrl::get().getAllData(gTermId,0,&slt) = -1);
+#endif
+		printf("test ok =%d\n",testCnt++);
         Poco::Thread::sleep (1000);
     }
 
@@ -301,7 +307,7 @@ void displayHelp(void)
 int lcs100_SDKTest(int argc, char *argv[])
 {
 #if defined(_WIN32)
-    const char* comPath = "COM7";
+    const char* comPath = "COM2";
 #elif defined(__GNUC__)
 	const char* comPath = "/dev/ttyUSB0";
 #endif

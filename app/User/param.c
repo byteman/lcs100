@@ -107,7 +107,7 @@ void	loadParam()
 
     default_brightness = paramGetU8(PARAM_DEF_BRIGHTNESS);
     brightness = default_brightness;
-	Duty_Time = brightness;	
+	  Duty_Time = brightness;	
 		resetNum = paramGetU32(PARAM_RESET_NUM);
 		paramSetU32(PARAM_RESET_NUM,++resetNum);
 

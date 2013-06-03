@@ -24,7 +24,7 @@
 #define MATCH2	(1<<2)
 #define MATCH3	(1<<3)
 /* 0 或 1 选择32-位定时器 */
-#define TEST_TIMER_NUM		0
+//#define TEST_TIMER_NUM		0
 #define TEST_TIMER_NUM2		1
 
 #define TIME_INTERVAL	(SystemAHBFrequency/100 - 1) //10ms
@@ -35,9 +35,7 @@ SystemFrequency = 48Mhz, SystemAHBFrequency = 1/1 SystemAHBFrequency,
 
 //extern uint32_t Duty_Frequency;
 extern uint32_t  Duty_Time;
-extern uint32_t  Duty_Time_Temp;//临时占空比
-extern uint32_t Delay_timer_counter;
-//extern uint8_t  Flag_Delay;
+
 
 
 
@@ -46,10 +44,9 @@ void enable_timer32(uint8_t timer_num);
 void disable_timer32(uint8_t timer_num);
 void reset_timer32(uint8_t timer_num);
 void init_timer32(uint8_t timer_num, uint32_t timerInterval);
-void init_timer32PWM(uint8_t timer_num, uint32_t period, uint8_t match_enable);
-void setMatch_timer32PWM (uint8_t timer_num, uint8_t match_nr, uint32_t value);
-void init_time(void);
 
+void PWM0_Init(int duty);
+void PWM1_Init(int duty);
 #endif /* end __TIMER32_H */
 /*****************************************************************************
 **                            End Of File
