@@ -167,6 +167,17 @@ SysTick_Handler PROC
                 B       .
                 ENDP
 
+OS_CPU_SR_Save PROC
+                EXPORT  OS_CPU_SR_Save           [WEAK]
+                MRS     R0, PRIMASK     ; Set prio int mask to mask all (except faults)
+				CPSID   I
+				BX      LR
+                ENDP
+OS_CPU_SR_Restore PROC
+                EXPORT  OS_CPU_SR_Restore           [WEAK]
+                MSR     PRIMASK, R0
+				BX      LR
+                ENDP				
 Default_Handler PROC
 
                 EXPORT  WAKEUP_IRQHandler         [WEAK]
@@ -190,8 +201,8 @@ Default_Handler PROC
                 EXPORT  PIOINT2_IRQHandler        [WEAK]
                 EXPORT	PIOINT1_IRQHandler        [WEAK]
                 EXPORT	PIOINT0_IRQHandler        [WEAK]
-
-
+                EXPORT	OS_CPU_SR_Save			  [WEAK]
+				EXPORT	OS_CPU_SR_Restore		  [WEAK]
 WAKEUP_IRQHandler
 CAN_IRQHandler
 SSP1_IRQHandler

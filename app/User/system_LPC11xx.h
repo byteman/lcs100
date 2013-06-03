@@ -42,4 +42,9 @@ extern uint32_t SystemAHBFrequency;
  *         Initialize the System and update the SystemFrequency variable.
  */
 extern void SystemInit (void);
+
+#define  SYS_ENTER_CRITICAL()  {cpu_sr = OS_CPU_SR_Save();}
+#define  SYS_EXIT_CRITICAL()   {OS_CPU_SR_Restore(cpu_sr);}
+
+
 #endif

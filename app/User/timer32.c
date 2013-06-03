@@ -146,7 +146,7 @@ void reset_timer32(uint8_t timer_num)
 
 
 
-void PWM0_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
+void PWM1_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
 {
 		unsigned int tmp_duty = 0;
 	
@@ -179,7 +179,7 @@ void PWM0_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
 
 
 
-void PWM1_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
+void PWM0_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
 {
 		unsigned int tmp_duty = 0;
 		LPC_TMR32B1->TCR=0;
