@@ -246,6 +246,20 @@ bool updateGroupAndID()
 	}
 	return false;
 }
+bool queryMode(void)
+{
+#if 1
+	int ret = LedCtrl::get().getWorkMode(gTermId);
+	if (ret == -1)
+	{
+		printf("read timeout\r\n");
+		return false;
+	}
+
+	printf("Mode=%s\r\n",(ret==MODE_BOOT)?"BOOT":"APP");
+#endif
+	return true;
+}
 bool broadCastID(void)
 {
 	printf("broad cast id=%d\n",LedCtrl::get().broadcastGetID());
@@ -281,6 +295,7 @@ static TestItem testList[] =
 	{"update id",updateGroupAndID},
     {"enable/disable simulate",enableSimu},
 	{"broadcast query id",broadCastID},
+	{"query mode",queryMode},
     {"quit app",quitApp},
 };
 

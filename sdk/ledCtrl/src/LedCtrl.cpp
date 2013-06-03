@@ -659,3 +659,7 @@ int LedCtrl::broadcastGetID(unsigned int waitMs)
 {
 	return getIntResp(0,CMD_BROADCAST_DEVID,4,waitMs);
 }
+int LedCtrl::getWorkMode(unsigned int id,unsigned int waitMs)
+{
+	return getIntResp(id,CMD_QUERY_MODE,1,waitMs);
+}

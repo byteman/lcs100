@@ -418,8 +418,8 @@ static uint8_t parseUpload(uint8_t* buff, uint32_t len)
         ret = broadCastDeviceID();
         break;
 	case CMD_QUERY_MODE:
-		ret = queryMode(CMD_QUERY_MODE,ERR_OK);
-		break;
+				ret = queryMode(CMD_QUERY_MODE,ERR_OK);
+				break;
     default:
         break;
     }

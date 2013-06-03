@@ -132,6 +132,15 @@ enum LedError
     ERR_UPLOAD_WRITE_CRC, //升级完成后写入文件CRC校验失败
     ERR_UPLOAD_PACKET_NUM //升级时收到错误的包序号
 };
+/*！
+当前处于的工作模式
+*/
+enum LedMode
+{
+	MODE_BOOT=0,
+	MODE_APP =1
+};
+
 struct TEventParam
 {
     TEventParam(unsigned int _id,unsigned char _group,LedEvent _event,LedError _err=ERR_OK,unsigned int _arg=0)
@@ -358,6 +367,12 @@ public:
     int getDefaultAdjValue(unsigned int id,long waitMs=1000);
 
 	int broadcastGetID(unsigned int waitMs=1000);
+	/*!
+		查询当前的工作模式
+		0  ： 查询成功
+		-1 ： 失败
+	*/
+	int getWorkMode(unsigned int id,unsigned int waitMs=1000);
 public:
     /*!
        \brief 设置组号,修改当前单灯的组号为newGroup,其中组号0为无效组号，如果想把
