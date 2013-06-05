@@ -232,7 +232,7 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
         int ret = pZigbeeCom->read (buf,pReqMsg->respSize);
 		if(ret != pReqMsg->respSize) 
 		{
-			fprintf(stderr,"ret len=%d\r\n",ret);
+			fprintf(stderr,"want %d,get len=%d\r\n",pReqMsg->respSize,ret);
 			return false;
 		}
 		

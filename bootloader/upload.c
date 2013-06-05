@@ -324,11 +324,17 @@ uint8_t    parseUploadData(uint16_t ssid,uint16_t pktIdx, uint8_t* data, uint32_
 uint8_t    parseUploadVerify(uint16_t ssid,uint16_t crc)
 {
     uint16_t u16CRC = 0;
-    if( (curSession == 0) || (ssid != curSession) )
+    if( curSession == 0)
     {
-        buildAckPacket(CMD_UPLOAD_VERIFY,ERR_SESSION,ssid);
+        buildAckPacket(CMD_UPLOAD_VERIFY,ERR_SESSON_MATCH,ssid);
         return 0;
     }
+		
+		if(ssid != curSession)
+		{
+				buildAckPacket(CMD_UPLOAD_VERIFY,ERR_SESSION,curSession);
+        return 0;
+		}
 
     u16CRC = u16CRC_Calc16((const uint8_t *)APP_START_ADDR, totalSize);
 
@@ -417,7 +423,7 @@ static uint8_t parseUpload(uint8_t* buff, uint32_t len)
     case CMD_BROADCAST_DEVID:
         ret = broadCastDeviceID();
         break;
-	case CMD_QUERY_MODE:
+		case CMD_QUERY_MODE:
 				ret = queryMode(CMD_QUERY_MODE,ERR_OK);
 				break;
     default:
@@ -446,7 +452,7 @@ void UploadService()
 
         if(!u8UARTReceive(&ch)) continue; //没有收到数据
 
-        if(!parseChar(ch)) continue; //不是协议包
+        if( !parseChar(ch) ) continue; //不是协议包
 
         pkt = readPacket(&pktLen); //读出一条数据
         if(parseUpload(pkt,pktLen)) //正确的升级数据

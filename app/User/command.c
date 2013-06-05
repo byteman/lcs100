@@ -18,23 +18,24 @@
 
 #define MAX_RESP_BUFF_SIZE  128
 
+
 enum{
 	MODE_UNICAST=0,
 	MODE_GROUP=1	
 };
 uint8_t Data_Buf[Data_Len];
 
-const int LedVersion __attribute__((at(0x03000)))=106; 	  //1.00版本 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=108; 	  //1.00版本 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
 static uint8_t respBuf[MAX_RESP_BUFF_SIZE];
-
-static unsigned short toShort(uint8_t* buf)
+int getZigbeeID(void);
+unsigned short toShort(uint8_t* buf)
 {
     return (buf[0]<<8) + buf[1];
 }
-static unsigned short toInt(uint8_t* buf)
+unsigned short toInt(uint8_t* buf)
 {
     return (buf[0]<<24) + (buf[1]<<16) +(buf[2]<<8) +(buf[3]<<0);
 }
@@ -112,7 +113,7 @@ static void setTwinkle(uint16_t periodMs)
 {
 
     uint16_t cnt = 10;
-    RespNoPara(CMD_TWINKLE,ERR_OK);
+    RespShortPara(CMD_TWINKLE,ERR_OK,periodMs);
 
 
     while(cnt--)
@@ -129,7 +130,7 @@ void SetupAdjustTime(uint8_t waitS)//设置调光时间
 {
     adj_timeS=waitS;
 
-    RespNoPara(CMD_SET_ADJ_TIME,ERR_OK);
+    RespCharPara(CMD_SET_ADJ_TIME,ERR_OK,waitS);
 
     paramSetU8(PARAM_ADJ_TIME,waitS);
 
@@ -141,7 +142,7 @@ void SetupDefaultBrightness(uint8_t brightness)//设置默认调光值
 {
     default_brightness=brightness;
 
-    RespNoPara(CMD_SET_DEFAULT_BRIGHTNESS,ERR_OK);
+    RespCharPara(CMD_SET_DEFAULT_BRIGHTNESS,ERR_OK,brightness);
 
     paramSetU8(PARAM_DEF_BRIGHTNESS,brightness);
 
@@ -151,7 +152,7 @@ void SetupGroupNumber(uint8_t group)//设置组号
     group_number=group;
 
 
-    RespNoPara(CMD_SET_GROUP,ERR_OK);
+    RespCharPara(CMD_SET_GROUP,ERR_OK,group);
 
     paramSetU8(PARAM_GROUP,group_number);
 }
@@ -507,4 +508,80 @@ void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回
     UARTSend( (uint8_t *)respBuf, respBuf[1] );
     //Delay1_MS(10);
 
+}
+
+int getZigbeeID(void)
+{
+		uint8_t num=0;
+    uint8_t temp_buf[20]= {0};
+		int zigbeeID = -1;
+    memset(temp_buf,0,20);
+    //memset(Data_Buf,0,Data_Len);
+    UARTInit(38400);
+    NVIC_DisableIRQ(UART_IRQn);
+    Delay1_MS(20);
+    GPIOSetValue(1,8,0);
+    Delay1_MS(3000);
+    GPIOSetValue(1,8,1);
+    Delay1_MS(500);
+    while ((LPC_UART->LSR & 0x01) == 0x01)
+    {
+        num = LPC_UART->RBR;
+    }
+    num=0;
+
+    temp_buf[0]=0x23;
+    temp_buf[1]=0xa0;
+    UARTSend((uint8_t *)temp_buf,2);
+    Delay1_MS(500);
+    while ((LPC_UART->LSR & 0x01) == 0x01)
+    {
+
+        temp_buf[num] = LPC_UART->RBR;
+        num++;
+
+    }
+    //检测返回的数据是否是15个字节
+    if(num != 15) 
+		{
+			 NVIC_EnableIRQ(UART_IRQn);
+			 return -1;
+		}
+		
+		zigbeeID = (temp_buf[1]<<8) + temp_buf[2];
+		
+		Delay1_MS(500);
+
+    temp_buf[0]=0x23;
+    temp_buf[1]=0x23;
+    UARTSend((uint8_t *)temp_buf,2);
+		
+    Delay1_MS(200);
+		//temp_buf[0]=0x23;
+    //temp_buf[1]=0x23;
+    //UARTSend((uint8_t *)temp_buf,2);
+		
+    UARTInit(19200); //open interrput in init
+		
+		NVIC_EnableIRQ(UART_IRQn);
+		
+		return zigbeeID;
+
+		
+#if 0
+//后面的这两个命令zigbee都不会返回数据
+    temp_buf[0] = 0x23;
+    temp_buf[1] = 0xfe;
+    memcpy(temp_buf+2,Data_Buf+8,14);
+
+    UARTSend((uint8_t *)temp_buf,16);
+    Delay1_MS(500);
+
+    temp_buf[0]=0x23;
+    temp_buf[1]=0x23;
+    UARTSend((uint8_t *)temp_buf,2);
+    Delay1_MS(200);
+
+    UARTInit(19200); //open interrput in init
+	#endif
 }

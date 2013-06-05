@@ -3,7 +3,7 @@
 #include "Poco/Thread.h"
 #include <assert.h>
 int gTermId = 1;
-unsigned char gGroup = 5;
+unsigned char gGroup = 0;
 bool gQuit = false;
 
 typedef bool (*TestProc)(void);
@@ -241,7 +241,14 @@ bool updateGroupAndID()
 	scanf("%d",&tmp);
 	if(tmp > 0)
 	{
-		LedCtrl::get().setID(gTermId,tmp);
+		if(LedCtrl::get().setID(gTermId,tmp) > 0)
+		{
+			printf("update id ok\r\n");
+		}
+		else
+		{
+			printf("update id failed\r\n");
+		}
 		return true;
 	}
 	return false;

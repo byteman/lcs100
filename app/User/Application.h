@@ -16,10 +16,10 @@ typedef struct
 #define Data_Len 200
 
 extern void App_Command(LedRequest* pReq);//各个命令分解
-
+extern int getZigbeeID(void);
 extern void Delay1_MS(uint32_t ulTime);
 extern void Delay1_US(uint32_t ulTime);
-
+extern unsigned short toInt(uint8_t* buf);
 #endif
 
 

@@ -25,7 +25,7 @@ uint8_t default_brightness=BRIGHT_DEFAULT;//Ä¬ÈÏµÄÁÁ¶È
 
 
 
-static uint8_t checkBuf[PARAM_MAX];
+//static uint8_t checkBuf[PARAM_MAX];
 
 uint8_t paramGetU8(ParamType type)
 {
@@ -134,6 +134,6 @@ void	recoveryDefaultParam()
 
     Brate = BAUD_DEFAULT;
     paramSetU32(PARAM_BAUD,Brate);
-
+		
     paramSetU32(PARAM_MAGIC,MAGIC_VALID);
 }

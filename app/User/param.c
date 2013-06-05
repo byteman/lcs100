@@ -1,5 +1,6 @@
 #include "24C02.h"
 #include "param.h"
+#include "Application.h"
 
 #define MAGIC_VALID 0x55AAFE7D
 #define GROUP_DEFALUT 0x0
@@ -92,7 +93,10 @@ static uint8_t checkValidData()
 }
 void	loadParam()
 {
+		int zigbee_id = 0;
+		int eeprom_id = 0;
     uint32_t magic = paramGetU32(PARAM_MAGIC);
+		
     if(magic != MAGIC_VALID)
     {
         recoveryDefaultParam();
@@ -100,6 +104,21 @@ void	loadParam()
     }
 
     paramGetBuff(PARAM_ID,Terminal_ID,4);
+		
+		
+		zigbee_id = getZigbeeID();
+		eeprom_id = toInt(Terminal_ID);
+		
+		if( (zigbee_id != -1) && (zigbee_id != eeprom_id) )
+		{
+				Terminal_ID[0] = zigbee_id>>24;
+				Terminal_ID[1] = zigbee_id>>16;
+				Terminal_ID[2] = zigbee_id>>8;
+				Terminal_ID[3] = zigbee_id>>0;
+				paramSetBuff(PARAM_ID,Terminal_ID,4);		
+		}	
+	
+		
     group_number = paramGetU8(PARAM_GROUP);
     //Brate = paramGetU32(PARAM_BAUD);
 
@@ -141,6 +160,6 @@ void	recoveryDefaultParam()
     paramSetU32(PARAM_BAUD,Brate);
 
     paramSetU32(PARAM_MAGIC,MAGIC_VALID);
-	resetNum = 0;
-	paramSetU32(PARAM_RESET_NUM,resetNum);
+		resetNum = 0;
+		paramSetU32(PARAM_RESET_NUM,resetNum);
 }
