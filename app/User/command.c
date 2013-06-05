@@ -24,7 +24,7 @@ enum{
 };
 uint8_t Data_Buf[Data_Len];
 
-const int LedVersion __attribute__((at(0x03000)))=105; 	  //1.00版本 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=106; 	  //1.00版本 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
@@ -33,6 +33,10 @@ static uint8_t respBuf[MAX_RESP_BUFF_SIZE];
 static unsigned short toShort(uint8_t* buf)
 {
     return (buf[0]<<8) + buf[1];
+}
+static unsigned short toInt(uint8_t* buf)
+{
+    return (buf[0]<<24) + (buf[1]<<16) +(buf[2]<<8) +(buf[3]<<0);
 }
 extern volatile  uint32_t timer32_0_counter;
 
@@ -177,7 +181,9 @@ static void queryPactive(void)
 }
 void Modify_ID(unsigned char* pId)    //修改设备ID号
 {
-	  RespNoPara(CMD_MODIFY_DEVID,ERR_OK);
+		uint32_t value = toInt(pId);
+	
+	  RespIntPara(CMD_MODIFY_DEVID,ERR_OK,value);
 	
     memcpy(Terminal_ID,pId,4);
     paramSetBuff(PARAM_ID,Terminal_ID,4);

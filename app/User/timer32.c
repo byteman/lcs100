@@ -203,7 +203,7 @@ void PWM0_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
 
 		LPC_TMR32B1->PR   = 0;                                          //设置分频系数
 
-		LPC_TMR32B1->MR3  = SystemAHBFrequency / 1000;                        //周期控制， 100us :1K
+		LPC_TMR32B1->MR3  = SystemAHBFrequency / 1000;                        //周期控制， 1ms :1K
 
 		LPC_TMR32B1->EMR  = 0x00;                       //01=L,02=H,03=翻转
 
