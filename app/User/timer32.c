@@ -148,32 +148,32 @@ void reset_timer32(uint8_t timer_num)
 
 void PWM1_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
 {
-		unsigned int tmp_duty = 0;
-	
-		LPC_TMR32B0->TCR=0;		//关闭timer32B0
+    unsigned int tmp_duty = 0;
 
-		LPC_SYSCON->SYSAHBCLKCTRL|=(1<<9);      //打开定时器模块,时钟开启后才能使能
+    LPC_TMR32B0->TCR=0;		//关闭timer32B0
 
-		LPC_TMR32B0->TCR	= 0x02;               //定时器复位,定时器计数器和预分频计数器在PCLK 的下一个上升沿同步复位0
+    LPC_SYSCON->SYSAHBCLKCTRL|=(1<<9);      //打开定时器模块,时钟开启后才能使能
 
-		LPC_IOCON->PIO0_1  = 0x02;		/* Timer0 MAT2 每个定时器的MAT0-MAT3都有一个对应的引脚，PIO0_1对应的是TIMER0的MAT2 */
+    LPC_TMR32B0->TCR	= 0x02;               //定时器复位,定时器计数器和预分频计数器在PCLK 的下一个上升沿同步复位0
 
-	 
-		tmp_duty = ( (100-duty) * (SystemAHBFrequency / 1000) ) / 100;
-	
-		LPC_TMR32B0->MR2  = tmp_duty;     //设置占空比,必须设置MR2
+    LPC_IOCON->PIO0_1  = 0x02;		/* Timer0 MAT2 每个定时器的MAT0-MAT3都有一个对应的引脚，PIO0_1对应的是TIMER0的MAT2 */
 
-		LPC_TMR32B0->PWMC = (1<<2);     //设置 MAT2,1为PWM输出
 
-		LPC_TMR32B0->PR   = 0;         //设置分频系数
+    tmp_duty = ( (100-duty) * (SystemAHBFrequency / 1000) ) / 100;
 
-		LPC_TMR32B0->MR3  = SystemAHBFrequency / 1000;                        //周期控制， 100us :1K
+    LPC_TMR32B0->MR2  = tmp_duty;     //设置占空比,必须设置MR2
 
-		LPC_TMR32B0->EMR  = 0x00;      //01=L,02=H,03=翻转
+    LPC_TMR32B0->PWMC = (1<<2);     //设置 MAT2,1为PWM输出
 
-		LPC_TMR32B0->MCR  = (1<<10);   //设置如果MR3和TC匹配，TC复位
+    LPC_TMR32B0->PR   = 0;         //设置分频系数
 
-		LPC_TMR32B0->TCR  =0x01;        //定时器打开
+    LPC_TMR32B0->MR3  = SystemAHBFrequency / 1000;                        //周期控制， 100us :1K
+
+    LPC_TMR32B0->EMR  = 0x00;      //01=L,02=H,03=翻转
+
+    LPC_TMR32B0->MCR  = (1<<10);   //设置如果MR3和TC匹配，TC复位
+
+    LPC_TMR32B0->TCR  =0x01;        //定时器打开
 
 }
 
@@ -181,35 +181,35 @@ void PWM1_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
 
 void PWM0_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
 {
-		unsigned int tmp_duty = 0;
-		LPC_TMR32B1->TCR=0;
+    unsigned int tmp_duty = 0;
+    LPC_TMR32B1->TCR=0;
 
-		LPC_SYSCON->SYSAHBCLKCTRL|=(1<<10);      //打开定时器模块,只有提供了timer32B0的时钟后才能使用timer
-	
-		//LPC_IOCON->PIO0_1  &= ~0x07;
-		//LPC_IOCON->PIO0_1  |= 0x03;		/* Timer1_32 MAT0 */
-		LPC_IOCON->JTAG_TDO_PIO1_1  &= ~0x07;
-		LPC_IOCON->JTAG_TDO_PIO1_1  |= 0x03;		/* Timer0_32 MAT2 */
+    LPC_SYSCON->SYSAHBCLKCTRL|=(1<<10);      //打开定时器模块,只有提供了timer32B0的时钟后才能使用timer
 
-	
-		LPC_TMR32B1->TCR	= 0x02;                               //定时器复位
-		
-	 
-		tmp_duty = ( (100-duty) * (SystemAHBFrequency / 1000) ) / 100;
-	
-		LPC_TMR32B1->MR0  = tmp_duty;                          //90%占空比
+    //LPC_IOCON->PIO0_1  &= ~0x07;
+    //LPC_IOCON->PIO0_1  |= 0x03;		/* Timer1_32 MAT0 */
+    LPC_IOCON->JTAG_TDO_PIO1_1  &= ~0x07;
+    LPC_IOCON->JTAG_TDO_PIO1_1  |= 0x03;		/* Timer0_32 MAT2 */
 
-		LPC_TMR32B1->PWMC = 0x01;                       //设置 MA0,1为PWM输出
 
-		LPC_TMR32B1->PR   = 0;                                          //设置分频系数
+    LPC_TMR32B1->TCR	= 0x02;                               //定时器复位
 
-		LPC_TMR32B1->MR3  = SystemAHBFrequency / 1000;                        //周期控制， 1ms :1K
 
-		LPC_TMR32B1->EMR  = 0x00;                       //01=L,02=H,03=翻转
+    tmp_duty = ( (100-duty) * (SystemAHBFrequency / 1000) ) / 100;
 
-		LPC_TMR32B1->MCR  = (1<<10);                      //设置如果MR0和TC匹配，TC复位：[2]=1
+    LPC_TMR32B1->MR0  = tmp_duty;                          //90%占空比
 
-		LPC_TMR32B1->TCR  =0x01;                           //定时器打开
+    LPC_TMR32B1->PWMC = 0x01;                       //设置 MA0,1为PWM输出
+
+    LPC_TMR32B1->PR   = 0;                                          //设置分频系数
+
+    LPC_TMR32B1->MR3  = SystemAHBFrequency / 1000;                        //周期控制， 1ms :1K
+
+    LPC_TMR32B1->EMR  = 0x00;                       //01=L,02=H,03=翻转
+
+    LPC_TMR32B1->MCR  = (1<<10);                      //设置如果MR0和TC匹配，TC复位：[2]=1
+
+    LPC_TMR32B1->TCR  =0x01;                           //定时器打开
 
 }
 

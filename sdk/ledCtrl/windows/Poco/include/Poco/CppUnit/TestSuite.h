@@ -16,7 +16,8 @@
 #include <string>
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 class TestResult;
@@ -37,24 +38,24 @@ class TestResult;
  */
 class CppUnit_API TestSuite: public Test
 {
-	REFERENCEOBJECT (TestSuite)
+    REFERENCEOBJECT (TestSuite)
 
 public:
-	TestSuite(const std::string& name = "");
-	~TestSuite();
+    TestSuite(const std::string& name = "");
+    ~TestSuite();
 
-	void run(TestResult* result);
-	int countTestCases();
-	void addTest(Test* test);
-	std::string toString();
+    void run(TestResult* result);
+    int countTestCases();
+    void addTest(Test* test);
+    std::string toString();
 
-	virtual void deleteContents();
-	
-	const std::vector<Test*> tests() const;
+    virtual void deleteContents();
+
+    const std::vector<Test*> tests() const;
 
 private:
-	std::vector<Test*> _tests;
-	const std::string _name;
+    std::vector<Test*> _tests;
+    const std::string _name;
 };
 
 
@@ -67,28 +68,28 @@ inline TestSuite::TestSuite(const std::string& name): _name(name)
 // Destructor
 inline TestSuite::~TestSuite()
 {
-	deleteContents();
+    deleteContents();
 }
 
 
 // Adds a test to the suite.
 inline void TestSuite::addTest(Test* test)
 {
-	_tests.push_back(test);
+    _tests.push_back(test);
 }
 
 
 // Returns a std::string representation of the test suite.
 inline std::string TestSuite::toString()
 {
-	return "suite " + _name; 
+    return "suite " + _name;
 }
 
 
 // Returns all tests
 inline const std::vector<Test*> TestSuite::tests() const
 {
-	return _tests;
+    return _tests;
 }
 
 

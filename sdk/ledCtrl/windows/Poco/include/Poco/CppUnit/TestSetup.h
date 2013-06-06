@@ -14,7 +14,8 @@
 #include "CppUnit/TestDecorator.h"
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 class Test;
@@ -23,31 +24,31 @@ class TestResult;
 
 class CppUnit_API TestSetup: public TestDecorator
 {
-	REFERENCEOBJECT (TestSetup)
+    REFERENCEOBJECT (TestSetup)
 
 public:
-	TestSetup(Test* test): TestDecorator(test) 
-	{
-	}
-	
-	void run(TestResult* result);
+    TestSetup(Test* test): TestDecorator(test)
+    {
+    }
+
+    void run(TestResult* result);
 
 protected:
-	void setUp() 
-	{
-	}
-	
-	void tearDown()
-	{
-	}
+    void setUp()
+    {
+    }
+
+    void tearDown()
+    {
+    }
 };
 
 
 inline void TestSetup::run(TestResult* result)
 {
-	setUp();
-	TestDecorator::run(result); 
-	tearDown();
+    setUp();
+    TestDecorator::run(result);
+    tearDown();
 }
 
 

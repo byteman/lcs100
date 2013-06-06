@@ -134,6 +134,6 @@ void	recoveryDefaultParam()
 
     Brate = BAUD_DEFAULT;
     paramSetU32(PARAM_BAUD,Brate);
-		
+
     paramSetU32(PARAM_MAGIC,MAGIC_VALID);
 }

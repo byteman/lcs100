@@ -33,7 +33,11 @@
 #include "param.h"
 
 uint32_t u32BootLoader_AppPresent(void);
+uint32_t u32BootLoader_RunAppPresent(void);
 //uint8_t  termId[4] = {0x0,0x0,0x0,0x1};
+
+__align(4) uint8_t tmpBuf[FLASH_PAGE_SIZE];
+
 
 /*****************************************************************************
  ** Function name:  main
@@ -59,20 +63,30 @@ __asm void runApp()
                       bx  r0
 
 }
-                  void goApp()
+
+
+
+void goApp()
 {
     /* Verify if a valid user application is present in the upper sectors
     	 of flash memory. */
-    if (u32BootLoader_AppPresent() == 0)
+    if (u32BootLoader_AppPresent() == 0) //升级备份区，不存在升级文件
     {
         /* Valid application not present, execute bootloader task that will
         	 obtain a new application and program it to flash.. */
-        UploadTask();
+			
+			//首先检查应用程序区是否有效，有效则跳转到应用程序区，否则等待升级
+			
+			if(u32BootLoader_RunAppPresent()) //再检查应用程序区是否存在有效的应用程序文件
+			{
+					runApp(); //存在则立即跳转
+			}
+      UploadTask();
 
         /* Above function only returns when new application image has been
         	 successfully programmed into flash. Begin execution of this new
         	 application by resetting the device. */
-        NVIC_SystemReset();
+      NVIC_SystemReset();
     }
     else
     {
@@ -80,17 +94,56 @@ __asm void runApp()
 
         /* Load main stack pointer with application stack pointer initial value,
         	 stored at first location of application area */
+        if(copyUploadDataToApp() == 0)
+        {
+            NVIC_SystemReset();
+            return;
+        }
+        clearUploadMagic();
         runApp();
         /* User application execution should now start and never return here.... */
     }
 }
 
+void PWM0_Init(int duty)             //  CT32B0  MAT0:50%,50KHz,MAT1:70%,50KHz
+{
+    unsigned int tmp_duty = 0;
+    LPC_TMR32B1->TCR=0;
+
+    LPC_SYSCON->SYSAHBCLKCTRL|=(1<<10);      //打开定时器模块,只有提供了timer32B0的时钟后才能使用timer
+
+    //LPC_IOCON->PIO0_1  &= ~0x07;
+    //LPC_IOCON->PIO0_1  |= 0x03;		/* Timer1_32 MAT0 */
+    LPC_IOCON->JTAG_TDO_PIO1_1  &= ~0x07;
+    LPC_IOCON->JTAG_TDO_PIO1_1  |= 0x03;		/* Timer0_32 MAT2 */
+
+
+    LPC_TMR32B1->TCR	= 0x02;                               //定时器复位
+
+
+    tmp_duty = ( (100-duty) * (SystemAHBFrequency / 1000) ) / 100;
+
+    LPC_TMR32B1->MR0  = tmp_duty;                          //90%占空比
+
+    LPC_TMR32B1->PWMC = 0x01;                       //设置 MA0,1为PWM输出
+
+    LPC_TMR32B1->PR   = 0;                                          //设置分频系数
+
+    LPC_TMR32B1->MR3  = SystemAHBFrequency / 1000;                        //周期控制， 1ms :1K
+
+    LPC_TMR32B1->EMR  = 0x00;                       //01=L,02=H,03=翻转
+
+    LPC_TMR32B1->MCR  = (1<<10);                      //设置如果MR0和TC匹配，TC复位：[2]=1
+
+    LPC_TMR32B1->TCR  =0x01;                           //定时器打开
+
+}
 void initParam()
 {
     i2c_lpc_init(0);
 
     loadParam();
-
+		PWM0_Init(brightness);
 }
 int main(void)
 {

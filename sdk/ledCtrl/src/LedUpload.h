@@ -31,16 +31,19 @@ public:
     bool    loadUploadFile(std::string fileName);
 
     bool    startUploadFile(std::vector<unsigned int>& devList);
-	int     getFileVersion(){return _fileVersion;}
-	bool	startUploadGroupFile(unsigned group);
-	bool	uploadHasComplete(void);
-	bool	uploadProc(void);
+    int     getFileVersion()
+    {
+        return _fileVersion;
+    }
+    bool	startUploadGroupFile(unsigned group);
+    bool	uploadHasComplete(void);
+    bool	uploadProc(void);
     int     getPacketNum()
     {
         return _packetNum;
     }
 private:
-	
+
     void    simulateUpload(void);
     void    notify(LedEvent event,unsigned int id, LedError err);
     bool    sendUploadRequest();
@@ -68,7 +71,7 @@ private:
     unsigned int   _targetID;
     unsigned short _curSessionID;
     UploadState    _state;
-	unsigned int	_timeout;
+    unsigned int	_timeout;
     Poco::Timer    _timer;
 
     Poco::Thread   _thread;
@@ -77,10 +80,10 @@ private:
     unsigned char context[512];
     unsigned char packet[512];
 
-	DeviceIDList		_deviceList;
-	Poco::Event		_evtUpload;
-	bool	_complete;
-	unsigned int   _fileVersion;
+    DeviceIDList		_deviceList;
+    Poco::Event		_evtUpload;
+    bool	_complete;
+    unsigned int   _fileVersion;
 };
 
 #endif // LEDUPLOAD_H

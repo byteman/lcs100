@@ -29,7 +29,7 @@
 
 #define TIME_INTERVAL	(SystemAHBFrequency/100 - 1) //10ms
 /*
-SystemFrequency = 48Mhz, SystemAHBFrequency = 1/1 SystemAHBFrequency, 
+SystemFrequency = 48Mhz, SystemAHBFrequency = 1/1 SystemAHBFrequency,
 10ms = [ (48,000,000 /100)-1 ] = (480000-1)
 */
 

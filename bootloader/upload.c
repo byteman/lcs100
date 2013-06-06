@@ -8,21 +8,29 @@
 #include "param.h"
 
 /* Define the flash sectors used by the application */
-#define APP_START_SECTOR					2
+
+#define APP_UPLOAD_MAGIC					0xaabbccdd
+#define APP_START_SECTOR					5
 #define APP_END_SECTOR						7
 
-/* Define flash memory address at which user application is located */
-#define APP_START_ADDR					(APP_START_SECTOR* 0x00001000UL)
-#define APP_END_ADDR						0x00008000UL
+/*Define Upload Temp sectors used by upload*/
+#define APP_RUN_START_SECTOR				2
+#define APP_RUN_END_SECTOR					4
 
+/* Define flash memory address at which user application is located */
+#define APP_START_ADDR					(APP_START_SECTOR  * 0x00001000UL)
+#define APP_END_ADDR					((APP_END_SECTOR+1)* 0x00001000UL)
+
+/* Define flash memory address at which user application is located */
+#define APP_RUN_START_ADDR					(APP_RUN_START_SECTOR* 0x00001000UL)
+#define APP_RUN_END_ADDR					((APP_RUN_END_SECTOR+1)* 0x00001000UL)
 
 
 #define MAX_PAGE_SIZE 4096
-#define MAX_FILE_SIZE ( (APP_END_SECTOR-APP_START_SECTOR) * MAX_PAGE_SIZE - 8) //ºóÃæ8¸ö×Ö½Ú´æ·Å³¤¶ÈºÍÐ£ÑéºÍ
+#define MAX_FILE_SIZE ( (APP_END_SECTOR-APP_START_SECTOR+1) * MAX_PAGE_SIZE - 12) //ºóÃæ8¸ö×Ö½Ú´æ·Å³¤¶ÈºÍÐ£ÑéºÍ
 #define MAX_BUFF_SIZE  256
 
 
-#define FLASH_PAGE_SIZE 256
 #define PACKET_SIZE 		64
 
 #define UPLOAD_TIMEOUT 5000
@@ -48,6 +56,70 @@ uint32_t u32BootLoader_AppPresent(void);
 static uint32_t u32Bootloader_WriteCRC(uint32_t fileSize,uint16_t u16CRC);
 static uint32_t u32BootLoader_ProgramFlash(uint8_t *pu8Data, uint16_t u16Len);
 static uint32_t u32NextFlashWriteAddr = APP_START_ADDR;
+
+
+
+void resetVar()
+{
+    curSession = 0;
+    totalSize = 0;
+    totalPktNum = 0;
+    u32NextFlashWriteAddr = APP_START_ADDR;
+
+}
+int clearUploadMagic(void)
+{
+    if (u32IAP_PrepareSectors(APP_END_SECTOR, APP_END_SECTOR) == IAP_STA_CMD_SUCCESS)
+    {
+        if (u32IAP_EraseSectors(APP_END_SECTOR, APP_END_SECTOR) == IAP_STA_CMD_SUCCESS)
+        {
+            return 1;
+        }
+    }
+
+    return 0;
+
+}
+int copyUploadDataToApp(void)
+{
+
+    uint32_t pSrc  = APP_START_ADDR;
+    uint32_t pDest = APP_RUN_START_ADDR;
+
+    /* Prepare the flash application sectors for reprogramming */
+    if (u32IAP_PrepareSectors(APP_RUN_START_SECTOR, APP_RUN_END_SECTOR) == IAP_STA_CMD_SUCCESS)
+    {
+			  if (u32IAP_EraseSectors(APP_RUN_START_SECTOR, APP_RUN_END_SECTOR) != IAP_STA_CMD_SUCCESS)
+        {
+            return 0;
+        }
+        while(pDest < APP_RUN_END_ADDR)
+        {
+            memcpy(au8RxBuffer,(void*)pSrc,FLASH_PAGE_SIZE);
+			
+			if (u32IAP_PrepareSectors(APP_RUN_START_SECTOR, APP_RUN_END_SECTOR) == IAP_STA_CMD_SUCCESS)
+			{
+				if (u32IAP_CopyRAMToFlash(pDest, (uint32_t)au8RxBuffer, FLASH_PAGE_SIZE) == IAP_STA_CMD_SUCCESS)
+				{
+					/* Check that the write was successful */
+					if (u32IAP_Compare(pDest, (uint32_t)au8RxBuffer, FLASH_PAGE_SIZE, 0) == IAP_STA_CMD_SUCCESS)
+					{
+						/* Write was successful */
+						pSrc += FLASH_PAGE_SIZE;
+						pDest+= FLASH_PAGE_SIZE;
+					}
+					else break;
+				}
+				else break;
+
+			}
+			else break;
+
+        }
+    }
+    return (pDest==APP_RUN_END_ADDR)?1:0;
+}
+
 
 /*****************************************************************************
  ** Function name:	u32Bootloader_WriteCRC
@@ -78,6 +150,7 @@ static uint32_t u32Bootloader_WriteCRC(uint32_t fileSize,uint16_t u16CRC)
     /* Set the CRC value to be written back */
     a32DummyData[IAP_FLASH_PAGE_SIZE_WORDS - 1] = (uint32_t)u16CRC;
     a32DummyData[IAP_FLASH_PAGE_SIZE_WORDS - 2] = (uint32_t)fileSize;
+    a32DummyData[IAP_FLASH_PAGE_SIZE_WORDS - 3] = (uint32_t)APP_UPLOAD_MAGIC;
 
     if (u32IAP_PrepareSectors(APP_END_SECTOR, APP_END_SECTOR) == IAP_STA_CMD_SUCCESS)
     {
@@ -151,17 +224,49 @@ uint32_t u32BootLoader_AppPresent(void)
     uint32_t u32AppPresent = 0;
     uint16_t *pu16AppCRC = (uint16_t *)(APP_END_ADDR - 4);
     uint32_t *pu32AppLen = (uint32_t *)(APP_END_ADDR - 8);
+    uint32_t *pu32Magic = (uint32_t *)(APP_END_ADDR - 12);
     /* Check if a CRC value is present in application flash area */
     if ( (*pu16AppCRC != 0xFFFFUL) && (*pu32AppLen < MAX_FILE_SIZE))
     {
         /* Memory occupied by application CRC is not blank so calculate CRC of
            image in application area of flash memory, and check against this
            CRC.. */
-        u16CRC = u16CRC_Calc16((const uint8_t *)APP_START_ADDR, (*pu32AppLen));
-
-        if (*pu16AppCRC == u16CRC)
+        if(*pu32Magic == APP_UPLOAD_MAGIC)
         {
-            u32AppPresent = 1;
+            u16CRC = u16CRC_Calc16((const uint8_t *)APP_START_ADDR, (*pu32AppLen));
+
+            if (*pu16AppCRC == u16CRC)
+            {
+                u32AppPresent = 1;
+            }
+
+        }
+    }
+    return u32AppPresent;
+}
+
+uint32_t u32BootLoader_RunAppPresent(void)
+{
+    uint16_t u16CRC = 0;
+    uint32_t u32AppPresent = 0;
+    uint16_t *pu16AppCRC = (uint16_t *)(APP_RUN_END_ADDR - 4);
+    uint32_t *pu32AppLen = (uint32_t *)(APP_RUN_END_ADDR - 8);
+    uint32_t *pu32Magic = (uint32_t *)(APP_RUN_END_ADDR - 12);
+    /* Check if a CRC value is present in application flash area */
+    if ( (*pu16AppCRC != 0xFFFFUL) && (*pu32AppLen < MAX_FILE_SIZE))
+    {
+        /* Memory occupied by application CRC is not blank so calculate CRC of
+           image in application area of flash memory, and check against this
+           CRC.. */
+        if(*pu32Magic == APP_UPLOAD_MAGIC)
+        {
+            u16CRC = u16CRC_Calc16((const uint8_t *)APP_RUN_START_ADDR, (*pu32AppLen));
+
+            if (*pu16AppCRC == u16CRC)
+            {
+                u32AppPresent = 1;
+            }
+
         }
     }
     return u32AppPresent;
@@ -250,9 +355,9 @@ uint8_t buildDataAckPacket(uint8_t code,uint8_t ack,uint16_t ssid,uint16_t pktid
 uint8_t    parseUploadReq(uint16_t ssid,uint32_t fileSiz)
 {
 
-    if(fileSiz > MAX_FILE_SIZE)
+    if(fileSiz >= MAX_FILE_SIZE)
     {
-        curSession = 0;
+        resetVar();
         buildAckPacket(CMD_UPLOAD_REQ,ERR_TOO_LARGE,ssid);
         return 0;
     }
@@ -282,17 +387,28 @@ uint8_t    parseUploadData(uint16_t ssid,uint16_t pktIdx, uint8_t* data, uint32_
     uint8_t offset = (pktIdx%4)&0xFF;
     uint8_t needWrite = 0;
     uint8_t ack = ERR_OK;
-    if( (curSession == 0) || (ssid != curSession) || ( len != PACKET_SIZE) )
+    if( curSession == 0)
     {
-        buildAckPacket(CMD_UPLOAD_DATA,ERR_SESSION,ssid);
+        buildAckPacket(CMD_UPLOAD_DATA,ERR_NO_SESSION,curSession);
+        return 0;
+    }
+    else if( curSession != ssid  )
+    {
+        buildAckPacket(CMD_UPLOAD_DATA,ERR_SESSON_NOT_MATCH,curSession);
+        return 0;
+
+    }
+    if( len != PACKET_SIZE )
+    {
+        buildAckPacket(CMD_UPLOAD_DATA,ERR_PACKET_LENGTH,curSession);
         return 0;
     }
     if(pktIdx > totalPktNum)
     {
-        buildAckPacket(CMD_UPLOAD_DATA,ERR_PACKET_NUM,ssid);
+        buildAckPacket(CMD_UPLOAD_DATA,ERR_PACKET_NUM,curSession);
         return 0;
     }
-    if( (pktIdx+1) == totalPktNum)
+    if( ( pktIdx+1 ) == totalPktNum) //×îºóÒ»¸ö°üÐèÒªÁ¢¼´Ð´Èëµ
     {
         needWrite = 1;
     }
@@ -318,16 +434,23 @@ uint8_t    parseUploadData(uint16_t ssid,uint16_t pktIdx, uint8_t* data, uint32_
             ack = ERR_WRITE_DATA;
     }
     buildDataAckPacket(CMD_UPLOAD_DATA,ack,ssid,pktIdx);
-    return 1;
+
+    return (ack==ERR_OK)?1:0;
 
 }
 uint8_t    parseUploadVerify(uint16_t ssid,uint16_t crc)
 {
     uint16_t u16CRC = 0;
-    if(( curSession == 0 ) || (ssid != curSession) )
+    if( curSession == 0)
     {
-        buildAckPacket(CMD_UPLOAD_VERIFY,ERR_SESSION,curSession);
+        buildAckPacket(CMD_UPLOAD_DATA,ERR_NO_SESSION,curSession);
         return 0;
+    }
+    else if( curSession != ssid  )
+    {
+        buildAckPacket(CMD_UPLOAD_DATA,ERR_SESSON_NOT_MATCH,curSession);
+        return 0;
+
     }
 
     u16CRC = u16CRC_Calc16((const uint8_t *)APP_START_ADDR, totalSize);
@@ -363,20 +486,36 @@ static uint8_t broadCastDeviceID(void)
 }
 static uint8_t queryMode(uint8_t code,uint8_t ack)
 {
-	ctxBuf[0] = Terminal_ID[0];
-	ctxBuf[1] = Terminal_ID[1];
-	ctxBuf[2] = Terminal_ID[2];
-	ctxBuf[3] = Terminal_ID[3];
-	ctxBuf[4] = group;
-	ctxBuf[5] = code|0x80; //slave ack
-	
-	ctxBuf[6] = ack;
-	ctxBuf[7] = MODE_BOOT;
+    ctxBuf[0] = Terminal_ID[0];
+    ctxBuf[1] = Terminal_ID[1];
+    ctxBuf[2] = Terminal_ID[2];
+    ctxBuf[3] = Terminal_ID[3];
+    ctxBuf[4] = group;
+    ctxBuf[5] = code|0x80; //slave ack
 
-	return sendPacket(ctxBuf,8);
+    ctxBuf[6] = ack;
+    ctxBuf[7] = MODE_BOOT;
+
+    return sendPacket(ctxBuf,8);
 
 }
-static uint8_t parseUpload(uint8_t* buff, uint32_t len)
+#define BOOT_VER 101
+static uint8_t queryBootVer()
+{
+    ctxBuf[0] = Terminal_ID[0];
+    ctxBuf[1] = Terminal_ID[1];
+    ctxBuf[2] = Terminal_ID[2];
+    ctxBuf[3] = Terminal_ID[3];
+    ctxBuf[4] = group;
+    ctxBuf[5] = CMD_QUERY_BOOT_VER|0x80; //slave ack
+
+    ctxBuf[6] = ERR_OK;
+    ctxBuf[7] = BOOT_VER;
+
+    return sendPacket(ctxBuf,8);
+
+}
+static uint8_t parsePacket(uint8_t* buff, uint32_t len)
 {
     uint8_t i = 0;
     uint8_t ret = 0;
@@ -417,23 +556,18 @@ static uint8_t parseUpload(uint8_t* buff, uint32_t len)
     case CMD_BROADCAST_DEVID:
         ret = broadCastDeviceID();
         break;
-		case CMD_QUERY_MODE:
-				ret = queryMode(CMD_QUERY_MODE,ERR_OK);
-				break;
+    case CMD_QUERY_MODE:
+        ret = queryMode(CMD_QUERY_MODE,ERR_OK);
+        break;
+		case CMD_QUERY_BOOT_VER:
+				ret = queryBootVer();
     default:
         break;
     }
 
     return ret;
 }
-void resetVar()
-{
-    curSession = 0;
-    totalSize = 0;
-    totalPktNum = 0;
-    u32NextFlashWriteAddr = APP_START_ADDR;
 
-}
 void UploadService()
 {
     vTimerStart(UPLOAD_TIMEOUT);
@@ -449,7 +583,7 @@ void UploadService()
         if( !parseChar(ch) ) continue; //²»ÊÇÐ­Òé°ü
 
         pkt = readPacket(&pktLen); //¶Á³öÒ»ÌõÊý¾Ý
-        if(parseUpload(pkt,pktLen)) //ÕýÈ·µÄÉý¼¶Êý¾Ý
+        if(parsePacket(pkt,pktLen)) //ÕýÈ·µÄÉý¼¶Êý¾Ý
         {
             //Ö»ÒªÊÕµ½ÕýÈ·µÄÉý¼¶Êý¾Ý¾Í¸´Î»¼ÆÊýÆ÷
             vTimerStart(UPLOAD_TIMEOUT);

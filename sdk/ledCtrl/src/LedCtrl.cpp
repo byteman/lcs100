@@ -223,7 +223,7 @@ bool LedCtrl::checkPacketValid(LedMessage* pReqMsg,LedMessage* pRespMsg)
 bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
 {
     unsigned char buf[128];
-
+	bool find = false;
     if(!pReqMsg->needResp) return true;
     if(pZigbeeCom == NULL) return false;
     try
@@ -235,19 +235,25 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
 			fprintf(stderr,"want len=%d,get len=%d\r\n",pReqMsg->respSize,ret);
 			return false;
 		}
-		
-        if(!pRespMsg->buildMessage (buf, ret)) //接收到错误的数据，可能是有干扰数据，或者数据错误，自动组合数据
+		if(pRespMsg->buildMessage (buf, ret))
+		{
+			find = true;
+		}
+		else //接收到错误的数据，可能是有干扰数据，或者数据错误，自动组合数据
         {
 			int left = 0;
 			//unsigned char leftData[128];
-			Poco::Thread::sleep(500);
+			Poco::Thread::sleep(200);
 			left = pZigbeeCom->available();
 
 
 			if(left > 64) left = 64; //FIXME
 
+			if(left <= 0) return false;
+
 			if (left > 0)
 			{
+				
 				left = pZigbeeCom->read (buf + ret , left);
 				left += ret;
 				protoParserInit(NULL);
@@ -259,19 +265,21 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
 						unsigned char* ptkData =  readPacket(&pktSize);
 						if(ptkData)
 						{
-							if(false == pRespMsg->buildMessage (ptkData, pktSize))
+							if(pRespMsg->buildMessageFromContext (ptkData, pktSize))
 							{
-								return false;
-							}
-							 
+								find = true;
+								break;
+							} 
 						}
 					}			
 				}
 
 				
 			}
-            return false;
+            
         }
+		if( !find ) return false;
+
         return checkPacketValid(pReqMsg,pRespMsg);
     }
     catch(...)
@@ -663,6 +671,10 @@ int  LedCtrl::getVersion(unsigned int id,long waitMs)
 {
     return getIntResp(id,CMD_QUERY_VERSION,1,waitMs);
 }
+int  LedCtrl::getBootLoaderVersion(unsigned int id,long waitMs)
+{
+	return getIntResp(id,CMD_QUERY_BOOT_VER,1,waitMs);
+}
 int  LedCtrl::setAdjustTime(unsigned int id,unsigned char group,int time,long waitMs)
 {
     return setIntResp(id,group,CMD_SET_ADJ_TIME,time,1,waitMs);
@@ -694,4 +706,8 @@ int LedCtrl::broadcastGetID(unsigned int waitMs)
 int LedCtrl::getWorkMode(unsigned int id,unsigned int waitMs)
 {
 	return getIntResp(id,CMD_QUERY_MODE,1,waitMs);
+}
+int LedCtrl::clearResetCounter(unsigned int id,unsigned int waitMs)
+{
+	return getIntResp(id,CMD_CLEAR_RESET_NUM,4,waitMs);
 }

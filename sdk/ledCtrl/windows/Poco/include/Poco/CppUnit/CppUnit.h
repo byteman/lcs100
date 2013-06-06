@@ -13,9 +13,9 @@
 // Ensure that POCO_DLL is default unless POCO_STATIC is defined
 //
 #if defined(_WIN32) && defined(_DLL)
-	#if !defined(POCO_DLL) && !defined(POCO_STATIC)
-		#define POCO_DLL
-	#endif
+#if !defined(POCO_DLL) && !defined(POCO_STATIC)
+#define POCO_DLL
+#endif
 #endif
 
 
@@ -28,28 +28,28 @@
 // defined with this macro as being exported.
 //
 #if defined(_WIN32) && defined(POCO_DLL)
-	#if defined(CppUnit_EXPORTS)
-		#define CppUnit_API __declspec(dllexport)
-	#else
-		#define CppUnit_API __declspec(dllimport)
-	#endif
+#if defined(CppUnit_EXPORTS)
+#define CppUnit_API __declspec(dllexport)
+#else
+#define CppUnit_API __declspec(dllimport)
+#endif
 #endif
 
 
 #if !defined(CppUnit_API)
-	#define CppUnit_API
+#define CppUnit_API
 #endif
 
 
 // Turn off some annoying warnings
 #ifdef _MSC_VER
-	#pragma warning(disable:4786)  // identifier truncation warning
-	#pragma warning(disable:4503)  // decorated name length exceeded - mainly a problem with STLPort
-	#pragma warning(disable:4018)  // signed/unsigned comparison
-	#pragma warning(disable:4284)  // return type for operator -> is not UDT
-	#pragma warning(disable:4251)  // ... needs to have dll-interface warning 
-	#pragma warning(disable:4273) 
-	#pragma warning(disable:4275)  // ... non dll-interface class used as base for dll-interface class
+#pragma warning(disable:4786)  // identifier truncation warning
+#pragma warning(disable:4503)  // decorated name length exceeded - mainly a problem with STLPort
+#pragma warning(disable:4018)  // signed/unsigned comparison
+#pragma warning(disable:4284)  // return type for operator -> is not UDT
+#pragma warning(disable:4251)  // ... needs to have dll-interface warning 
+#pragma warning(disable:4273)
+#pragma warning(disable:4275)  // ... non dll-interface class used as base for dll-interface class
 #endif
 
 

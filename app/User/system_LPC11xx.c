@@ -142,7 +142,7 @@ void Main_PLL_Setup ( void )
 
 #if MAIN_PLL_SETUP
     SystemFrequency = ClockSource * (MAIN_PLL_M_Val+1);
-		//SystemFrequency = ClockSource * (4);
+    //SystemFrequency = ClockSource * (4);
 #else
     SystemFrequency = ClockSource;
 #endif

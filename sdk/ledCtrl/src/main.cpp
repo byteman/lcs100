@@ -126,6 +126,18 @@ public:
     }
 };
 UploadTest ut;
+#ifdef _WIN32
+#include <winbase.h>
+std::string getFilePath(void)
+{
+	return "D:\\proj\\2013\\led\\lcs100\\sdk\\ledCtrl\\windows\\outputD\\lcs100.bin";
+}
+#else
+std::string getFilePath(void)
+{
+	return "lcs100.bin";
+}
+#endif
 bool testUpload()
 {
     int  timeout = 60;
@@ -141,7 +153,7 @@ bool testUpload()
 	//dl.push_back(3);
 	
     LedCtrl::get().addObserver(&ut);
-	LedCtrl::get().upload("lcs100.bin",(unsigned int*)dl.data(),dl.size());
+	LedCtrl::get().upload(getFilePath().c_str(),(unsigned int*)dl.data(),dl.size());
     //LedCtrl::get().upload("D:\\proj\\2013\\led\\lcs100\\sdk\\ledCtrl\\windows\\outputD\\lcs100.bin",(unsigned int*)dl.data(),dl.size());
 #if 0
     printf ("upload return\n");
@@ -253,13 +265,51 @@ bool updateGroupAndID()
 	}
 	return false;
 }
+bool getBootVer(void)
+{
+	int ver = LedCtrl::get().getBootLoaderVersion(gTermId);
+	if(ver >= 0)
+	{
+		printf("ver=%d\r\n",ver);
+	}
+	return true;
+}
+bool sharkLed(void)
+{
+	int tmp = 0;
+	printf("please input shake time(s)\n");
+	scanf("%d",&tmp);
+	if(tmp > 0)
+	{
+		if(LedCtrl::get().setShakeLed(gTermId,gGroup,tmp) > 0)
+		{
+			printf("sharkLed\r\n");
+		}
+		else
+		{
+			printf("sharkLed failed\r\n");
+		}
+		return true;
+	}
+	return false;
+}
+bool clearResetNum(void)
+{
+	int ret = LedCtrl::get().clearResetCounter(gTermId);
+	if (ret == -1)
+	{
+		printf("clearResetNum failed\r\n");
+		return false;
+	}
+	printf("clear ok\r\n");
+}
 bool queryMode(void)
 {
 #if 1
-	int ret = LedCtrl::get().getWorkMode(gTermId);
+	int ret = LedCtrl::get().getWorkMode(gTermId,1000);
 	if (ret == -1)
 	{
-		printf("read timeout\r\n");
+		printf("queryMode failed\r\n");
 		return false;
 	}
 
@@ -303,6 +353,9 @@ static TestItem testList[] =
     {"enable/disable simulate",enableSimu},
 	{"broadcast query id",broadCastID},
 	{"query mode",queryMode},
+	{"clear resetNum",clearResetNum},
+	{"shark led",sharkLed},
+	{"get boot version",getBootVer},
     {"quit app",quitApp},
 };
 

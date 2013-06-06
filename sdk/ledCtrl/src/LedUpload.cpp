@@ -54,6 +54,7 @@ bool    LedUpload::loadUploadFile(std::string fileName)
     try
     {
         Poco::File upFile(fileName);
+		
         int sz = upFile.getSize ();
         if(sz <= 1024)  //upload file too small
         {
@@ -190,7 +191,7 @@ bool    LedUpload::parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsi
         LedCtrl::get ().notify (&par);
 		fprintf(stderr,"sessionID not match: deviceID=[%d] sdkID=[%d]\r\n",ssid,_curSessionID);
 
-        return true;
+        return false;
     }
     if(ack == 0)
     {
@@ -448,7 +449,7 @@ bool	LedUpload::uploadProc(void)
 {
 	protoParserInit(NULL);
 	runStateMachine();
-
+	Poco::Thread::sleep(1000);
 	_zigbeeCom->setReadTimeout(1000);
 
 	while (!_quit && (_state != STATE_OK) )
@@ -472,9 +473,11 @@ bool	LedUpload::uploadProc(void)
 						}
 						else 
 						{
+							//错误包
 							_timeout++;	
 							fprintf(stderr,"parsePacket timeout[%d]\r\n",_timeout);						
 						}
+						runStateMachine();
 									
 					}
 					
@@ -484,6 +487,7 @@ bool	LedUpload::uploadProc(void)
 			else
 			{
 				_timeout++;	
+				runStateMachine();
 				fprintf(stderr,"ReadChar timeout[%d]\r\n",_timeout);	
 			}
 
@@ -492,14 +496,15 @@ bool	LedUpload::uploadProc(void)
 			2.3次收到的包都是错误类型的包
 
 			*/
-			if (_timeout >= 3) //三次超时到达
+			if (_timeout >= 5) //三次超时到达
 			{
 				TEventParam par(_targetID,0,EV_UPLOAD_TIMEOUT);
 				LedCtrl::get().notify(&par);
 				break;
 			}
+			
 
-			runStateMachine();
+			
 			
 
 		}

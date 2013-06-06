@@ -45,8 +45,10 @@
 #include "Poco/Net/IPAddress.h"
 
 
-namespace Poco {
-namespace Net {
+namespace Poco
+{
+namespace Net
+{
 
 
 class IPAddress;
@@ -54,103 +56,103 @@ class SocketAddressImpl;
 
 
 class Net_API SocketAddress
-	/// This class represents an internet (IP) endpoint/socket
-	/// address. The address can belong either to the
-	/// IPv4 or the IPv6 address family and consists of a
-	/// host address and a port number.
+    /// This class represents an internet (IP) endpoint/socket
+    /// address. The address can belong either to the
+    /// IPv4 or the IPv6 address family and consists of a
+    /// host address and a port number.
 {
 public:
-	SocketAddress();
-		/// Creates a wildcard (all zero) IPv4 SocketAddress.
+    SocketAddress();
+    /// Creates a wildcard (all zero) IPv4 SocketAddress.
 
-	SocketAddress(const IPAddress& host, Poco::UInt16 port);
-		/// Creates a SocketAddress from an IP address and a port number.
+    SocketAddress(const IPAddress& host, Poco::UInt16 port);
+    /// Creates a SocketAddress from an IP address and a port number.
 
-	SocketAddress(const std::string& host, Poco::UInt16 port);
-		/// Creates a SocketAddress from an IP address and a port number.
-		///
-		/// The IP address must either be a domain name, or it must
-		/// be in dotted decimal (IPv4) or hex string (IPv6) format.
+    SocketAddress(const std::string& host, Poco::UInt16 port);
+    /// Creates a SocketAddress from an IP address and a port number.
+    ///
+    /// The IP address must either be a domain name, or it must
+    /// be in dotted decimal (IPv4) or hex string (IPv6) format.
 
-	SocketAddress(const std::string& host, const std::string& port);
-		/// Creates a SocketAddress from an IP address and a 
-		/// service name or port number.
-		///
-		/// The IP address must either be a domain name, or it must
-		/// be in dotted decimal (IPv4) or hex string (IPv6) format.
-		///
-		/// The given port must either be a decimal port number, or 
-		/// a service name.
+    SocketAddress(const std::string& host, const std::string& port);
+    /// Creates a SocketAddress from an IP address and a
+    /// service name or port number.
+    ///
+    /// The IP address must either be a domain name, or it must
+    /// be in dotted decimal (IPv4) or hex string (IPv6) format.
+    ///
+    /// The given port must either be a decimal port number, or
+    /// a service name.
 
-	explicit SocketAddress(const std::string& hostAndPort);
-		/// Creates a SocketAddress from an IP address or host name and a
-		/// port number/service name. Host name/address and port number must
-		/// be separated by a colon. In case of an IPv6 address,
-		/// the address part must be enclosed in brackets.
-		///
-		/// Examples:
-		///     192.168.1.10:80
-		///     [::ffff:192.168.1.120]:2040
-		///     www.appinf.com:8080
+    explicit SocketAddress(const std::string& hostAndPort);
+    /// Creates a SocketAddress from an IP address or host name and a
+    /// port number/service name. Host name/address and port number must
+    /// be separated by a colon. In case of an IPv6 address,
+    /// the address part must be enclosed in brackets.
+    ///
+    /// Examples:
+    ///     192.168.1.10:80
+    ///     [::ffff:192.168.1.120]:2040
+    ///     www.appinf.com:8080
 
-	SocketAddress(const SocketAddress& addr);
-		/// Creates a SocketAddress by copying another one.
+    SocketAddress(const SocketAddress& addr);
+    /// Creates a SocketAddress by copying another one.
 
-	SocketAddress(const struct sockaddr* addr, poco_socklen_t length);
-		/// Creates a SocketAddress from a native socket address.
+    SocketAddress(const struct sockaddr* addr, poco_socklen_t length);
+    /// Creates a SocketAddress from a native socket address.
 
-	~SocketAddress();
-		/// Destroys the SocketAddress.
+    ~SocketAddress();
+    /// Destroys the SocketAddress.
 
-	SocketAddress& operator = (const SocketAddress& addr);
-		/// Assigns another SocketAddress.
+    SocketAddress& operator = (const SocketAddress& addr);
+    /// Assigns another SocketAddress.
 
-	void swap(SocketAddress& addr);
-		/// Swaps the SocketAddress with another one.
+    void swap(SocketAddress& addr);
+    /// Swaps the SocketAddress with another one.
 
-	IPAddress host() const;
-		/// Returns the host IP address.
+    IPAddress host() const;
+    /// Returns the host IP address.
 
-	Poco::UInt16 port() const;
-		/// Returns the port number.
+    Poco::UInt16 port() const;
+    /// Returns the port number.
 
-	poco_socklen_t length() const;
-		/// Returns the length of the internal native socket address.
+    poco_socklen_t length() const;
+    /// Returns the length of the internal native socket address.
 
-	const struct sockaddr* addr() const;
-		/// Returns a pointer to the internal native socket address.
+    const struct sockaddr* addr() const;
+    /// Returns a pointer to the internal native socket address.
 
-	int af() const;
-		/// Returns the address family (AF_INET or AF_INET6) of the address.
+    int af() const;
+    /// Returns the address family (AF_INET or AF_INET6) of the address.
 
-	std::string toString() const;
-		/// Returns a string representation of the address.
+    std::string toString() const;
+    /// Returns a string representation of the address.
 
-	IPAddress::Family family() const;
-		/// Returns the address family of the host's address.
+    IPAddress::Family family() const;
+    /// Returns the address family of the host's address.
 
-	bool operator < (const SocketAddress& addr) const;
-	bool operator == (const SocketAddress& addr) const;
-	bool operator != (const SocketAddress& addr) const;
+    bool operator < (const SocketAddress& addr) const;
+    bool operator == (const SocketAddress& addr) const;
+    bool operator != (const SocketAddress& addr) const;
 
-	enum
-	{
-		MAX_ADDRESS_LENGTH = 
+    enum
+    {
+        MAX_ADDRESS_LENGTH =
 #if defined(POCO_HAVE_IPv6)
-			sizeof(struct sockaddr_in6)
+            sizeof(struct sockaddr_in6)
 #else
-			sizeof(struct sockaddr_in)
+            sizeof(struct sockaddr_in)
 #endif
-			/// Maximum length in bytes of a socket address.
-	};
+            /// Maximum length in bytes of a socket address.
+    };
 
 protected:
-	void init(const IPAddress& host, Poco::UInt16 port);
-	void init(const std::string& host, Poco::UInt16 port);
-	Poco::UInt16 resolveService(const std::string& service);
+    void init(const IPAddress& host, Poco::UInt16 port);
+    void init(const std::string& host, Poco::UInt16 port);
+    Poco::UInt16 resolveService(const std::string& service);
 
 private:
-	SocketAddressImpl* _pImpl;
+    SocketAddressImpl* _pImpl;
 };
 
 
@@ -159,29 +161,30 @@ private:
 //
 inline void swap(SocketAddress& a1, SocketAddress& a2)
 {
-	a1.swap(a2);
+    a1.swap(a2);
 }
 
 
 inline IPAddress::Family SocketAddress::family() const
 {
-	return host().family();
+    return host().family();
 }
 
 
 inline 	bool SocketAddress::operator == (const SocketAddress& addr) const
 {
-	return host() == addr.host() && port() == addr.port();
+    return host() == addr.host() && port() == addr.port();
 }
 
 
 inline bool SocketAddress::operator != (const SocketAddress& addr) const
 {
-	return host() != addr.host() || port() != addr.port();
+    return host() != addr.host() || port() != addr.port();
 }
 
 
-} } // namespace Poco::Net
+}
+} // namespace Poco::Net
 
 
 #endif // Net_SocketAddress_INCLUDED

@@ -19,18 +19,43 @@
 #define MAX_RESP_BUFF_SIZE  128
 
 
-enum{
-	MODE_UNICAST=0,
-	MODE_GROUP=1	
+enum
+{
+    MODE_UNICAST=0,
+    MODE_GROUP=1
 };
 uint8_t Data_Buf[Data_Len];
 
-const int LedVersion __attribute__((at(0x03000)))=108; 	  //1.00版本 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=109; 	  //1.00版本 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
 static uint8_t respBuf[MAX_RESP_BUFF_SIZE];
 int getZigbeeID(void);
+
+#if 1
+void led_init(void)
+{
+		//LPC_IOCON->PIO0_1 &= ~0x07; 										/* 将P1.9初始化为GPIO功能,继电器		*/
+		//LPC_IOCON->PIO0_1 |= 0x01;
+    GPIOSetDir(0,1,1);
+}
+void led_on()
+{
+	GPIOSetValue(0,1,1);
+}
+void led_off()
+{
+	GPIOSetValue(0,1,0);
+}
+void led_flash(void)
+{
+	 static uint8_t state = 0;
+	 GPIOSetValue(0,1,state);
+	 state = !state;
+}
+#endif
+
 unsigned short toShort(uint8_t* buf)
 {
     return (buf[0]<<8) + buf[1];
@@ -42,11 +67,7 @@ unsigned short toInt(uint8_t* buf)
 extern volatile  uint32_t timer32_0_counter;
 
 //回复协议
-void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len);
-void RespNoPara(uint8_t command,uint8_t ack);
-void RespCharPara(uint8_t command,uint8_t ack,uint8_t value);
-void RespShortPara(uint8_t command,uint8_t ack,uint16_t value);
-void RespIntPara(uint8_t command,uint8_t ack,uint32_t value);
+
 
 /**
  * Convert an u32_t from host- to network byte order.
@@ -102,29 +123,12 @@ _ntohs(unsigned short n)
 
 static void resetCtrl(uint16_t afterMs)
 {
-	
+
     RespNoPara(CMD_RESET,ERR_OK);
     Delay1_MS(afterMs);
     NVIC_SystemReset();
 }
 
-//FIXME 到底需要闪烁多久，是一直闪到发命令停止，还是指定时间或者次数
-static void setTwinkle(uint16_t periodMs)
-{
-
-    uint16_t cnt = 10;
-    RespShortPara(CMD_TWINKLE,ERR_OK,periodMs);
-
-
-    while(cnt--)
-    {
-        PWM0_Init(100);
-        Delay1_MS(periodMs);
-        PWM0_Init(0);
-        Delay1_MS(periodMs);
-    }
-
-}
 
 void SetupAdjustTime(uint8_t waitS)//设置调光时间
 {
@@ -178,17 +182,17 @@ static void queryPactive(void)
     uint32_t value =Measuring_Pactive(); //单位为100MW
 
     RespIntPara(CMD_QUERY_KW,ERR_OK,value);
-	  
+
 }
 void Modify_ID(unsigned char* pId)    //修改设备ID号
 {
-		uint32_t value = toInt(pId);
-	
-	  RespIntPara(CMD_MODIFY_DEVID,ERR_OK,value);
-	
+    uint32_t value = toInt(pId);
+
+    RespIntPara(CMD_MODIFY_DEVID,ERR_OK,value);
+
     memcpy(Terminal_ID,pId,4);
     paramSetBuff(PARAM_ID,Terminal_ID,4);
-	  
+
 }
 void InquiryGroupNumber(void)//查询组号
 {
@@ -260,12 +264,12 @@ void Inquiry_alldata(void)   //查询所有数据
     ALLdata[17] = Terminal_ID[1];
     ALLdata[18] = Terminal_ID[2];
     ALLdata[19] = Terminal_ID[3];
-	ALLdata[20] = LedVersion&0xFF;
+    ALLdata[20] = LedVersion&0xFF;
 
-	ALLdata[21] = (resetNum>>24)&0xFF;
-	ALLdata[22] = (resetNum>>16)&0xFF;
-	ALLdata[23] = (resetNum>>8)&0xFF;
-	ALLdata[24] = resetNum&0xFF;
+    ALLdata[21] = (resetNum>>24)&0xFF;
+    ALLdata[22] = (resetNum>>16)&0xFF;
+    ALLdata[23] = (resetNum>>8)&0xFF;
+    ALLdata[24] = resetNum&0xFF;
 
 
     ResponseMsg(CMD_QUERY_ALL,ERR_OK,ALLdata,25);
@@ -279,42 +283,80 @@ void Write2EEPROM(unsigned char* buff, int len)
 
 void Inquiry_Mode(void)
 {
-	RespCharPara(CMD_QUERY_MODE,ERR_OK,MODE_APP);	
+    RespCharPara(CMD_QUERY_MODE,ERR_OK,MODE_APP);
 }
 
-	
+void clearResetCounter(void)
+{
+		resetNum = 0;
+    paramSetU32(PARAM_RESET_NUM,resetNum);
+	  RespIntPara(CMD_CLEAR_RESET_NUM,ERR_OK,resetNum);
+}
+
+__asm void runApp()
+{
+
+	ldr r0, =0x0
+	ldr r0, [r0]
+	mov sp, r0
+
+	/* Load program counter with application reset vector address, located at
+	second word of application area. */
+	ldr r0, =0x4
+	ldr r0, [r0]
+	bx  r0
+
+}
+__asm  void enable_irq()
+{
+
+	cpsie i;
+
+
+}
+__asm  void disable_irq()
+{
+	cpsid i;
+
+}
 void App_Command(LedRequest* pReq)//各个命令分解
 {
     unsigned char* data = pReq->data;
     Command=pReq->cmd;
-		Mode = MODE_UNICAST;
+    Mode = MODE_UNICAST;
 
 
     if(pReq->cmd == CMD_BROADCAST_DEVID)
     {
-				goto cmd;
+        goto cmd;
     }
-		
-		
-		if(pReq->group == 0)
-		{
-				if(Terminal_ID[0] != pReq->id[0]) return;
-				if(Terminal_ID[1] != pReq->id[1]) return;
-				if(Terminal_ID[2] != pReq->id[2]) return;
-				if(Terminal_ID[3] != pReq->id[3]) return;
-		}
-		else 
-		{
-			 if(pReq->group != group_number) 
-					return; //组号优先
-			 Mode = MODE_GROUP;
-		}
+
+
+    if(pReq->group == 0)
+    {
+        if(Terminal_ID[0] != pReq->id[0]) return;
+        if(Terminal_ID[1] != pReq->id[1]) return;
+        if(Terminal_ID[2] != pReq->id[2]) return;
+        if(Terminal_ID[3] != pReq->id[3]) return;
+    }
+    else
+    {
+        if(pReq->group != group_number)
+            return; //组号优先
+        Mode = MODE_GROUP;
+    }
 cmd:
 
     switch(Command)
     {
-		case CMD_UPLOAD_REQ:
-				resetCtrl(10);
+    case CMD_UPLOAD_REQ:
+        //resetCtrl(10);
+				NVIC_DisableIRQ(UART_IRQn);
+				NVIC_DisableIRQ(TIMER_16_0_IRQn);
+				runApp();
+
+				NVIC_EnableIRQ(UART_IRQn);
+				NVIC_EnableIRQ(TIMER_16_0_IRQn);
         break;
     case CMD_RESET: //复位
         resetCtrl(toShort(data));
@@ -376,9 +418,11 @@ cmd:
     case CMD_GET_RESET_CNT:
         Inquiry_ResetNum();
         break;
-		case CMD_QUERY_MODE:
-				Inquiry_Mode();
-				break;
+    case CMD_QUERY_MODE:
+        Inquiry_Mode();
+        break;
+		case CMD_CLEAR_RESET_NUM:
+				clearResetCounter();
     default:
         break;
     }
@@ -485,8 +529,8 @@ void RespNoPara(uint8_t command,uint8_t ack)
 }
 void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回复协议
 {
-	  if(Mode == MODE_GROUP) return;
-	
+    if(Mode == MODE_GROUP) return;
+
     if( (10 + len) > MAX_RESP_BUFF_SIZE ) return;
 
 
@@ -513,11 +557,11 @@ void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回
 int getZigbeeID(void)
 {
 #define MAX_TMP_SIZE 128
-	int zigbeeID = -1;
-	uint8_t num=0;
-	uint8_t tmpChar = 0;
-	uint8_t temp_buf[MAX_TMP_SIZE]= {0};
-	
+    int zigbeeID = -1;
+    uint8_t num=0;
+    uint8_t tmpChar = 0;
+    uint8_t temp_buf[MAX_TMP_SIZE]= {0};
+
     memset(temp_buf,0,MAX_TMP_SIZE);
 
     UARTInit(38400);
@@ -526,12 +570,12 @@ int getZigbeeID(void)
     GPIOSetValue(1,8,0);
     Delay1_MS(2000);
     GPIOSetValue(1,8,1);
-	
+
     Delay1_MS(100);//等待zigbee模块返回数据
     while ((LPC_UART->LSR & 0x01) == 0x01)
     {
         tmpChar = LPC_UART->RBR;
-		num++;
+        num++;
     }
     num=0;
 
@@ -546,28 +590,29 @@ int getZigbeeID(void)
     }
     //检测返回的数据是否是15个字节
     if( ( num != 15 ) || ( temp_buf[0] == 0xA2 ) )
-	{
-		 NVIC_EnableIRQ(UART_IRQn);
-		 return -1;
-	}
-		
-	zigbeeID = (temp_buf[1]<<8) + temp_buf[2];	
-	Delay1_MS(5);
+    {
+				UARTInit(19200); //open interrput in init
+        NVIC_EnableIRQ(UART_IRQn);
+        return -1;
+    }
+
+    zigbeeID = (temp_buf[1]<<8) + temp_buf[2];
+    Delay1_MS(5);
 
 //复位设备
     temp_buf[0]=0x23;
     temp_buf[1]=0x23;
     UARTSend((uint8_t *)temp_buf,2);
-		
+
     Delay1_MS(100); //等待数据发送完毕
 
     UARTInit(19200); //open interrput in init
-		
-	NVIC_EnableIRQ(UART_IRQn);
-	
-	return zigbeeID;
 
-		
+    NVIC_EnableIRQ(UART_IRQn);
+
+    return zigbeeID;
+
+
 #if 0
 //后面的这两个命令zigbee都不会返回数据
     temp_buf[0] = 0x23;

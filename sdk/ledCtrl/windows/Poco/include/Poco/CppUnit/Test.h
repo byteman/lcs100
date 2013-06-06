@@ -13,7 +13,8 @@
 #include <string>
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 class TestResult;
@@ -27,10 +28,10 @@ class TestResult;
 class CppUnit_API Test
 {
 public:
-	virtual ~Test() = 0;
-	virtual void run(TestResult* result) = 0;
-	virtual int countTestCases() = 0;
-	virtual std::string toString() = 0;
+    virtual ~Test() = 0;
+    virtual void run(TestResult* result) = 0;
+    virtual int countTestCases() = 0;
+    virtual std::string toString() = 0;
 };
 
 
@@ -48,14 +49,14 @@ inline void Test::run(TestResult *result)
 // Counts the number of test cases that will be run by this test.
 inline int Test::countTestCases()
 {
-	return 0; 
+    return 0;
 }
 
 
 // Returns the name of the test instance.
 inline std::string Test::toString()
 {
-	return "";
+    return "";
 }
 
 

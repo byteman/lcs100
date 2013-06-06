@@ -3,22 +3,24 @@
 
 #define PROTO_HEAD 0xA3
 
-enum LedError{
-    ERR_OK=0,
-    ERR_TOO_LARGE,
-    ERR_SESSION,
-    ERR_ERASE,
-    ERR_WRITE_DATA,
-    ERR_CRC,
-    ERR_WRITE_CRC,
-    ERR_PACKET_NUM,
-		ERR_SESSON_MATCH
+enum LedError
+{
+    ERR_OK=0,			//命令返回成功
+    ERR_TOO_LARGE,		//升级文件太大
+    ERR_NO_SESSION,		//还没有建立升级SESSION
+    ERR_ERASE,			//擦除数据失败
+    ERR_WRITE_DATA,		//写入升级数据包失败
+    ERR_CRC,			//校验和不匹配
+    ERR_WRITE_CRC,		//写入校验失败
+    ERR_PACKET_NUM,		//数据包序号正确
+    ERR_SESSON_NOT_MATCH,	//SESSION 不匹配
+    ERR_PACKET_LENGTH, //数据包长度不正确
 };
 
 enum LedMode
 {
-	MODE_BOOT=0,
-	MODE_APP =1
+    MODE_BOOT=0,
+    MODE_APP =1
 };
 
 enum   LedCmdType
@@ -57,7 +59,9 @@ enum   LedCmdType
     CMD_SET_ZIGBEE_CFG,  //对单灯的zigbee设备进行配置
     CMD_GET_RESET_CNT, //获取单灯复位次数
     CMD_QUERY_ZIGBEE_CFG,
-	CMD_QUERY_MODE, //查询当前模式 [0: boot模式和1: app模式]
+    CMD_QUERY_MODE, //查询当前模式 [0: boot模式和1: app模式]
+		CMD_CLEAR_RESET_NUM,
+		CMD_QUERY_BOOT_VER
 };
 
 

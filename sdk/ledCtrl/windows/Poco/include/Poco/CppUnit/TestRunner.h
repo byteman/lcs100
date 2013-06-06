@@ -18,7 +18,8 @@
 #endif
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 class Test;
@@ -40,26 +41,26 @@ class Test;
  */
 class CppUnit_API TestRunner
 {
-	typedef std::pair<std::string, Test*> Mapping;
-	typedef std::vector<Mapping> Mappings;
+    typedef std::pair<std::string, Test*> Mapping;
+    typedef std::vector<Mapping> Mappings;
 
 public:
-	TestRunner();
-	TestRunner(std::ostream& ostr);
-	~TestRunner();
+    TestRunner();
+    TestRunner(std::ostream& ostr);
+    ~TestRunner();
 
-	bool run(const std::vector<std::string>& args);
-	void addTest(const std::string& name, Test* test);
+    bool run(const std::vector<std::string>& args);
+    void addTest(const std::string& name, Test* test);
 
 protected:
-	bool run(Test* test);
-	void printBanner();
-	void print(const std::string& name, Test* pTest, int indent);
-	Test* find(const std::string& name, Test* pTest, const std::string& testName);
+    bool run(Test* test);
+    void printBanner();
+    void print(const std::string& name, Test* pTest, int indent);
+    Test* find(const std::string& name, Test* pTest, const std::string& testName);
 
 private:
-	std::ostream& _ostr;
-	Mappings _mappings;
+    std::ostream& _ostr;
+    Mappings _mappings;
 };
 
 

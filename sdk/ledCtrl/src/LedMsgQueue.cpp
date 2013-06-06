@@ -80,6 +80,39 @@ bool LedMessage::buildMessage(unsigned char* pktBuff,int pktSize)
     return true;
 
 }
+bool LedMessage::buildMessageFromContext(unsigned char* pktBuff,int pktSize)
+{
+	
+
+	int len = pktSize + 3;
+
+	int  parmLen = 0;
+	id     = (pktBuff[0]<<24) + (pktBuff[1]<<16) +(pktBuff[2]<<8) +(pktBuff[3]<<0);
+	group  = pktBuff[4];
+	cmd    = pktBuff[5]&0x3F;
+	isRespMsg = ((pktBuff[5]>>6)&0x3)?true:false;
+
+	if(isRespMsg)
+	{
+		respCode = pktBuff[6];
+		parmLen  = len - PROTO_ACK_PAD;
+		if(paramLen < 0) return false;
+		memcpy(param,pktBuff+7,parmLen);
+
+	}
+	else
+	{
+		parmLen = len - PROTO_ACK_PAD + 1;
+		if(paramLen < 0) return false;
+
+		memcpy(param,pktBuff+8,parmLen);
+	}
+
+	paramLen = parmLen;
+
+	return true;
+
+}
 LedMessage::LedMessage(const LedMessage& msg)
 {
 

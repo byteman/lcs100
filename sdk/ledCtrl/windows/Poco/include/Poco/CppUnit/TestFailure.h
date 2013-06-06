@@ -14,7 +14,8 @@
 #include "CppUnit/Guards.h"
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 class Test;
@@ -35,19 +36,19 @@ class Test;
  */
 class CppUnit_API TestFailure
 {
-	REFERENCEOBJECT (TestFailure)
+    REFERENCEOBJECT (TestFailure)
 
 public:
-	TestFailure(Test* failedTest, CppUnitException* thrownException);
-	~TestFailure();
+    TestFailure(Test* failedTest, CppUnitException* thrownException);
+    ~TestFailure();
 
-	Test* failedTest();
-	CppUnitException* thrownException();
-	std::string toString();
+    Test* failedTest();
+    CppUnitException* thrownException();
+    std::string toString();
 
 protected:
-	Test* _failedTest;
-	CppUnitException *_thrownException;
+    Test* _failedTest;
+    CppUnitException *_thrownException;
 };
 
 
@@ -59,22 +60,22 @@ inline TestFailure::TestFailure(Test* failedTest, CppUnitException* thrownExcept
 
 // Deletes the owned exception.
 inline TestFailure::~TestFailure()
-{ 
-	delete _thrownException;
+{
+    delete _thrownException;
 }
 
 
 // Gets the failed test.
 inline Test* TestFailure::failedTest()
 {
-	return _failedTest;
+    return _failedTest;
 }
 
 
 // Gets the thrown exception.
 inline CppUnitException* TestFailure::thrownException()
 {
-	return _thrownException;
+    return _thrownException;
 }
 
 

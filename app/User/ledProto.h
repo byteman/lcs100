@@ -13,13 +13,13 @@ enum LedError
     ERR_CRC,
     ERR_WRITE_CRC,
     ERR_PACKET_NUM,
-		ERR_BUSY, //系统忙
+    ERR_BUSY, //系统忙
 };
 
 enum LedMode
 {
-	MODE_BOOT=0,
-	MODE_APP =1
+    MODE_BOOT=0,
+    MODE_APP =1
 };
 
 enum   LedCmdType
@@ -58,7 +58,8 @@ enum   LedCmdType
     CMD_SET_ZIGBEE_CFG,  //对单灯的zigbee设备进行配置
     CMD_GET_RESET_CNT, //获取单灯复位次数
     CMD_QUERY_ZIGBEE_CFG,
-	CMD_QUERY_MODE, //查询当前模式 [0: boot模式和1: app模式]
+    CMD_QUERY_MODE, //查询当前模式 [0: boot模式和1: app模式]
+		CMD_CLEAR_RESET_NUM //清零复位次数
 };
 
 

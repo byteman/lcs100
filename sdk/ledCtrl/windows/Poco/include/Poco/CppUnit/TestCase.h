@@ -17,7 +17,8 @@
 #include <typeinfo>
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 class TestResult;
@@ -88,82 +89,82 @@ class CppUnit_API TestCase: public Test
     REFERENCEOBJECT (TestCase)
 
 public:
-	TestCase(const std::string& Name);
-	~TestCase();
+    TestCase(const std::string& Name);
+    ~TestCase();
 
-	virtual void run(TestResult* result);
-	virtual TestResult* run();
-	virtual int countTestCases();
-	const std::string& name() const;
-	std::string toString();
+    virtual void run(TestResult* result);
+    virtual TestResult* run();
+    virtual int countTestCases();
+    const std::string& name() const;
+    std::string toString();
 
-	virtual void setUp();
-	virtual void tearDown();
+    virtual void setUp();
+    virtual void tearDown();
 
 protected:
-	virtual void runTest();
-	TestResult* defaultResult();
-	
-	void assertImplementation(bool condition,
-	                          const std::string& conditionExpression = "",
-	                          long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	                          const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+    virtual void runTest();
+    TestResult* defaultResult();
 
-	void loop1assertImplementation(bool condition,
-	                               const std::string& conditionExpression = "",
-	                               long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+    void assertImplementation(bool condition,
+                              const std::string& conditionExpression = "",
+                              long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+                              const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+
+    void loop1assertImplementation(bool condition,
+                                   const std::string& conditionExpression = "",
+                                   long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
                                    long dataLineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	                               const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+                                   const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
-	void loop2assertImplementation(bool condition,
-	                               const std::string& conditionExpression = "",
-	                               long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+    void loop2assertImplementation(bool condition,
+                                   const std::string& conditionExpression = "",
+                                   long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
                                    long data1LineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
                                    long data2LineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	                               const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+                                   const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
-	void assertEquals(long expected,
-	                  long actual,
-	                  long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	                  const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+    void assertEquals(long expected,
+                      long actual,
+                      long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+                      const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
-	void assertEquals(double expected,
-	                  double actual,
+    void assertEquals(double expected,
+                      double actual,
                       double delta,
                       long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
                       const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
-	void assertEquals(const std::string& expected, 
-	                  const std::string& actual,
-	                  long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	                  const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+    void assertEquals(const std::string& expected,
+                      const std::string& actual,
+                      long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+                      const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
-	void assertEquals(const void* expected,
-	                  const void* actual,
-	                  long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	                  const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+    void assertEquals(const void* expected,
+                      const void* actual,
+                      long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+                      const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
-	std::string notEqualsMessage(long expected, long actual);
-	std::string notEqualsMessage(double expected, double actual);
-	std::string notEqualsMessage(const void* expected, const void* actual);
-	std::string notEqualsMessage(const std::string& expected, const std::string& actual);
+    std::string notEqualsMessage(long expected, long actual);
+    std::string notEqualsMessage(double expected, double actual);
+    std::string notEqualsMessage(const void* expected, const void* actual);
+    std::string notEqualsMessage(const std::string& expected, const std::string& actual);
 
-	void assertNotNull(const void* pointer,
-	                   const std::string& pointerExpression = "",
-	                   long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	                   const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+    void assertNotNull(const void* pointer,
+                       const std::string& pointerExpression = "",
+                       long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+                       const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
-	void assertNull(const void* pointer,  
-	                const std::string& pointerExpression = "",
-	                long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	                const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+    void assertNull(const void* pointer,
+                    const std::string& pointerExpression = "",
+                    long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+                    const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
-	void fail(const std::string&message = "",
-	          long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
-	          const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
+    void fail(const std::string&message = "",
+              long lineNumber = CppUnitException::CPPUNIT_UNKNOWNLINENUMBER,
+              const std::string& fileName = CppUnitException::CPPUNIT_UNKNOWNFILENAME);
 
 private:
-	const std::string _name;
+    const std::string _name;
 };
 
 
@@ -182,14 +183,14 @@ inline TestCase::~TestCase()
 // Returns a count of all the tests executed
 inline int TestCase::countTestCases()
 {
-	return 1; 
+    return 1;
 }
 
 
 // Returns the name of the test case
 inline const std::string& TestCase::name() const
 {
-	return _name; 
+    return _name;
 }
 
 
@@ -208,8 +209,8 @@ inline void TestCase::tearDown()
 // Returns the name of the test case instance
 inline std::string TestCase::toString()
 {
-	const std::type_info& thisClass = typeid(*this); 
-	return std::string(thisClass.name()) + "." + name(); 
+    const std::type_info& thisClass = typeid(*this);
+    return std::string(thisClass.name()) + "." + name();
 }
 
 
@@ -235,7 +236,7 @@ inline std::string TestCase::toString()
 
 #define assertNullPtr(ptr) \
 	(this->assertNull((ptr), #ptr, __LINE__, __FILE__))
-	
+
 #define assertNotNullPtr(ptr) \
 	(this->assertNotNull((ptr), #ptr, __LINE__, __FILE__))
 

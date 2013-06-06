@@ -14,7 +14,8 @@
 #include "CppUnit/Test.h"
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 class TestResult;
@@ -28,21 +29,21 @@ class TestResult;
  */
 class CppUnit_API TestDecorator: public Test
 {
-	REFERENCEOBJECT(TestDecorator)
+    REFERENCEOBJECT(TestDecorator)
 
 public:
-	TestDecorator(Test* test);
+    TestDecorator(Test* test);
 
-	virtual ~TestDecorator();
+    virtual ~TestDecorator();
 
-	int countTestCases();
+    int countTestCases();
 
-	void run(TestResult* result);
+    void run(TestResult* result);
 
-	std::string toString();
+    std::string toString();
 
 protected:
-	Test* _test;
+    Test* _test;
 };
 
 

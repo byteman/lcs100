@@ -26,8 +26,6 @@ uint8_t default_brightness=BRIGHT_DEFAULT;//默认的亮度
 uint32_t resetNum = 0;
 extern uint32_t  Duty_Time;
 
-static uint8_t checkBuf[PARAM_MAX];
-
 uint8_t paramGetU8(ParamType type)
 {
     uint8_t value = 0;
@@ -86,17 +84,13 @@ void paramSetBuff(ParamType type,uint8_t* buff,uint8_t size)
 {
     m24xx_write(EEPROM_24XX02,type,0,buff,size);
 }
-//对所有参数进行CRC16校验
-static uint8_t checkValidData()
-{
-    return 1;
-}
+
 void	loadParam()
 {
-		int zigbee_id = 0;
-		int eeprom_id = 0;
+    int zigbee_id = 0;
+    int eeprom_id = 0;
     uint32_t magic = paramGetU32(PARAM_MAGIC);
-		
+
     if(magic != MAGIC_VALID)
     {
         recoveryDefaultParam();
@@ -104,21 +98,21 @@ void	loadParam()
     }
 
     paramGetBuff(PARAM_ID,Terminal_ID,4);
-		
-		
-		zigbee_id = getZigbeeID();
-		eeprom_id = toInt(Terminal_ID);
-		
-		if( (zigbee_id != -1) && (zigbee_id != eeprom_id) )
-		{
-				Terminal_ID[0] = zigbee_id>>24;
-				Terminal_ID[1] = zigbee_id>>16;
-				Terminal_ID[2] = zigbee_id>>8;
-				Terminal_ID[3] = zigbee_id>>0;
-				paramSetBuff(PARAM_ID,Terminal_ID,4);		
-		}	
-	
-		
+
+#if 1
+    zigbee_id = getZigbeeID();
+    eeprom_id = toInt(Terminal_ID);
+
+    if( (zigbee_id != -1) && (zigbee_id != eeprom_id) )
+    {
+        Terminal_ID[0] = zigbee_id>>24;
+        Terminal_ID[1] = zigbee_id>>16;
+        Terminal_ID[2] = zigbee_id>>8;
+        Terminal_ID[3] = zigbee_id>>0;
+        paramSetBuff(PARAM_ID,Terminal_ID,4);
+    }
+#endif
+
     group_number = paramGetU8(PARAM_GROUP);
     //Brate = paramGetU32(PARAM_BAUD);
 
@@ -126,9 +120,9 @@ void	loadParam()
 
     default_brightness = paramGetU8(PARAM_DEF_BRIGHTNESS);
     brightness = default_brightness;
-	  Duty_Time = brightness;	
-		resetNum = paramGetU32(PARAM_RESET_NUM);
-		paramSetU32(PARAM_RESET_NUM,++resetNum);
+    Duty_Time = brightness;
+    resetNum = paramGetU32(PARAM_RESET_NUM);
+    paramSetU32(PARAM_RESET_NUM,++resetNum);
 
 }
 
@@ -154,12 +148,12 @@ void	recoveryDefaultParam()
     paramSetU8(PARAM_DEF_BRIGHTNESS,default_brightness);
 
     brightness = default_brightness;
-	Duty_Time =  brightness;
+    Duty_Time =  brightness;
 
     Brate = BAUD_DEFAULT;
     paramSetU32(PARAM_BAUD,Brate);
 
     paramSetU32(PARAM_MAGIC,MAGIC_VALID);
-		resetNum = 0;
-		paramSetU32(PARAM_RESET_NUM,resetNum);
+    resetNum = 0;
+    paramSetU32(PARAM_RESET_NUM,resetNum);
 }

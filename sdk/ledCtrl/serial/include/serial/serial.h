@@ -130,7 +130,7 @@ struct Timeout
     static Timeout simpleTimeout(uint32_t timeout)
     {
         //return Timeout(max(), timeout, 0, timeout, 0); 用这句的话，可能导致某些串口驱动，不能设置成功，直接返回了
-		return Timeout(timeout, timeout, 0, timeout, 0);
+        return Timeout(timeout, timeout, 0, timeout, 0);
     }
 
     /*! Number of milliseconds between bytes received to timeout on. */

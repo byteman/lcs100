@@ -10,8 +10,9 @@
 ******************************************************************************/
 #include "LPC11xx.h"
 #include "timer16.h"
-#if 0
+
 volatile uint32_t timer16_0_counter = 0;
+#if 0
 volatile uint32_t timer16_1_counter = 0;
 volatile uint32_t timer16_0_capture = 0;
 volatile uint32_t timer16_1_capture = 0;
@@ -20,6 +21,7 @@ volatile uint32_t timer16_1_period = 0;
 #endif
 
 volatile uint32_t bFlag10ms = 0;
+volatile uint32_t bFlag1s = 0;
 #if 0
 /*****************************************************************************
 ** Function name:		delayMs
@@ -158,8 +160,12 @@ void TIMER16_0_IRQHandler(void)
     if ( LPC_TMR16B0->IR & 0x1 )
     {
         LPC_TMR16B0->IR = 1;			/* clear interrupt flag */
-        //timer16_0_counter++;
-			  bFlag10ms = 1;
+        timer16_0_counter++;
+				if(timer16_0_counter >= 100)
+				{				
+						bFlag1s = 1;
+				}
+        bFlag10ms = 1;
     }
     if ( LPC_TMR16B0->IR & (0x1<<4) )
     {
@@ -222,7 +228,7 @@ void init_timer16(uint8_t timer_num, uint32_t TimerInterval)
 
         //timer16_0_counter = 0;
         //timer16_0_capture = 0;
-				LPC_TMR16B0->PR = 60000;
+        LPC_TMR16B0->PR = 60000; //48,0000 00
         LPC_TMR16B0->MR0 = TimerInterval;
 #if 1
         LPC_TMR16B0->EMR &= ~(0xFF<<4);

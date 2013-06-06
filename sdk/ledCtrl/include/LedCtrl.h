@@ -5,17 +5,18 @@
 #include "ledProto.h"
 #ifdef _WIN32
 #ifdef LEDCTRL_EXPORTS
-    #define LEDCTRL_API __declspec(dllexport)
+#define LEDCTRL_API __declspec(dllexport)
 #else
-    #define LEDCTRL_API __declspec(dllimport)
+#define LEDCTRL_API __declspec(dllimport)
 #endif
 #else
-    #define  LEDCTRL_API
+#define  LEDCTRL_API
 #endif
 /*！
 zigbee 网络类型
 */
-enum ZgbNetType{
+enum ZgbNetType
+{
     ZGB_NET_MESH=1, //网状网
     ZGB_NET_STAR=2, //星型网
     ZGB_NET_PEER=7 //对等网
@@ -23,19 +24,22 @@ enum ZgbNetType{
 /*！
 zigbee 节点类型
 */
-enum ZgbNodeType{
+enum ZgbNodeType
+{
     ZGB_NODE_CORD=1, //中心节点
     ZGB_NODE_ROUTE=3, //中继路由
     ZGB_NODE_TERM=4 //终端节点
 };
 
-enum ZgbTxMode{
+enum ZgbTxMode
+{
     ZGB_TX_BROADCAST=1, //广播
     ZGB_TX_MASTER_SLAVE=2, //主从
     ZGB_TX_P2P=3 //点对点
 };
 
-enum ZgbBaud{
+enum ZgbBaud
+{
     ZGB_BAUD_1200=1, //1200
     ZGB_BAUD_2400=2, //2400
     ZGB_BAUD_4800=3, //4800
@@ -43,23 +47,27 @@ enum ZgbBaud{
     ZGB_BAUD_19200=5, //19200 [默认的通讯波特率]
     ZGB_BAUD_38400=6 //38400 [zigbee模块配置用的波特率]
 };
-enum ZgbParity{
+enum ZgbParity
+{
     ZGB_PARITY_NONE=1, //无校验
-	ZGB_PARITY_EVEN, //偶校验
+    ZGB_PARITY_EVEN, //偶校验
     ZGB_PARITY_ODD //奇校验
 };
-enum ZgbDataBit{
+enum ZgbDataBit
+{
     ZGB_DATABIT_8=1, //8个数据位
     ZGB_DATABIT_9=3 //9个数据位
 };
-enum ZgbDataMode{
+enum ZgbDataMode
+{
     ZGB_DATA_ASCII=1, //数据采用ascii格式
     ZGB_DATA_HEX=2 //数据采用hex格式
 };
 /*!
 数据源地址选项
 */
-enum ZgbAddressMode{
+enum ZgbAddressMode
+{
     ZGB_ADDR_NONE=1, //不输出
     ZGB_ADDR_ASCII=2, //ASCII输出
     ZGB_ADDR_HEX=3 //16进制输出
@@ -94,7 +102,7 @@ typedef struct
     int adjustTime; //调光时间
     int ver;    //单灯的版本号
     int devId; //设备编号
-	int resetCnt; //复位次数
+    int resetCnt; //复位次数
     TZigbeeCfg zigbeeCfg;
 } StreetLight;
 
@@ -116,7 +124,7 @@ enum LedEvent
     EV_UPLOAD_DATA, //升级数据传输中...
     EV_UPLOAD_VERIFY, //升级完毕，数据校验中...
     EV_UPLOAD_COMPLETE, //升级完毕，返回升级结果。
-	EV_UPLOAD_TIMEOUT
+    EV_UPLOAD_TIMEOUT
 };
 /*！
 错误代码
@@ -137,8 +145,8 @@ enum LedError
 */
 enum LedMode
 {
-	MODE_BOOT=0,
-	MODE_APP =1
+    MODE_BOOT=0,
+    MODE_APP =1
 };
 
 struct TEventParam
@@ -180,7 +188,7 @@ public:
         \param[in] arg :附加参数
     */
     void addObserver(ILedEventNofityer* obs);
-	bool close();
+    bool close();
     /*!
     \brief 打开串口，初始化模块
     \return true: 成功 false:失败
@@ -190,15 +198,15 @@ public:
     \brief 升级单灯设备.
     \param[in] file :升级文件全路径.
     \param[in] devlist: 升级单灯设备ID数组.
-	\param[in] devNum:  升级单灯设备ID数组的个数
+    \param[in] devNum:  升级单灯设备ID数组的个数
     */
     bool upload(const char* file,unsigned int *devlist, int devNum);
-	 /*!
+    /*!
     \brief 获取升级文件的版本号
-   
+
     该函数需要在upload调用后，并且返回true后，才能正确获取到。
     */
-	int  getUploadFileVersion(void);
+    int  getUploadFileVersion(void);
 
     /*!
       判断升级操作是否已经结束
@@ -269,7 +277,7 @@ public:
     \brief 闪烁LED
     \param[in] id 单灯的id
     \param[in] group 单灯的组号
-    \param[in] value 闪烁间隔时间(ms) 0-65535ms
+    \param[in] value 闪烁时间(s) 0-65535s (0 停止闪烁）
     \param[in] waitMs 等待多少ms后如果都没有获取到数据就返回
     \return 返回
     \retval -1 超时失败 >=0 当前闪所时间
@@ -337,6 +345,7 @@ public:
         \retval <=0 失败 >0 固件版本号
     */
     int  getVersion(unsigned int id,long waitMs=1000);
+	int  getBootLoaderVersion(unsigned int id,long waitMs=1000);
     /*!
         \brief 设置单灯调光时间
         \param[in] id 单灯的id
@@ -366,13 +375,15 @@ public:
     */
     int getDefaultAdjValue(unsigned int id,long waitMs=1000);
 
-	int broadcastGetID(unsigned int waitMs=1000);
-	/*!
-		查询当前的工作模式
-		0  ： 查询成功
-		-1 ： 失败
-	*/
-	int getWorkMode(unsigned int id,unsigned int waitMs=1000);
+    int broadcastGetID(unsigned int waitMs=1000);
+    /*!
+    	查询当前的工作模式
+    	0  ： 查询成功
+    	-1 ： 失败
+    */
+    int getWorkMode(unsigned int id,unsigned int waitMs=1000);
+
+	int clearResetCounter(unsigned int id,unsigned int waitMs=1000);
 public:
     /*!
        \brief 设置组号,修改当前单灯的组号为newGroup,其中组号0为无效组号，如果想把

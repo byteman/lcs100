@@ -104,7 +104,7 @@ uint8_t u8UARTReceive(uint8_t *pu8Buffer)
         u8Len++;
     }
     return u8Len;
-} 
+}
 
 /*****************************************************************************
 ** Function name:	vUARTSend

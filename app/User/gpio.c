@@ -139,7 +139,7 @@ void GPIOInit( void )
     /* Enable AHB clock to the GPIO domain. */
     LPC_SYSCON->SYSAHBCLKCTRL |= (1<<6);	//ENABLE GPIO CLOCK
     /*I2C*///***********************************************************//
-    LPC_SYSCON->PRESETCTRL |= (0x1<<1); 
+    LPC_SYSCON->PRESETCTRL |= (0x1<<1);
     LPC_SYSCON->SYSAHBCLKCTRL |= (1<<5);  //ENABLE I2C  CLOCK
     LPC_IOCON->PIO0_4 &= ~0x3F;	/*  I2C I/O config */
     LPC_IOCON->PIO0_4 |= 0x01;		/* I2C SCL */

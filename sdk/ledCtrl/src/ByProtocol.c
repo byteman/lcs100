@@ -151,8 +151,8 @@ unsigned char parseChar(unsigned char rxChar)
         }
         break;
     case STEP_CRC:
-        //if(checkBufSum(context,totalBytes-1) == rxChar)
-        if(1)
+        if(checkBufSum(context,totalBytes-1) == rxChar)
+        //if(1)
         {
             context[curPos] = rxChar;
 

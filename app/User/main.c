@@ -20,8 +20,9 @@ void Setup_Read(void);
 
 unsigned char* pkt = NULL;
 unsigned int pktLen = 0;
-extern volatile uint32_t bFlag10ms; 
-
+extern volatile uint32_t bFlag10ms;
+extern volatile uint32_t bFlag1s;
+void led_flash(void);
 /*****************************主函数*******************************************/
 
 
@@ -29,20 +30,21 @@ static u8 rxChar;
 static LedRequest request;
 int main (void)
 {
-    SystemInit(); 
+    SystemInit();
     UARTInit(19200);
     SSP_Init();
     GPIOInit();
     CS5463_Init();
     i2c_lpc_init(0);
     loadParam();
-	//load参数后才开始设置亮度
 
-	  PWM0_Init(brightness);
-	
-		init_timer16(0,8);
-		enable_timer16(0);
-	
+    //load参数后才开始设置亮度
+
+    PWM0_Init(brightness);
+
+    init_timer16(0,8);
+    enable_timer16(0);
+
     while (1)
     {
         if(!tinyFifoEmpty())
@@ -72,12 +74,20 @@ int main (void)
             }
 
         }
-				if(bFlag10ms) //10ms
-				{
-						BrightnessSrv();
-					  bFlag10ms = 0;
-				}
+        if(bFlag10ms) //10ms
+        {
+            BrightnessSrv();
+            bFlag10ms = 0;
+						
+        }
 				
+				if(bFlag1s)
+				{
+					#if 0
+					  led_flash();
+					#endif
+				}
+
     }
 }
 void Setup_Read(void)

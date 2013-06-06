@@ -15,7 +15,8 @@
 #include <memory>
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 /*
@@ -51,37 +52,37 @@ namespace CppUnit {
 template <class Fixture>
 class TestCaller: public TestCase
 {
-	REFERENCEOBJECT (TestCaller)
+    REFERENCEOBJECT (TestCaller)
 
-	typedef void (Fixture::*TestMethod)();
+    typedef void (Fixture::*TestMethod)();
 
 public:
-	TestCaller(const std::string& name, TestMethod test): 
-		TestCase(name), 
-		_test(test),
-		_fixture(new Fixture(name))
-	{
-	}
+    TestCaller(const std::string& name, TestMethod test):
+        TestCase(name),
+        _test(test),
+        _fixture(new Fixture(name))
+    {
+    }
 
 protected:
-	void runTest()
-	{
-		(_fixture.get()->*_test)();
-	}
+    void runTest()
+    {
+        (_fixture.get()->*_test)();
+    }
 
-	void setUp()
-	{
-		_fixture.get()->setUp();
-	}
+    void setUp()
+    {
+        _fixture.get()->setUp();
+    }
 
-	void tearDown()
-	{
-		_fixture.get()->tearDown();
-	}
+    void tearDown()
+    {
+        _fixture.get()->tearDown();
+    }
 
 private:
-	TestMethod             _test;
-	std::auto_ptr<Fixture> _fixture;
+    TestMethod             _test;
+    std::auto_ptr<Fixture> _fixture;
 };
 
 

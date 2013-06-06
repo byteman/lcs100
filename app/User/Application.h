@@ -20,6 +20,12 @@ extern int getZigbeeID(void);
 extern void Delay1_MS(uint32_t ulTime);
 extern void Delay1_US(uint32_t ulTime);
 extern unsigned short toInt(uint8_t* buf);
+
+void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len);
+void RespNoPara(uint8_t command,uint8_t ack);
+void RespCharPara(uint8_t command,uint8_t ack,uint8_t value);
+void RespShortPara(uint8_t command,uint8_t ack,uint16_t value);
+void RespIntPara(uint8_t command,uint8_t ack,uint32_t value);
 #endif
 
 

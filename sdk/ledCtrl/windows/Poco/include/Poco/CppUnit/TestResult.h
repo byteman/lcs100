@@ -15,7 +15,8 @@
 #include <vector>
 
 
-namespace CppUnit {
+namespace CppUnit
+{
 
 
 class CppUnitException;
@@ -43,70 +44,70 @@ class Test;
  */
 class CppUnit_API TestResult
 {
-	REFERENCEOBJECT (TestResult)
+    REFERENCEOBJECT (TestResult)
 
 public:
-	TestResult();
-	virtual ~TestResult();
+    TestResult();
+    virtual ~TestResult();
 
-	virtual void addError(Test* test, CppUnitException* e);
-	virtual void addFailure(Test* test, CppUnitException* e);
-	virtual void startTest(Test* test);
-	virtual void endTest(Test* test);
-	virtual int runTests();
-	virtual int testErrors();
-	virtual int testFailures();
-	virtual bool wasSuccessful();
-	virtual bool shouldStop();
-	virtual void stop();
+    virtual void addError(Test* test, CppUnitException* e);
+    virtual void addFailure(Test* test, CppUnitException* e);
+    virtual void startTest(Test* test);
+    virtual void endTest(Test* test);
+    virtual int runTests();
+    virtual int testErrors();
+    virtual int testFailures();
+    virtual bool wasSuccessful();
+    virtual bool shouldStop();
+    virtual void stop();
 
-	virtual std::vector<TestFailure*>& errors();
-	virtual std::vector<TestFailure*>& failures();
+    virtual std::vector<TestFailure*>& errors();
+    virtual std::vector<TestFailure*>& failures();
 
-	class SynchronizationObject
-	{
-	public:
-		SynchronizationObject()
-		{
-		}
-		
-		virtual ~SynchronizationObject()
-		{
-		}
+    class SynchronizationObject
+    {
+    public:
+        SynchronizationObject()
+        {
+        }
 
-		virtual void lock()
-		{
-		}
-		
-		virtual void unlock()
-		{
-		}
-	};
+        virtual ~SynchronizationObject()
+        {
+        }
 
-	class ExclusiveZone
-	{
-		SynchronizationObject* m_syncObject;
+        virtual void lock()
+        {
+        }
 
-	public:
-		ExclusiveZone(SynchronizationObject* syncObject): m_syncObject(syncObject)
-		{
-			m_syncObject->lock();
-		}
+        virtual void unlock()
+        {
+        }
+    };
 
-		~ExclusiveZone()
-		{
-			m_syncObject->unlock();
-		}
-	};
+    class ExclusiveZone
+    {
+        SynchronizationObject* m_syncObject;
+
+    public:
+        ExclusiveZone(SynchronizationObject* syncObject): m_syncObject(syncObject)
+        {
+            m_syncObject->lock();
+        }
+
+        ~ExclusiveZone()
+        {
+            m_syncObject->unlock();
+        }
+    };
 
 protected:
-	virtual void setSynchronizationObject(SynchronizationObject* syncObject);
+    virtual void setSynchronizationObject(SynchronizationObject* syncObject);
 
-	std::vector<TestFailure*> _errors;
-	std::vector<TestFailure*> _failures;
-	int _runTests;
-	bool _stop;
-	SynchronizationObject* _syncObject;
+    std::vector<TestFailure*> _errors;
+    std::vector<TestFailure*> _failures;
+    int _runTests;
+    bool _stop;
+    SynchronizationObject* _syncObject;
 
 };
 
@@ -114,8 +115,8 @@ protected:
 // Construct a TestResult
 inline TestResult::TestResult(): _syncObject(new SynchronizationObject())
 {
-	_runTests = 0; 
-	_stop = false;
+    _runTests = 0;
+    _stop = false;
 }
 
 
@@ -123,8 +124,8 @@ inline TestResult::TestResult(): _syncObject(new SynchronizationObject())
 // caused the error
 inline void TestResult::addError(Test* test, CppUnitException* e)
 {
-	ExclusiveZone zone(_syncObject); 
-	_errors.push_back(new TestFailure(test, e));
+    ExclusiveZone zone(_syncObject);
+    _errors.push_back(new TestFailure(test, e));
 }
 
 
@@ -132,87 +133,87 @@ inline void TestResult::addError(Test* test, CppUnitException* e)
 // caused the failure.
 inline void TestResult::addFailure(Test* test, CppUnitException* e)
 {
-	ExclusiveZone zone(_syncObject); 
-	_failures.push_back(new TestFailure(test, e));
+    ExclusiveZone zone(_syncObject);
+    _failures.push_back(new TestFailure(test, e));
 }
 
 
 // Informs the result that a test will be started.
 inline void TestResult::startTest(Test* test)
 {
-	ExclusiveZone zone(_syncObject); 
-	_runTests++;
+    ExclusiveZone zone(_syncObject);
+    _runTests++;
 }
 
 
 // Informs the result that a test was completed.
 inline void TestResult::endTest(Test* test)
 {
-	ExclusiveZone zone(_syncObject);
+    ExclusiveZone zone(_syncObject);
 }
 
 
 // Gets the number of run tests.
 inline int TestResult::runTests()
 {
-	ExclusiveZone zone(_syncObject); 
-	return _runTests;
+    ExclusiveZone zone(_syncObject);
+    return _runTests;
 }
 
 
 // Gets the number of detected errors.
 inline int TestResult::testErrors()
 {
-	ExclusiveZone zone(_syncObject); 
-	return (int) _errors.size();
+    ExclusiveZone zone(_syncObject);
+    return (int) _errors.size();
 }
 
 
 // Gets the number of detected failures.
 inline int TestResult::testFailures()
 {
-	ExclusiveZone zone(_syncObject); 
-	return (int) _failures.size();
+    ExclusiveZone zone(_syncObject);
+    return (int) _failures.size();
 }
 
 
 // Returns whether the entire test was successful or not.
 inline bool TestResult::wasSuccessful()
 {
-	ExclusiveZone zone(_syncObject); 
-	return _failures.size() == 0 && _errors.size () == 0; 
+    ExclusiveZone zone(_syncObject);
+    return _failures.size() == 0 && _errors.size () == 0;
 }
 
 
 // Returns a std::vector of the errors.
 inline std::vector<TestFailure*>& TestResult::errors()
 {
-	ExclusiveZone zone(_syncObject); 
-	return _errors;
+    ExclusiveZone zone(_syncObject);
+    return _errors;
 }
 
 
 // Returns a std::vector of the failures.
 inline std::vector<TestFailure*>& TestResult::failures()
 {
-	ExclusiveZone zone(_syncObject); 
-	return _failures;
+    ExclusiveZone zone(_syncObject);
+    return _failures;
 }
 
 
 // Returns whether testing should be stopped
 inline bool TestResult::shouldStop()
 {
-	ExclusiveZone zone(_syncObject); 
-	return _stop;
+    ExclusiveZone zone(_syncObject);
+    return _stop;
 }
 
 
 // Stop testing
 inline void TestResult::stop()
 {
-	ExclusiveZone zone(_syncObject); 
-	_stop = true;
+    ExclusiveZone zone(_syncObject);
+    _stop = true;
 }
 
 
@@ -220,8 +221,8 @@ inline void TestResult::stop()
 // TestResult assumes ownership of the object
 inline void TestResult::setSynchronizationObject(SynchronizationObject* syncObject)
 {
-	delete _syncObject; 
-	_syncObject = syncObject;
+    delete _syncObject;
+    _syncObject = syncObject;
 }
 
 

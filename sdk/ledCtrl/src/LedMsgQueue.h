@@ -17,6 +17,7 @@ struct LedMessage
     LedMessage();
     LedMessage(unsigned int _id,unsigned char _group,unsigned char _cmd,bool _needResp=false,int _respSize=0,long _timeout=1000);
     bool    buildMessage(unsigned char* pktBuff,int pktSize);
+	bool	buildMessageFromContext(unsigned char* pktBuff,int pktSize);
     int     getIntVal();
     char    getCharVal();
     short   getShortVal();
