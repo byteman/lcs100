@@ -512,60 +512,60 @@ void ResponseMsg(uint8_t command,uint8_t ack,uint8_t* context, uint8_t len) //回
 
 int getZigbeeID(void)
 {
-		uint8_t num=0;
-    uint8_t temp_buf[20]= {0};
-		int zigbeeID = -1;
-    memset(temp_buf,0,20);
-    //memset(Data_Buf,0,Data_Len);
+#define MAX_TMP_SIZE 128
+	int zigbeeID = -1;
+	uint8_t num=0;
+	uint8_t tmpChar = 0;
+	uint8_t temp_buf[MAX_TMP_SIZE]= {0};
+	
+    memset(temp_buf,0,MAX_TMP_SIZE);
+
     UARTInit(38400);
     NVIC_DisableIRQ(UART_IRQn);
-    Delay1_MS(20);
+    Delay1_MS(1);
     GPIOSetValue(1,8,0);
-    Delay1_MS(3000);
+    Delay1_MS(2000);
     GPIOSetValue(1,8,1);
-    Delay1_MS(500);
+	
+    Delay1_MS(100);//等待zigbee模块返回数据
     while ((LPC_UART->LSR & 0x01) == 0x01)
     {
-        num = LPC_UART->RBR;
+        tmpChar = LPC_UART->RBR;
+		num++;
     }
     num=0;
 
     temp_buf[0]=0x23;
     temp_buf[1]=0xa0;
     UARTSend((uint8_t *)temp_buf,2);
-    Delay1_MS(500);
-    while ((LPC_UART->LSR & 0x01) == 0x01)
+    Delay1_MS(300); //等待zigbee模块返回数据
+    while ( ( (LPC_UART->LSR & 0x01) == 0x01 ) && (num < MAX_TMP_SIZE))
     {
-
         temp_buf[num] = LPC_UART->RBR;
         num++;
-
     }
     //检测返回的数据是否是15个字节
-    if(num != 15) 
-		{
-			 NVIC_EnableIRQ(UART_IRQn);
-			 return -1;
-		}
+    if( ( num != 15 ) || ( temp_buf[0] == 0xA2 ) )
+	{
+		 NVIC_EnableIRQ(UART_IRQn);
+		 return -1;
+	}
 		
-		zigbeeID = (temp_buf[1]<<8) + temp_buf[2];
-		
-		Delay1_MS(500);
+	zigbeeID = (temp_buf[1]<<8) + temp_buf[2];	
+	Delay1_MS(5);
 
+//复位设备
     temp_buf[0]=0x23;
     temp_buf[1]=0x23;
     UARTSend((uint8_t *)temp_buf,2);
 		
-    Delay1_MS(200);
-		//temp_buf[0]=0x23;
-    //temp_buf[1]=0x23;
-    //UARTSend((uint8_t *)temp_buf,2);
-		
+    Delay1_MS(100); //等待数据发送完毕
+
     UARTInit(19200); //open interrput in init
 		
-		NVIC_EnableIRQ(UART_IRQn);
-		
-		return zigbeeID;
+	NVIC_EnableIRQ(UART_IRQn);
+	
+	return zigbeeID;
 
 		
 #if 0
@@ -583,5 +583,5 @@ int getZigbeeID(void)
     Delay1_MS(200);
 
     UARTInit(19200); //open interrput in init
-	#endif
+#endif
 }

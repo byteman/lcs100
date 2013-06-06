@@ -28,6 +28,7 @@ volatile uint32_t p1_1_counter  = 0;
 volatile uint32_t p2_1_counter  = 0;
 volatile uint32_t p3_1_counter  = 0;
 
+#if 0
 /*****************************************************************************
 ** Function name:		PIOINT0_IRQHandler
 **
@@ -120,6 +121,7 @@ void PIOINT3_IRQHandler(void)
     return;
 }
 
+#endif
 /*****************************************************************************
 ** Function name:		GPIOInit
 **
@@ -281,6 +283,7 @@ void GPIOSetValue( uint32_t portNum, uint32_t bitPosi, uint32_t bitVal )
     return;
 }
 
+#if 0
 /*****************************************************************************
 ** Function name:		GPIOSetInterrupt
 **
@@ -502,6 +505,7 @@ void GPIOIntClear( uint32_t portNum, uint32_t bitPosi )
     return;
 }
 
+#endif
 /******************************************************************************
 **                            End Of File
 ******************************************************************************/

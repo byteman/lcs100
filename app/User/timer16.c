@@ -10,14 +10,17 @@
 ******************************************************************************/
 #include "LPC11xx.h"
 #include "timer16.h"
-
+#if 0
 volatile uint32_t timer16_0_counter = 0;
 volatile uint32_t timer16_1_counter = 0;
 volatile uint32_t timer16_0_capture = 0;
 volatile uint32_t timer16_1_capture = 0;
 volatile uint32_t timer16_0_period = 0;
 volatile uint32_t timer16_1_period = 0;
+#endif
+
 volatile uint32_t bFlag10ms = 0;
+#if 0
 /*****************************************************************************
 ** Function name:		delayMs
 **
@@ -62,31 +65,6 @@ void delayMs(uint8_t timer_num, uint32_t delayInMs)
     return;
 }
 
-/******************************************************************************
-** Function name:		CT16B0_IRQHandler
-**
-** Descriptions:		Timer/Counter 0 interrupt handler
-**						executes each 10ms @ 60 MHz CPU Clock
-**
-** parameters:			None
-** Returned value:		None
-**
-******************************************************************************/
-void TIMER16_0_IRQHandler(void)
-{
-    if ( LPC_TMR16B0->IR & 0x1 )
-    {
-        LPC_TMR16B0->IR = 1;			/* clear interrupt flag */
-        timer16_0_counter++;
-			  bFlag10ms = 1;
-    }
-    if ( LPC_TMR16B0->IR & (0x1<<4) )
-    {
-        LPC_TMR16B0->IR = 0x1<<4;		/* clear interrupt flag */
-        timer16_0_capture++;
-    }
-    return;
-}
 
 /******************************************************************************
 ** Function name:		CT16B1_IRQHandler
@@ -109,28 +87,6 @@ void TIMER16_1_IRQHandler(void)
     {
         LPC_TMR16B1->IR = 0x1<<4;		/* clear interrupt flag */
         timer16_1_capture++;
-    }
-    return;
-}
-
-/******************************************************************************
-** Function name:		enable_timer
-**
-** Descriptions:		Enable timer
-**
-** parameters:			timer number: 0 or 1
-** Returned value:		None
-**
-******************************************************************************/
-void enable_timer16(uint8_t timer_num)
-{
-    if ( timer_num == 0 )
-    {
-        LPC_TMR16B0->TCR = 1;
-    }
-    else
-    {
-        LPC_TMR16B1->TCR = 1;
     }
     return;
 }
@@ -185,6 +141,56 @@ void reset_timer16(uint8_t timer_num)
     return;
 }
 
+
+#endif
+/******************************************************************************
+** Function name:		CT16B0_IRQHandler
+**
+** Descriptions:		Timer/Counter 0 interrupt handler
+**						executes each 10ms @ 60 MHz CPU Clock
+**
+** parameters:			None
+** Returned value:		None
+**
+******************************************************************************/
+void TIMER16_0_IRQHandler(void)
+{
+    if ( LPC_TMR16B0->IR & 0x1 )
+    {
+        LPC_TMR16B0->IR = 1;			/* clear interrupt flag */
+        //timer16_0_counter++;
+			  bFlag10ms = 1;
+    }
+    if ( LPC_TMR16B0->IR & (0x1<<4) )
+    {
+        LPC_TMR16B0->IR = 0x1<<4;		/* clear interrupt flag */
+        //timer16_0_capture++;
+    }
+    return;
+}
+
+/******************************************************************************
+** Function name:		enable_timer
+**
+** Descriptions:		Enable timer
+**
+** parameters:			timer number: 0 or 1
+** Returned value:		None
+**
+******************************************************************************/
+void enable_timer16(uint8_t timer_num)
+{
+    if ( timer_num == 0 )
+    {
+        LPC_TMR16B0->TCR = 1;
+    }
+    else
+    {
+        LPC_TMR16B1->TCR = 1;
+    }
+    return;
+}
+
 /******************************************************************************
 ** Function name:		init_timer
 **
@@ -214,8 +220,8 @@ void init_timer16(uint8_t timer_num, uint32_t TimerInterval)
         LPC_IOCON->JTAG_TCK_PIO0_10 |= 0x03;		/* Timer0_16 MAT2 */
 #endif
 
-        timer16_0_counter = 0;
-        timer16_0_capture = 0;
+        //timer16_0_counter = 0;
+        //timer16_0_capture = 0;
 				LPC_TMR16B0->PR = 60000;
         LPC_TMR16B0->MR0 = TimerInterval;
 #if 1
@@ -242,8 +248,8 @@ void init_timer16(uint8_t timer_num, uint32_t TimerInterval)
         LPC_IOCON->PIO1_10          &= ~0x07;
         LPC_IOCON->PIO1_10          |= 0x02;		/* Timer1_16 MAT1 */
 
-        timer16_1_counter = 0;
-        timer16_1_capture = 0;
+        //timer16_1_counter = 0;
+        //timer16_1_capture = 0;
         LPC_TMR16B1->MR0 = TimerInterval;
 #if TIMER_MATCH
         LPC_TMR16B1->EMR &= ~(0xFF<<4);
@@ -259,7 +265,7 @@ void init_timer16(uint8_t timer_num, uint32_t TimerInterval)
     }
     return;
 }
-
+#if 0
 /******************************************************************************
 ** Function name:		init_timer16PWM
 **
@@ -439,7 +445,7 @@ void setMatch_timer16PWM (uint8_t timer_num, uint8_t match_nr, uint32_t value)
 
 }
 
-
+#endif
 /******************************************************************************
 **                            End Of File
 ******************************************************************************/

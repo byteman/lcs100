@@ -53,9 +53,9 @@ private:
     bool    sendPacket(unsigned char* context, int len);
 
     bool    parsePacket(unsigned char* context, int len);
-    void    parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid);
-    void    parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid);
-    void    parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid, unsigned short pktIdx);
+    bool    parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid);
+    bool    parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid);
+    bool    parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid, unsigned short pktIdx);
     void dumpData(unsigned char* buff, int len);
     unsigned short getSessionID();
     void resetState();

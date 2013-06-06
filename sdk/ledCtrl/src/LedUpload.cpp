@@ -122,16 +122,15 @@ bool    LedUpload::sendPacket(unsigned char* context, int len)
     return false;
 }
 
-void    LedUpload::parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid)
+bool    LedUpload::parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid)
 {
     if(ssid != _curSessionID)
     {
-        TEventParam par(id,grp,EV_UPLOAD_REQ,ERR_UPLOAD_SESSION);
-        LedCtrl::get ().notify (&par);
-        fprintf(stderr,"session ID err: [%d][%d]\n",ssid,_curSessionID);
-        //_state = STATE_IDLE;
+		TEventParam par(id,grp,EV_UPLOAD_REQ,ERR_UPLOAD_SESSION);
+		LedCtrl::get ().notify (&par);
+		fprintf(stderr,"sessionID not match: deviceID=[%d] sdkID=[%d]\n",ssid,_curSessionID);
 
-        return;
+		return false;
     }
     if(ack == 0)
     {
@@ -139,6 +138,8 @@ void    LedUpload::parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsig
         _state = STATE_DATA;
         TEventParam par(id,grp,EV_UPLOAD_REQ,ERR_OK);
         LedCtrl::get ().notify (&par);
+
+		return true;
     }
     else
     {
@@ -146,18 +147,20 @@ void    LedUpload::parseUploadReqResponse(Poco::UInt32 id, Poco::UInt8 grp,unsig
         LedCtrl::get ().notify (&par);
         fprintf(stderr,"err:ack=%d\n",ack);
     }
+	return false;
 
 }
 
-void   LedUpload::parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid)
+bool   LedUpload::parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid)
 {
     if(ssid != _curSessionID)
     {
         TEventParam par(id,grp,EV_UPLOAD_REQ,ERR_UPLOAD_SESSION);
         LedCtrl::get ().notify (&par);
-        fprintf(stderr,"session ID err: [%d][%d]\n",ssid,_curSessionID);
-        //_state = STATE_IDLE;
-        return;
+
+		fprintf(stderr,"sessionID not match: deviceID=[%d] sdkID=[%d]\r\n",ssid,_curSessionID);
+
+        return false;
     }
     if(ack == 0)
     {
@@ -168,24 +171,26 @@ void   LedUpload::parseUploadVerifyResponse(Poco::UInt32 id, Poco::UInt8 grp,uns
 		par.arg   = _fileVersion;
         LedCtrl::get ().notify (&par);
         _state = STATE_OK;
+		return true;
     }
     else
     {
         TEventParam par(id,grp,EV_UPLOAD_VERIFY,(LedError)ack,(LedError)ack);
-        LedCtrl::get ().notify (&par);
-        fprintf(stderr,"err:ack=%d\n",ack);
+		LedCtrl::get ().notify (&par);
+		fprintf(stderr,"parseUploadVerifyResponse err:ack=%d\r\n",ack);
     }
+	return false;
 }
 
-void    LedUpload::parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid, unsigned short pktIdx)
+bool    LedUpload::parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsigned char ack,unsigned short ssid, unsigned short pktIdx)
 {
     if(ssid != _curSessionID)
     {
         TEventParam par(id,grp,EV_UPLOAD_DATA,ERR_UPLOAD_SESSION);
         LedCtrl::get ().notify (&par);
-        fprintf(stderr,"session ID err: [%d][%d]\n",ssid,_curSessionID);
-        //_state = STATE_IDLE;
-        return;
+		fprintf(stderr,"sessionID not match: deviceID=[%d] sdkID=[%d]\r\n",ssid,_curSessionID);
+
+        return true;
     }
     if(ack == 0)
     {
@@ -202,13 +207,15 @@ void    LedUpload::parseUploadDataResponse(Poco::UInt32 id, Poco::UInt8 grp,unsi
 
         TEventParam par(id,grp,EV_UPLOAD_DATA,(LedError)ack,((_packetNum<<16) + _packetIdx));
         LedCtrl::get ().notify (&par);
+		return true;
     }
     else
     {
         TEventParam par(id,grp,EV_UPLOAD_DATA,(LedError)ack,(LedError)ack);
         LedCtrl::get ().notify (&par);
-        fprintf(stderr,"err:ack=%d\n",ack);
+        fprintf(stderr,"parseUploadDataResponse err:ack=%d\r\n",ack);
     }
+	return false;
 }
 
 bool    LedUpload::parsePacket(unsigned char* context, int len)
@@ -216,26 +223,28 @@ bool    LedUpload::parsePacket(unsigned char* context, int len)
     Poco::UInt32 termID  = ( ( context[0]<<24) + ( context[1]<<16) + ( context[2]<<8) +( context[3]<<0));
     Poco::UInt8  groupID = context[4];
     Poco::UInt8  code    = context[5] & 0x3F;
+	bool ret = false;
     if(termID != _targetID)
     {
+		printf("id err termID[%d],_targetID[%d]\r\n",termID,_targetID);
         return false;
     }
 
     switch(code)
     {
     case CMD_UPLOAD_REQ:
-        parseUploadReqResponse(termID,groupID,context[6],(context[7]<<8) + context[8]);
+        ret = parseUploadReqResponse(termID,groupID,context[6],(context[7]<<8) + context[8]);
         break;
     case CMD_UPLOAD_DATA:
-        parseUploadDataResponse(termID,groupID,context[6],(context[7]<<8) + context[8],(context[9]<<8) + context[10]);
+        ret = parseUploadDataResponse(termID,groupID,context[6],(context[7]<<8) + context[8],(context[9]<<8) + context[10]);
         break;
     case CMD_UPLOAD_VERIFY:
-        parseUploadVerifyResponse(termID,groupID,context[6],(context[7]<<8) + context[8]);
+        ret = parseUploadVerifyResponse(termID,groupID,context[6],(context[7]<<8) + context[8]);
         break;
     default:
         break;
     }
-    return true;
+    return ret;
 }
 void    LedUpload::simulateUpload(void)
 {
@@ -450,33 +459,49 @@ bool	LedUpload::uploadProc(void)
 
 			if(_zigbeeCom->read(&ch,1) > 0)
 			{
-				if( parseChar( ch ))
+				if( parseChar( ch )) //找到一个包数据
 				{
 					unsigned int pktLen = 0;
 					unsigned char * pkt = readPacket(&pktLen);
 					if(pkt)
 					{
-						parsePacket(pkt,pktLen);
-						runStateMachine();					
+						if(parsePacket(pkt,pktLen))
+						{
+							//收到一个正确的包，就复位计数器
+							_timeout = 0;
+						}
+						else 
+						{
+							_timeout++;	
+							fprintf(stderr,"parsePacket timeout[%d]\r\n",_timeout);						
+						}
+									
 					}
-					_timeout = 0;
+					
 				}
 				
 			}
 			else
 			{
-
-				if (_timeout++ >= 3)
-				{
-					TEventParam par(_targetID,0,EV_UPLOAD_TIMEOUT);
-					LedCtrl::get().notify(&par);
-					break;
-				}
-				else
-				{
-					runStateMachine();
-				}
+				_timeout++;	
+				fprintf(stderr,"ReadChar timeout[%d]\r\n",_timeout);	
 			}
+
+			/*!
+			1.3秒没有收到一个字节的数据
+			2.3次收到的包都是错误类型的包
+
+			*/
+			if (_timeout >= 3) //三次超时到达
+			{
+				TEventParam par(_targetID,0,EV_UPLOAD_TIMEOUT);
+				LedCtrl::get().notify(&par);
+				break;
+			}
+
+			runStateMachine();
+			
+
 		}
 		catch(serial::PortNotOpenedException& e)
 		{

@@ -38,9 +38,17 @@ unsigned char LedMessage::checkSum(unsigned char* buff, int size)
 
 bool LedMessage::buildMessage(unsigned char* pktBuff,int pktSize)
 {
-    if(pktBuff[0] != PROTO_HEAD) return false;
+    if(pktBuff[0] != PROTO_HEAD) 
+	{
+		fprintf(stderr,"buildMessage get err head[%x]\r\n",pktBuff[0]);
+		return false;
+	}
 
-    if(checkSum(pktBuff,pktSize-1) != pktBuff[pktSize-1]) return false;
+    if(checkSum(pktBuff,pktSize-1) != pktBuff[pktSize-1]) 
+	{
+		fprintf(stderr,"buildMessage checksum err\r\n");
+		return false;
+	}
 
 
     int len = pktBuff[1];

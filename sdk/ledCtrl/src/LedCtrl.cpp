@@ -232,12 +232,44 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
         int ret = pZigbeeCom->read (buf,pReqMsg->respSize);
 		if(ret != pReqMsg->respSize) 
 		{
-			fprintf(stderr,"want %d,get len=%d\r\n",pReqMsg->respSize,ret);
+			fprintf(stderr,"want len=%d,get len=%d\r\n",pReqMsg->respSize,ret);
 			return false;
 		}
 		
-        if(!pRespMsg->buildMessage (buf, ret))
+        if(!pRespMsg->buildMessage (buf, ret)) //接收到错误的数据，可能是有干扰数据，或者数据错误，自动组合数据
         {
+			int left = 0;
+			//unsigned char leftData[128];
+			Poco::Thread::sleep(500);
+			left = pZigbeeCom->available();
+
+
+			if(left > 64) left = 64; //FIXME
+
+			if (left > 0)
+			{
+				left = pZigbeeCom->read (buf + ret , left);
+				left += ret;
+				protoParserInit(NULL);
+				for (int i = 0; i < left; i++)
+				{
+					if (parseChar(buf[i]))
+					{
+						unsigned int pktSize = 0;
+						unsigned char* ptkData =  readPacket(&pktSize);
+						if(ptkData)
+						{
+							if(false == pRespMsg->buildMessage (ptkData, pktSize))
+							{
+								return false;
+							}
+							 
+						}
+					}			
+				}
+
+				
+			}
             return false;
         }
         return checkPacketValid(pReqMsg,pRespMsg);

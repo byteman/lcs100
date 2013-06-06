@@ -324,17 +324,11 @@ uint8_t    parseUploadData(uint16_t ssid,uint16_t pktIdx, uint8_t* data, uint32_
 uint8_t    parseUploadVerify(uint16_t ssid,uint16_t crc)
 {
     uint16_t u16CRC = 0;
-    if( curSession == 0)
+    if(( curSession == 0 ) || (ssid != curSession) )
     {
-        buildAckPacket(CMD_UPLOAD_VERIFY,ERR_SESSON_MATCH,ssid);
+        buildAckPacket(CMD_UPLOAD_VERIFY,ERR_SESSION,curSession);
         return 0;
     }
-		
-		if(ssid != curSession)
-		{
-				buildAckPacket(CMD_UPLOAD_VERIFY,ERR_SESSION,curSession);
-        return 0;
-		}
 
     u16CRC = u16CRC_Calc16((const uint8_t *)APP_START_ADDR, totalSize);
 
