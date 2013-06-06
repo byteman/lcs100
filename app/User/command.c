@@ -589,7 +589,7 @@ int getZigbeeID(void)
         num++;
     }
     //检测返回的数据是否是15个字节
-    if( ( num != 15 ) || ( temp_buf[0] == 0xA2 ) )
+    if( ( num != 15 ) || ( temp_buf[0] != 0xA2 ) )
     {
 				UARTInit(19200); //open interrput in init
         NVIC_EnableIRQ(UART_IRQn);
