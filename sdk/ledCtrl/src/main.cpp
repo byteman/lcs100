@@ -302,6 +302,7 @@ bool clearResetNum(void)
 		return false;
 	}
 	printf("clear ok\r\n");
+	return true;
 }
 bool queryMode(void)
 {

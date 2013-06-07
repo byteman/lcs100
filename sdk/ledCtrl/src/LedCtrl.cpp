@@ -144,15 +144,24 @@ unsigned char LedCtrl::checkSum(unsigned char* buff, int len)
     return sum;
 }
 
-static void dumpData(unsigned char* buff, int len)
+static void dumpRecvData(unsigned char* buff, int len)
 {
+	printf("recv data: ");
     for(int i = 0; i < len; i++)
     {
-        printf("0x%02x ",buff[i]);
+        printf("%02x ",buff[i]);
     }
-    printf("\n");
+    printf("\r\n");
 }
-
+static void dumpSendData(unsigned char* buff, int len)
+{
+	printf("send data: ");
+	for(int i = 0; i < len; i++)
+	{
+		printf("%02x ",buff[i]);
+	}
+	printf("\r\n");
+}
 int LedCtrl::sendMessage(LedMessage* pMsg)
 {
     int totalLen = 8;
@@ -175,6 +184,7 @@ int LedCtrl::sendMessage(LedMessage* pMsg)
     if(pZigbeeCom)
 	{
 		pZigbeeCom->flushInput();
+		dumpSendData(context,totalLen);
         return pZigbeeCom->write (context,totalLen);
 	}
     return 0;
@@ -230,6 +240,10 @@ bool LedCtrl::waitRespMessage(LedMessage* pReqMsg,LedMessage* pRespMsg)
     {
         pZigbeeCom->setReadTimeout(pReqMsg->timeout);
         int ret = pZigbeeCom->read (buf,pReqMsg->respSize);
+		if(ret > 0)
+		{
+			dumpRecvData(buf,ret);
+		}
 		if(ret != pReqMsg->respSize) 
 		{
 			fprintf(stderr,"want len=%d,get len=%d\r\n",pReqMsg->respSize,ret);
