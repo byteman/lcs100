@@ -26,7 +26,7 @@ enum
 };
 uint8_t Data_Buf[Data_Len];
 
-const int LedVersion __attribute__((at(0x03000)))=109; 	  //1.00版本 0.01 - 2.53
+const int LedVersion __attribute__((at(0x03000)))=110; 	  //1.00版本 0.01 - 2.53
 uint8_t Command;
 uint8_t Mode;
 
@@ -292,7 +292,12 @@ void clearResetCounter(void)
     paramSetU32(PARAM_RESET_NUM,resetNum);
 	  RespIntPara(CMD_CLEAR_RESET_NUM,ERR_OK,resetNum);
 }
+void queryBootVer(void)
+{
+		uint8_t* ptrBootVer = (uint8_t*)0x1000;
 
+	  RespCharPara(CMD_QUERY_BOOT_VER,ERR_OK,*ptrBootVer);
+}
 __asm void runApp()
 {
 
@@ -325,9 +330,13 @@ void App_Command(LedRequest* pReq)//各个命令分解
     Command=pReq->cmd;
     Mode = MODE_UNICAST;
 
-
     if(pReq->cmd == CMD_BROADCAST_DEVID)
     {
+				if(0xaa != pReq->id[0]) return;
+        if(0xbb != pReq->id[1]) return;
+        if(0xcc != pReq->id[2]) return;
+        if(0xdd != pReq->id[3]) return;
+			
         goto cmd;
     }
 
@@ -423,6 +432,8 @@ cmd:
         break;
 		case CMD_CLEAR_RESET_NUM:
 				clearResetCounter();
+		case CMD_QUERY_BOOT_VER:
+				queryBootVer();
     default:
         break;
     }

@@ -499,7 +499,8 @@ static uint8_t queryMode(uint8_t code,uint8_t ack)
     return sendPacket(ctxBuf,8);
 
 }
-#define BOOT_VER 101
+const int BootVer __attribute__((at(0x01000)))=102; 	  //boot version
+
 static uint8_t queryBootVer()
 {
     ctxBuf[0] = Terminal_ID[0];
@@ -510,7 +511,7 @@ static uint8_t queryBootVer()
     ctxBuf[5] = CMD_QUERY_BOOT_VER|0x80; //slave ack
 
     ctxBuf[6] = ERR_OK;
-    ctxBuf[7] = BOOT_VER;
+    ctxBuf[7] = BootVer;
 
     return sendPacket(ctxBuf,8);
 
@@ -524,6 +525,11 @@ static uint8_t parsePacket(uint8_t* buff, uint32_t len)
 
     group = buff[4];
     cmd 	= buff[5];
+	
+		if(cmd & 0x80)
+		{
+				return 0;
+		}
     for(; i < 4; i++)
     {
         if( (buff[i] != Terminal_ID[i] ) && (cmd != CMD_BROADCAST_DEVID))

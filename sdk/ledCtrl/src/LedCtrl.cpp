@@ -715,7 +715,7 @@ int LedCtrl::setID(unsigned int id,unsigned int newId,unsigned int waitMs)
 }
 int LedCtrl::broadcastGetID(unsigned int waitMs)
 {
-	return getIntResp(0,CMD_BROADCAST_DEVID,4,waitMs);
+	return getIntResp(0xaabbccdd,CMD_BROADCAST_DEVID,4,waitMs);
 }
 int LedCtrl::getWorkMode(unsigned int id,unsigned int waitMs)
 {

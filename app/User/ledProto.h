@@ -59,7 +59,8 @@ enum   LedCmdType
     CMD_GET_RESET_CNT, //获取单灯复位次数
     CMD_QUERY_ZIGBEE_CFG,
     CMD_QUERY_MODE, //查询当前模式 [0: boot模式和1: app模式]
-		CMD_CLEAR_RESET_NUM //清零复位次数
+		CMD_CLEAR_RESET_NUM, //清零复位次数
+		CMD_QUERY_BOOT_VER
 };
 
 

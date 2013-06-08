@@ -66,8 +66,11 @@ int main (void)
                         request.data = 	pkt+6;
 
                         request.dataLen = pktLen - 3;
-
-                        App_Command(&request);
+											
+												if(request.mode == 0) //只处理主设备发来的数据包
+                        {
+														App_Command(&request);
+												}
 
                     }
                 }
