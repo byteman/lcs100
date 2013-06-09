@@ -317,7 +317,8 @@ void loadSimData(unsigned int id,unsigned group)
     simStreetLight.devId	  = id;
 	simStreetLight.group	  = group;
     simStreetLight.kw		  = kw++;
-	simStreetLight.ver		  = 100;
+	simStreetLight.bootVer		  = 100;
+	simStreetLight.appVer		  = 100;
     simStreetLight.resetCnt	  = 0;
 }
 
@@ -352,8 +353,11 @@ int getSimParam(unsigned int id,unsigned group,LedCmdType type)
             value = getSimLight(id,group)->voltage;
             break;
         case CMD_QUERY_VERSION:
-            value = getSimLight(id,group)->ver;
+            value = getSimLight(id,group)->appVer;
             break;
+		case CMD_QUERY_BOOT_VER:
+			value = getSimLight(id,group)->bootVer;
+			break;
         case CMD_QUERY_KW:
             value = getSimLight(id,group)->kw;
             break;
@@ -500,8 +504,8 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
     else
     {
 
-        LedMessage respMsg;
-        LedMessage reqMsg(id,0,CMD_QUERY_ALL,true,25,waitMs);
+		LedMessage respMsg;
+		LedMessage reqMsg(id,0,CMD_QUERY_ALL,true,26,waitMs);
 
         sendMessage (&reqMsg);
 
@@ -511,7 +515,7 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
             {
                 int len = 0;
                 unsigned char* pData = respMsg.getBuffVal (len);
-                if(len == 25)
+                if(len == 26)
                 {
                     pLight->voltage = Buf2Int32(pData);
                     pLight->current = Buf2Int32(pData+4);
@@ -521,8 +525,9 @@ int  LedCtrl::getAllData(unsigned int id,unsigned char group,StreetLight* pLight
                     pLight->adjustTime = pData[14];
                     pLight->group = pData[15];
                     pLight->devId = Buf2Int32(pData+16);
-					pLight->ver  = pData[20];
-					pLight->resetCnt = Buf2Int32(pData+21);
+					pLight->appVer  = pData[20];
+					pLight->bootVer  = pData[21];
+					pLight->resetCnt = Buf2Int32(pData+22);
                     return ERR_OK;
                 }
 

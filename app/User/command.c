@@ -265,14 +265,14 @@ void Inquiry_alldata(void)   //查询所有数据
     ALLdata[18] = Terminal_ID[2];
     ALLdata[19] = Terminal_ID[3];
     ALLdata[20] = LedVersion&0xFF;
+		ALLdata[21] = *((uint8_t *)0x1000);
+    ALLdata[22] = (resetNum>>24)&0xFF;
+    ALLdata[23] = (resetNum>>16)&0xFF;
+    ALLdata[24] = (resetNum>>8)&0xFF;
+    ALLdata[25] = resetNum&0xFF;
+		
 
-    ALLdata[21] = (resetNum>>24)&0xFF;
-    ALLdata[22] = (resetNum>>16)&0xFF;
-    ALLdata[23] = (resetNum>>8)&0xFF;
-    ALLdata[24] = resetNum&0xFF;
-
-
-    ResponseMsg(CMD_QUERY_ALL,ERR_OK,ALLdata,25);
+    ResponseMsg(CMD_QUERY_ALL,ERR_OK,ALLdata,26);
 
 }
 

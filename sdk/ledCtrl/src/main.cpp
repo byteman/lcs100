@@ -86,8 +86,8 @@ bool testReadAll()
     
 
 	printf("KW=%d\r\n",Light.kw);
-	printf("version=%d\r\n",Light.ver);
-
+	printf("appVersion=%d\r\n",Light.appVer);
+	printf("bootVersion=%d\r\n",Light.bootVer);
 
     //printf("zigbee addr=%d\r\n",cfg->address);
     

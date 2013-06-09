@@ -100,7 +100,8 @@ typedef struct
     int defBright;  //默认的调光值
     int group; //设备所在的组
     int adjustTime; //调光时间
-    int ver;    //单灯的版本号
+    int appVer;    //单灯的应用程序版本号
+	int bootVer;	//单灯的bootloader版本号
     int devId; //设备编号
     int resetCnt; //复位次数
     TZigbeeCfg zigbeeCfg;
